@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+repo=${DOOGAL_REPO:-'.'}
+
+pushd $repo
+if [ -e data.zip ]; then
+    if [ -d data.bak ]; then
+        rm -Rv data.bak
+    fi
+    if [ -d data ]; then
+        mv -v data data.bak
+        unzip data.zip
+        echo "diffing..."
+        diff -Nrx "*~" data.bak data
+    else
+        unzip data.zip
+    fi
+fi
+popd

@@ -1,0 +1,9 @@
+$ find $DOOGAL_REPO/data -name "*.txt" -exec file {} \; | grep -v ASCII
+
+(defun run-doogal ()
+  "Run an inferior Doogal process, input and output via buffer *doogal*."
+  (interactive)
+  (remove-hook 'kill-buffer-query-functions
+               'server-kill-buffer-query-function)
+  (require 'comint)
+  (switch-to-buffer (make-comint "doogal" "doogal")))

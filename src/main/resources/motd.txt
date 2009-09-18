@@ -1,0 +1,3 @@
+Welcome to Doogle
+type "help" for commands
+press ENTER for next page
