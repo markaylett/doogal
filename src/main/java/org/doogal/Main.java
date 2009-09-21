@@ -1,5 +1,9 @@
 package org.doogal;
 
+import static org.doogal.Utility.eachLine;
+import static org.doogal.Utility.printResource;
+import static org.doogal.Utility.prompt;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
-import static org.doogal.Utility.*;
 
 public final class Main implements Interpreter {
 	private final Session session;
@@ -69,8 +71,8 @@ public final class Main implements Interpreter {
 	Main(Session session) throws IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
 		this.session = session;
-		this.commands = new TreeMap<String, Command>();
-		this.maxNames = new int[Type.values().length];
+		commands = new TreeMap<String, Command>();
+		maxNames = new int[Type.values().length];
 		final Method[] methods = Session.class.getMethods();
 		for (int i = 0; i < methods.length; ++i) {
 			final Method method = methods[i];

@@ -26,8 +26,8 @@ final class SharedState {
 		this.repo = repo;
 		this.identityMap = identityMap;
 		this.recent = recent;
-		this.searcher = new IndexSearcher(repo.getIndex().getAbsolutePath());
-		this.refs = 1;
+		searcher = new IndexSearcher(repo.getIndex().getAbsolutePath());
+		refs = 1;
 	}
 
 	final String getEditor() {
@@ -38,8 +38,12 @@ final class SharedState {
 		return env.getRepo();
 	}
 
-	final String getInbox() {
-		return env.getInbox();
+	final String getIncoming() {
+		return env.getIncoming();
+	}
+
+	final String getOutgoing() {
+		return env.getOutgoing();
 	}
 
 	final String getTemplate() {

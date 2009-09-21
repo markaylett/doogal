@@ -1,11 +1,14 @@
 package org.doogal;
 
+import static org.doogal.Utility.firstFile;
+import static org.doogal.Utility.getId;
+
 import java.io.File;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import static org.doogal.Utility.*;
 
 final class Open {
 

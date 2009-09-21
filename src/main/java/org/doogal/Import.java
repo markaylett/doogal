@@ -1,6 +1,11 @@
 package org.doogal;
 
-import static org.doogal.Utility.*;
+import static org.doogal.Utility.getId;
+import static org.doogal.Utility.ignore;
+import static org.doogal.Utility.listFiles;
+import static org.doogal.Utility.newId;
+import static org.doogal.Utility.renameFile;
+import static org.doogal.Utility.subdir;
 
 import java.io.File;
 
@@ -24,7 +29,7 @@ final class Import {
 				new StandardAnalyzer(), false,
 				IndexWriter.MaxFieldLength.LIMITED);
 		try {
-			listFiles(new File(state.getInbox()), new Predicate<File>() {
+			listFiles(new File(state.getIncoming()), new Predicate<File>() {
 				public final boolean call(File file) {
 					if (ignore(file))
 						return true;

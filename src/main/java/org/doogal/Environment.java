@@ -1,12 +1,12 @@
 package org.doogal;
 
 import static org.doogal.Constants.DEFAULT_EDITOR;
+import static org.doogal.Utility.getPath;
+
 import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
-import static org.doogal.Utility.*;
 
 final class Environment {
 	private static interface Accessor {
@@ -21,7 +21,8 @@ final class Environment {
 	private String editor;
 	private String repo;
 	private String template;
-	private String inbox;
+	private String incoming;
+	private String outgoing;
 
 	private static String defaultEditor() {
 		final String s = System.getenv("EDITOR");
@@ -37,8 +38,12 @@ final class Environment {
 		return s;
 	}
 
-	private final String defaultInbox() {
-		return getPath(repo, "inbox");
+	private final String defaultIncoming() {
+		return getPath(repo, "incoming");
+	}
+
+	private final String defaultOutgoing() {
+		return getPath(repo, "outgoing");
 	}
 
 	private final String defaultTemplate() {
@@ -46,13 +51,14 @@ final class Environment {
 	}
 
 	Environment() {
-		this.env = new TreeMap<String, Accessor>();
-		this.editor = defaultEditor();
-		this.repo = defaultRepo();
-		this.template = null;
-		this.inbox = null;
+		env = new TreeMap<String, Accessor>();
+		editor = defaultEditor();
+		repo = defaultRepo();
+		template = null;
+		incoming = null;
+		outgoing = null;
 
-		this.env.put("editor", new Accessor() {
+		env.put("editor", new Accessor() {
 
 			public final Object get() {
 				return getEditor();
@@ -66,7 +72,7 @@ final class Environment {
 				editor = value.toString();
 			}
 		});
-		this.env.put("repo", new Accessor() {
+		env.put("repo", new Accessor() {
 
 			public final Object get() {
 				return getRepo();
@@ -82,21 +88,35 @@ final class Environment {
 				throw new ResetException();
 			}
 		});
-		this.env.put("inbox", new Accessor() {
+		env.put("incoming", new Accessor() {
 
 			public final Object get() {
-				return getInbox();
+				return getIncoming();
 			}
 
 			public final void reset() throws ResetException {
-				inbox = null;
+				incoming = null;
 			}
 
 			public final void set(Object value) throws ResetException {
-				inbox = value.toString();
+				incoming = value.toString();
 			}
 		});
-		this.env.put("template", new Accessor() {
+		env.put("outgoing", new Accessor() {
+
+			public final Object get() {
+				return getIncoming();
+			}
+
+			public final void reset() throws ResetException {
+				incoming = null;
+			}
+
+			public final void set(Object value) throws ResetException {
+				incoming = value.toString();
+			}
+		});
+		env.put("template", new Accessor() {
 
 			public final Object get() {
 				return getTemplate();
@@ -142,8 +162,12 @@ final class Environment {
 		return repo;
 	}
 
-	final String getInbox() {
-		return null == inbox ? defaultInbox() : inbox;
+	final String getIncoming() {
+		return null == incoming ? defaultIncoming() : incoming;
+	}
+
+	final String getOutgoing() {
+		return null == outgoing ? defaultOutgoing() : outgoing;
 	}
 
 	final String getTemplate() {

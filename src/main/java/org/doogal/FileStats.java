@@ -10,8 +10,8 @@ final class FileStats {
 	FileStats(File file) {
 		// Works for non-existent files.
 		this.file = file;
-		this.lastModified = file.lastModified();
-		this.length = file.length();
+		lastModified = file.lastModified();
+		length = file.length();
 	}
 
 	final boolean hasFileChanged() {

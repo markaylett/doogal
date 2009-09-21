@@ -1,5 +1,7 @@
 package org.doogal;
 
+import static org.doogal.Utility.newBufferedReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -8,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.internet.ParseException;
-
-import static org.doogal.Utility.*;
 
 final class Shellwords {
 	private final StreamTokenizer tokeniser;
@@ -39,8 +39,8 @@ final class Shellwords {
 	}
 
 	Shellwords(Reader reader) {
-		this.tokeniser = newTokenizer(reader);
-		this.eof = false;
+		tokeniser = newTokenizer(reader);
+		eof = false;
 	}
 
 	final List<Object> readLine() throws ExitException, IOException,

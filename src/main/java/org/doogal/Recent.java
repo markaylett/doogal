@@ -1,5 +1,7 @@
 package org.doogal;
 
+import static org.doogal.Constants.PAGE_SIZE;
+
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,13 +10,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 
-import static org.doogal.Constants.*;
-
 final class Recent {
 	final List<Integer> list;
 
 	Recent() {
-		this.list = new LinkedList<Integer>();
+		list = new LinkedList<Integer>();
 	}
 
 	final void add(int id) {

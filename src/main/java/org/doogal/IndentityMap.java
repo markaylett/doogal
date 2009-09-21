@@ -16,9 +16,9 @@ final class IdentityMap {
 	}
 
 	IdentityMap() {
-		this.globalToLocal = new HashMap<String, Integer>();
-		this.localToGlobal = new HashMap<Integer, String>();
-		this.next = 1;
+		globalToLocal = new HashMap<String, Integer>();
+		localToGlobal = new HashMap<Integer, String>();
+		next = 1;
 	}
 
 	final int getLocal(String uuid) {

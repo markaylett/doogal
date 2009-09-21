@@ -1,10 +1,12 @@
 package org.doogal;
 
+import static org.doogal.Utility.ignore;
+import static org.doogal.Utility.listFiles;
+
 import java.io.File;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
-
-import static org.doogal.Utility.*;
 
 final class Index {
 

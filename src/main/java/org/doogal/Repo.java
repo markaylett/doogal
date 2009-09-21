@@ -56,11 +56,11 @@ final class Repo {
 	}
 
 	Repo(String path) {
-		this.root = new File(path);
-		this.data = new File(root, "data");
-		this.etc = new File(root, "etc");
-		this.index = new File(root, "index");
-		this.trash = new File(root, "trash");
+		root = new File(path);
+		data = new File(root, "data");
+		etc = new File(root, "etc");
+		index = new File(root, "index");
+		trash = new File(root, "trash");
 	}
 
 	final void init() throws FileNotFoundException {

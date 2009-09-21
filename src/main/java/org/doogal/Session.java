@@ -1,5 +1,7 @@
 package org.doogal;
 
+import static org.doogal.Utility.join;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +24,6 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
-
-import static org.doogal.Utility.*;
 
 final class Session {
 	private static final String[] FIELDS = { "subject", "title", "contents" };
@@ -123,9 +123,9 @@ final class Session {
 			IdentityException, IOException {
 		this.env = env;
 		this.repo = repo;
-		this.identityMap = new IdentityMap();
-		this.recent = new Recent();
-		this.state = null;
+		identityMap = new IdentityMap();
+		recent = new Recent();
+		state = null;
 		// Avoid null pager.
 		setPager(new Pager(ListResults.EMPTY));
 	}
@@ -203,6 +203,26 @@ final class Session {
 			public final void exec(Object... args) throws Exception {
 				for (final Object arg : args)
 					Delete.exec(state, getTerm(arg.toString()));
+			}
+		};
+	}
+
+	@Builtin("export")
+	public final Command newExport() {
+		return new AbstractBuiltin() {
+			public final String getDescription() {
+				return "export document";
+			}
+
+			@SuppressWarnings("unused")
+			public final void exec(String format) throws Exception {
+				Export.exec(state, format, getTerm());
+			}
+
+			@SuppressWarnings("unused")
+			@Synopsis("export format [doc]")
+			public final void exec(String format, String s) throws Exception {
+				Export.exec(state, format, getTerm(s));
 			}
 		};
 	}

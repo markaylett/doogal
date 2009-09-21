@@ -1,6 +1,8 @@
 package org.doogal;
 
-import static org.doogal.Utility.*;
+import static org.doogal.Utility.getRelativePath;
+import static org.doogal.Utility.ignore;
+import static org.doogal.Utility.listFiles;
 
 import java.io.File;
 import java.io.FileInputStream;

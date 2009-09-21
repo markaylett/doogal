@@ -1,5 +1,9 @@
 package org.doogal;
 
+import static org.doogal.Utility.getId;
+import static org.doogal.Utility.getRelativePath;
+import static org.doogal.Utility.isEmpty;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.HeaderTokenizer;
@@ -20,8 +25,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-
-import static org.doogal.Utility.*;
 
 final class Rfc822 {
 

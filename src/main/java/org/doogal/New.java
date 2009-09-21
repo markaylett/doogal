@@ -1,10 +1,13 @@
 package org.doogal;
 
+import static org.doogal.Utility.copyFile;
+import static org.doogal.Utility.newId;
+import static org.doogal.Utility.subdir;
+
 import java.io.File;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
-
-import static org.doogal.Utility.*;
 
 final class New {
 

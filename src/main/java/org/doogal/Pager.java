@@ -1,9 +1,9 @@
 package org.doogal;
 
+import static org.doogal.Constants.PAGE_SIZE;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import static org.doogal.Constants.*;
 
 final class Pager {
 	private final Results results;
@@ -12,8 +12,8 @@ final class Pager {
 
 	Pager(Results results) throws IOException {
 		this.results = results;
-		this.start = 0;
-		this.end = Math.min(results.size(), start + PAGE_SIZE);
+		start = 0;
+		end = Math.min(results.size(), start + PAGE_SIZE);
 	}
 
 	public final void close() throws IOException {

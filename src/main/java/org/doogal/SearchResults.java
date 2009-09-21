@@ -1,5 +1,7 @@
 package org.doogal;
 
+import static org.doogal.Constants.PAGE_SIZE;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -7,8 +9,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocCollector;
-
-import static org.doogal.Constants.*;
 
 final class SearchResults implements Results {
 
@@ -28,7 +28,7 @@ final class SearchResults implements Results {
 		this.state = state;
 		this.query = query;
 		// Collect first page.
-		this.totalHits = Math.min(fetch(PAGE_SIZE), Constants.PAGE_SIZE
+		totalHits = Math.min(fetch(PAGE_SIZE), Constants.PAGE_SIZE
 				* Constants.MAX_PAGE);
 		state.retain();
 	}
