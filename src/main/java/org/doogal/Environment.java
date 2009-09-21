@@ -105,15 +105,15 @@ final class Environment {
 		env.put("outgoing", new Accessor() {
 
 			public final Object get() {
-				return getIncoming();
+				return getOutgoing();
 			}
 
 			public final void reset() throws ResetException {
-				incoming = null;
+				outgoing = null;
 			}
 
 			public final void set(Object value) throws ResetException {
-				incoming = value.toString();
+				outgoing = value.toString();
 			}
 		});
 		env.put("template", new Accessor() {

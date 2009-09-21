@@ -73,7 +73,8 @@ final class Repo {
 
 		initConfig();
 
-		new File(root, "inbox").mkdir();
+		new File(root, "incoming").mkdir();
+		new File(root, "outgoing").mkdir();
 
 		final File dir = new File(root, "template");
 		dir.mkdir();

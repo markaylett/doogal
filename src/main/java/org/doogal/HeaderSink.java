@@ -1,4 +1,6 @@
 package org.doogal;
+import javax.mail.internet.InternetHeaders;
+
 import org.apache.maven.doxia.logging.Log;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkEventAttributes;
@@ -25,9 +27,11 @@ import org.apache.maven.doxia.sink.SinkEventAttributes;
 
 final class HeaderSink implements Sink {
 
+	private final InternetHeaders header;
 	private final Sink sink;
 
-	HeaderSink(Sink sink) {
+	HeaderSink(InternetHeaders header, Sink sink) {
+		this.header = header;
 		this.sink = sink;
 	}
 

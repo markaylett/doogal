@@ -129,6 +129,10 @@ final class Utility {
 		return UUID.randomUUID().toString();
 	}
 
+	static File getPath(File dir, Document doc) {
+		return new File(dir, doc.get("path"));
+	}
+	
 	static String getId(File file) {
 		final String name = file.getName();
 		final int n = name.lastIndexOf('.');
@@ -171,6 +175,21 @@ final class Utility {
 		return true;
 	}
 
+	static boolean listDocuments(IndexReader reader, Term term,
+			Predicate<Document> pred) throws Exception {
+		final TermDocs docs = reader.termDocs(term);
+		try {
+			while (docs.next()) {
+				final Document doc = reader.document(docs.doc());
+				if (!pred.call(doc))
+					return false;
+			}
+		} finally {
+			docs.close();
+		}
+		return true;
+	}
+	
 	static boolean listFiles(IndexReader reader, File dir, Term term,
 			Predicate<File> pred) throws Exception {
 		final TermDocs docs = reader.termDocs(term);
@@ -184,6 +203,12 @@ final class Utility {
 			docs.close();
 		}
 		return true;
+	}
+
+	static Document firstDocument(IndexReader reader, Term term) throws Exception {
+		final FirstPredicate<Document> pred = new FirstPredicate<Document>();
+		listDocuments(reader, term, pred);
+		return pred.first;
 	}
 
 	static File firstFile(IndexReader reader, File dir, Term term)

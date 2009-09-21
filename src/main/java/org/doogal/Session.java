@@ -211,18 +211,24 @@ final class Session {
 	public final Command newExport() {
 		return new AbstractBuiltin() {
 			public final String getDescription() {
-				return "export document";
+				return "export to outgoing";
 			}
 
 			@SuppressWarnings("unused")
-			public final void exec(String format) throws Exception {
-				Export.exec(state, format, getTerm());
+			public final void exec() throws Exception {
+				Export.exec(state, getTerm());
 			}
 
 			@SuppressWarnings("unused")
-			@Synopsis("export format [doc]")
-			public final void exec(String format, String s) throws Exception {
-				Export.exec(state, format, getTerm(s));
+			public final void exec(String s) throws Exception {
+				Export.exec(state, getTerm(s));
+			}
+			
+			@SuppressWarnings("unused")
+			@Synopsis("export [doc...]")
+			public final void exec(Object... args) throws Exception {
+				for (final Object arg : args)
+					Export.exec(state, getTerm(arg.toString()));
 			}
 		};
 	}
@@ -247,7 +253,7 @@ final class Session {
 	public final Command newImport() {
 		return new AbstractBuiltin() {
 			public final String getDescription() {
-				return "import from inbox";
+				return "import from incoming";
 			}
 
 			@SuppressWarnings("unused")
