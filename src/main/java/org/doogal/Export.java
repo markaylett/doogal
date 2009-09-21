@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Date;
+
 import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetHeaders;
 
@@ -21,8 +23,27 @@ import org.apache.maven.doxia.sink.SinkFactory;
 
 final class Export {
 
-	static void convert(SharedState state, InternetHeaders header,
-			Reader contents, String outName) throws IOException, ParseException {
+	private static String getFirst(InternetHeaders header, String name) {
+		final String[] values = header.getHeader(name);
+		return null == values || 0 == values.length ? null : values[0];
+	}
+
+	private static String getTitle(InternetHeaders header, File file) {
+		String s = getFirst(header, "Title");
+		if (null == s) {
+			s = getFirst(header, "Subject");
+			if (null == s) {
+				s = getFirst(header, "Name");
+				if (null == s)
+					getId(file);
+			}
+		}
+		return s;
+	}
+
+	private static void convert(SharedState state, String title,
+			String[] authors, Date date, Reader contents, String outName)
+			throws IOException, ParseException {
 
 		final Parser parser = new AptParser();
 
@@ -30,7 +51,7 @@ final class Export {
 		final Sink sink = sinkFactory.createSink(new File(state.getOutgoing()),
 				outName);
 		try {
-			parser.parse(contents, new HeaderSink(header, sink));
+			parser.parse(contents, new HeaderSink(title, authors, date, sink));
 		} finally {
 			sink.close();
 		}
@@ -48,24 +69,30 @@ final class Export {
 		final InputStream is = new FileInputStream(file);
 		try {
 
-			final InternetHeaders header = new InternetHeaders(is);
-			final String[] types = header.getHeader("Content-Type");
-
 			String inFormat = null;
-			if (null != types && 0 < types.length) {
-				final ContentType type = new ContentType(types[0]);
-				if ("text".equalsIgnoreCase(type.getPrimaryType()))
-					inFormat = type.getSubType().toLowerCase();
+
+			final InternetHeaders header = new InternetHeaders(is);
+			final String type = getFirst(header, "Content-Type");
+			if (null != type) {
+				final ContentType ct = new ContentType(type);
+				if ("text".equalsIgnoreCase(ct.getPrimaryType()))
+					inFormat = ct.getSubType().toLowerCase();
 			}
 
-			copyFile(file, new File(state.getOutgoing(), file.getName()));
+			final String title = getTitle(header, file);
+			final String name = toName(title);
+
 			if ("wiki".equalsIgnoreCase(inFormat)) {
 				final Reader contents = newBufferedReader(is);
-				convert(state, header, contents, getId(file) + ".html");
-			}
+				convert(state, getTitle(header, file), header
+						.getHeader("author"), new Date(file.lastModified()),
+						contents, name + ".html");
+			} else
+				copyFile(file, new File(state.getOutgoing(), name + ".txt"));
 
 		} finally {
 			is.close();
 		}
+		state.addRecent(state.getLocal(getId(file)));
 	}
 }

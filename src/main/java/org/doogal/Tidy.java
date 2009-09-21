@@ -84,8 +84,4 @@ final class Tidy {
 		}
 		state.addRecent(state.getLocal(id));
 	}
-
-	public static void main(String[] args) throws IOException {
-		tidy(new File("C:/tmp/in.txt"), new File("C:/tmp/out.txt"));
-	}
 }

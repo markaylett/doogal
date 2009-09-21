@@ -239,6 +239,25 @@ final class Utility {
 		return append(file, 2, cal.get(Calendar.DAY_OF_MONTH));
 	}
 
+	static String toName(String s) {
+		final StringBuilder sb = new StringBuilder();
+		final int len = s.length();
+		boolean ws = false;
+		for (int i = 0; i < len; ++i) {
+			final char ch = s.charAt(i);
+			if (Character.isLetterOrDigit(ch)) {
+				sb.append(Character.toLowerCase(ch));
+				ws = false;
+			} else if ('_' == ch || Character.isWhitespace(ch)) {
+				if (!ws) {
+					sb.append('_');
+					ws = true;
+				}
+			}
+		}
+		return sb.toString();
+	}
+	
 	static String toString(int id, Document doc) {
 
 		String modified = doc.get("modified");

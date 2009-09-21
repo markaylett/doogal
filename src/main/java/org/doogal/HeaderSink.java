@@ -1,5 +1,7 @@
 package org.doogal;
-import javax.mail.internet.InternetHeaders;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.maven.doxia.logging.Log;
 import org.apache.maven.doxia.sink.Sink;
@@ -27,11 +29,17 @@ import org.apache.maven.doxia.sink.SinkEventAttributes;
 
 final class HeaderSink implements Sink {
 
-	private final InternetHeaders header;
+	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+	private final String title;
+	private final String[] authors;
+	private final Date date;
 	private final Sink sink;
 
-	HeaderSink(InternetHeaders header, Sink sink) {
-		this.header = header;
+	HeaderSink(String title, String[] authors, Date date, Sink sink) {
+		this.title = title;
+		this.authors = authors;
+		this.date = date;
 		this.sink = sink;
 	}
 
@@ -194,21 +202,25 @@ final class HeaderSink implements Sink {
 	public final void head() {
 		sink.head();
 
-		sink.title();
-		sink.text("Test Title");
-		sink.title_();
+		if (null != title) {
+			sink.title();
+			sink.text(title);
+			sink.title_();
+		}
 
-		sink.author();
-		sink.text("Toby Aylett");
-		sink.author_();
-
-		sink.author();
-		sink.text("Emily Aylett");
-		sink.author_();
+		if (null != authors) {
+			for (int i = 0; i < authors.length; ++i) {
+				sink.author();
+				sink.text(authors[i]);
+				sink.author_();
+			}
+		}
 		
-		sink.date();
-		sink.text("19-Sep-09");
-		sink.date_();
+		if (null != date) {
+			sink.date();
+			sink.text(df.format(date));
+			sink.date_();
+		}
 	}
 
 	public final void head(SinkEventAttributes attributes) {
