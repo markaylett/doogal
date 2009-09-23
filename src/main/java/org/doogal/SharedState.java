@@ -78,11 +78,11 @@ final class SharedState {
         return identityMap.getGlobal(uuid);
     }
 
-    final void addRecent(int id) {
+    final void addRecent(String id) {
         recent.add(id);
     }
 
-    final void removeRecent(int id) {
+    final void removeRecent(String id) {
         recent.remove(id);
     }
 

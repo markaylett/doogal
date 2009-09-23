@@ -20,7 +20,7 @@ final class Delete {
                 final File trash = new File(state.getTrash(), file.getName());
                 trash.delete();
                 renameFile(file, trash);
-                state.removeRecent(state.getLocal(getId(file)));
+                state.removeRecent(getId(file));
                 return true;
             }
         });

@@ -35,8 +35,9 @@ final class Import {
                         return true;
                     try {
                         file = importFile(state, file);
-                        final int id = state.getLocal(getId(file));
-                        System.out.printf("indexing document %d...\n", id);
+                        final String id = getId(file);
+                        final int lid = state.getLocal(getId(file));
+                        System.out.printf("indexing document %d...\n", lid);
                         Rfc822.addDocument(writer, state.getData(), file);
                         state.addRecent(id);
                     } catch (final Exception e) {

@@ -51,7 +51,7 @@ final class New {
             writer.optimize();
             writer.close();
         }
-        state.addRecent(lid);
+        state.addRecent(id);
     }
 
     static void exec(SharedState state) throws Exception {

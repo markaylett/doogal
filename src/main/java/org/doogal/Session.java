@@ -3,10 +3,8 @@ package org.doogal;
 import static org.doogal.Utility.join;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,26 +39,29 @@ final class Session {
     }
 
     private final Term getTerm() throws IdentityException {
-        final int id = recent.top();
-        return new Term("id", identityMap.getGlobal(id));
+        final String id = recent.top();
+        if (null == id)
+            throw new IdentityException("no such identifier");
+        return new Term("id", id);
     }
 
     private final Pager browse() throws IOException {
 
         final int max = state.maxDoc();
         final int n = Math.min(state.numDocs(), Constants.MAX_RESULTS);
-        final List<String> ls = new ArrayList<String>();
+        final IdentityResults results = new IdentityResults();
 
         int i = Math.abs(RAND.nextInt(max));
-        while (ls.size() < n) {
+        while (results.size() < n) {
             final int j = i++ % max;
             if (!state.isDeleted(j)) {
                 final Document doc = state.doc(j);
-                final int id = state.getLocal(doc.get("id"));
-                ls.add(Utility.toString(id, doc));
+                final String id = doc.get("id");
+                final int lid = state.getLocal(id);
+                results.add(id, Utility.toString(lid, doc));
             }
         }
-        return new Pager(new ListResults(ls));
+        return new Pager(results);
     }
 
     @SuppressWarnings("unchecked")
@@ -225,15 +226,31 @@ final class Session {
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 System.out.println("exporting...");
-                Export.exec(state, getTerm(s));
+                if ("*".equals(s)) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Export.exec(state, term);
+                } else
+                    Export.exec(state, getTerm(s));
             }
 
             @SuppressWarnings("unused")
             @Synopsis("export [doc...]")
             public final void exec(Object... args) throws Exception {
                 System.out.println("exporting...");
-                for (final Object arg : args)
-                    Export.exec(state, getTerm(arg.toString()));
+                boolean glob = false;
+                for (final Object arg : args) {
+                    final String s = arg.toString();
+                    if ("*".equals(s))
+                        glob = true;
+                    else
+                        Export.exec(state, getTerm(arg.toString()));
+                }
+                if (glob) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Export.exec(state, term);
+                }
             }
         };
     }
@@ -444,8 +461,7 @@ final class Session {
             @Synopsis("recent")
             public final void exec() throws CorruptIndexException,
                     IdentityException, IOException {
-                final String[] arr = recent.toArray(state);
-                setPager(new Pager(new ArrayResults(arr)));
+                setPager(new Pager(recent.asResults(state)));
                 pager.execList();
             }
         };

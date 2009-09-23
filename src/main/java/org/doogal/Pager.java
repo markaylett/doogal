@@ -3,7 +3,9 @@ package org.doogal;
 import static org.doogal.Constants.PAGE_SIZE;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Collection;
+
+import org.apache.lucene.index.Term;
 
 final class Pager {
     private final Results results;
@@ -16,11 +18,15 @@ final class Pager {
         end = Math.min(results.size(), start + PAGE_SIZE);
     }
 
-    public final void close() throws IOException {
+    final void close() throws IOException {
         results.close();
     }
 
-    public final void execGoto(String n) throws IOException {
+    final Collection<Term> terms() throws IOException {
+        return results.terms();
+    }
+
+    final void execGoto(String n) throws IOException {
         final int i = Math.max(Integer.valueOf(n) - 1, 0);
         if (i * PAGE_SIZE < results.size())
             start = i * PAGE_SIZE;
@@ -28,7 +34,7 @@ final class Pager {
             System.err.println("no such page");
     }
 
-    public final void execList() throws IOException {
+    final void execList() throws IOException {
 
         end = Math.min(results.size(), start + PAGE_SIZE);
 
@@ -42,23 +48,25 @@ final class Pager {
         } else
             System.out.println("no results");
 
-        final PrintWriter out = new PrintWriter(System.out);
-        try {
-            for (int i = start; i < end; i++)
-                results.print(out, i);
-        } finally {
-            out.flush();
+        for (int i = start; i < end; i++) {
+
+            final String s = results.get(i);
+            if (0 == s.length())
+                System.out.println();
+            else
+                System.out.println(" " + s);
         }
+
         if (null != prompt)
             System.out.println(prompt);
     }
 
-    public final void execNext() throws IOException {
+    final void execNext() throws IOException {
         if (start + PAGE_SIZE < results.size())
             start += PAGE_SIZE;
     }
 
-    public final void execPrev() throws IOException {
+    final void execPrev() throws IOException {
         start = Math.max(0, start - PAGE_SIZE);
     }
 }

@@ -1,12 +1,16 @@
 package org.doogal;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Collection;
+
+import org.apache.lucene.index.Term;
 
 interface Results {
     void close() throws IOException;
 
-    void print(PrintWriter out, int i) throws IOException;
+    String get(int i) throws IOException;
+
+    Collection<Term> terms() throws IOException;
 
     int size();
 }

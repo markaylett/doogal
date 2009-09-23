@@ -102,6 +102,6 @@ final class Export {
         } finally {
             is.close();
         }
-        state.addRecent(state.getLocal(id));
+        state.addRecent(id);
     }
 }

@@ -82,6 +82,6 @@ final class Tidy {
             writer.optimize();
             writer.close();
         }
-        state.addRecent(state.getLocal(id));
+        state.addRecent(id);
     }
 }

@@ -45,6 +45,6 @@ final class Open {
                 writer.close();
             }
         }
-        state.addRecent(state.getLocal(id));
+        state.addRecent(id);
     }
 }

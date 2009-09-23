@@ -3,9 +3,12 @@ package org.doogal;
 import static org.doogal.Constants.PAGE_SIZE;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocCollector;
@@ -36,7 +39,7 @@ final class SearchResults implements Results {
         state.release();
     }
 
-    public final void print(PrintWriter out, int i) throws IOException {
+    public final String get(int i) throws IOException {
 
         if (hits.length <= i) {
             System.out.println("fetching documents...");
@@ -45,7 +48,20 @@ final class SearchResults implements Results {
 
         final Document doc = state.doc(hits[i].doc);
         final int id = state.getLocal(doc.get("id"));
-        out.println(Utility.toString(id, doc));
+        return Utility.toString(id, doc);
+    }
+
+    public final Collection<Term> terms() throws IOException {
+        if (hits.length < totalHits) {
+            System.out.println("fetching documents...");
+            fetch(totalHits);
+        }
+        final List<Term> ls = new ArrayList<Term>();
+        for (int i = 0; i < hits.length; ++i) {
+            final Document doc = state.doc(hits[i].doc);
+            ls.add(new Term("id", doc.get("id")));
+        }
+        return ls;
     }
 
     public final int size() {

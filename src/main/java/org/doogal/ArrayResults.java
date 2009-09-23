@@ -1,7 +1,10 @@
 package org.doogal;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Collections;
+
+import org.apache.lucene.index.Term;
 
 final class ArrayResults implements Results {
 
@@ -14,12 +17,12 @@ final class ArrayResults implements Results {
     public final void close() throws IOException {
     }
 
-    public final void print(PrintWriter out, int i) throws IOException {
-        final String s = arr[i];
-        if (0 == s.length())
-            out.println();
-        else
-            out.println(" " + s);
+    public final String get(int i) throws IOException {
+        return arr[i];
+    }
+
+    public final Collection<Term> terms() {
+        return Collections.<Term> emptyList();
     }
 
     public final int size() {
