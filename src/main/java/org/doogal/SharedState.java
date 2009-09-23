@@ -13,117 +13,117 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
 final class SharedState {
-	private final Environment env;
-	private final Repo repo;
-	private final IdentityMap identityMap;
-	private final Recent recent;
-	private final IndexSearcher searcher;
-	private int refs;
+    private final Environment env;
+    private final Repo repo;
+    private final IdentityMap identityMap;
+    private final Recent recent;
+    private final IndexSearcher searcher;
+    private int refs;
 
-	SharedState(Environment env, Repo repo, IdentityMap identityMap,
-			Recent recent) throws CorruptIndexException, IOException {
-		this.env = env;
-		this.repo = repo;
-		this.identityMap = identityMap;
-		this.recent = recent;
-		searcher = new IndexSearcher(repo.getIndex().getAbsolutePath());
-		refs = 1;
-	}
+    SharedState(Environment env, Repo repo, IdentityMap identityMap,
+            Recent recent) throws CorruptIndexException, IOException {
+        this.env = env;
+        this.repo = repo;
+        this.identityMap = identityMap;
+        this.recent = recent;
+        searcher = new IndexSearcher(repo.getIndex().getAbsolutePath());
+        refs = 1;
+    }
 
-	final String getEditor() {
-		return env.getEditor();
-	}
+    final String getEditor() {
+        return env.getEditor();
+    }
 
-	final String getRepo() {
-		return env.getRepo();
-	}
+    final String getRepo() {
+        return env.getRepo();
+    }
 
-	final String getIncoming() {
-		return env.getIncoming();
-	}
+    final String getIncoming() {
+        return env.getIncoming();
+    }
 
-	final String getOutgoing() {
-		return env.getOutgoing();
-	}
+    final String getOutgoing() {
+        return env.getOutgoing();
+    }
 
-	final String getTemplate() {
-		return env.getTemplate();
-	}
+    final String getTemplate() {
+        return env.getTemplate();
+    }
 
-	final File getData() {
-		return repo.getData();
-	}
+    final File getData() {
+        return repo.getData();
+    }
 
-	final File getEtc() {
-		return repo.getEtc();
-	}
+    final File getEtc() {
+        return repo.getEtc();
+    }
 
-	final File getIndex() {
-		return repo.getIndex();
-	}
+    final File getIndex() {
+        return repo.getIndex();
+    }
 
-	final File getTrash() {
-		return repo.getTrash();
-	}
+    final File getTrash() {
+        return repo.getTrash();
+    }
 
-	final int getLocal(String uuid) {
-		return identityMap.getLocal(uuid);
-	}
+    final int getLocal(String uuid) {
+        return identityMap.getLocal(uuid);
+    }
 
-	final String getGlobal(int local) throws IdentityException {
-		return identityMap.getGlobal(local);
-	}
+    final String getGlobal(int local) throws IdentityException {
+        return identityMap.getGlobal(local);
+    }
 
-	final String getGlobal(String uuid) throws IdentityException {
-		return identityMap.getGlobal(uuid);
-	}
+    final String getGlobal(String uuid) throws IdentityException {
+        return identityMap.getGlobal(uuid);
+    }
 
-	final void addRecent(int id) {
-		recent.add(id);
-	}
+    final void addRecent(int id) {
+        recent.add(id);
+    }
 
-	final void removeRecent(int id) {
-		recent.remove(id);
-	}
+    final void removeRecent(int id) {
+        recent.remove(id);
+    }
 
-	final IndexReader getIndexReader() {
-		return searcher.getIndexReader();
-	}
+    final IndexReader getIndexReader() {
+        return searcher.getIndexReader();
+    }
 
-	final void search(Query query, HitCollector results) throws IOException {
-		searcher.search(query, results);
-	}
+    final void search(Query query, HitCollector results) throws IOException {
+        searcher.search(query, results);
+    }
 
-	final TermDocs termDocs(Term term) throws IOException {
-		return searcher.getIndexReader().termDocs(term);
-	}
+    final TermDocs termDocs(Term term) throws IOException {
+        return searcher.getIndexReader().termDocs(term);
+    }
 
-	final Document doc(int i) throws CorruptIndexException, IOException {
-		return searcher.doc(i);
-	}
+    final Document doc(int i) throws CorruptIndexException, IOException {
+        return searcher.doc(i);
+    }
 
-	final boolean isCurrent() throws CorruptIndexException, IOException {
-		return searcher.getIndexReader().isCurrent();
-	}
+    final boolean isCurrent() throws CorruptIndexException, IOException {
+        return searcher.getIndexReader().isCurrent();
+    }
 
-	final boolean isDeleted(int n) {
-		return searcher.getIndexReader().isDeleted(n);
-	}
+    final boolean isDeleted(int n) {
+        return searcher.getIndexReader().isDeleted(n);
+    }
 
-	final int maxDoc() {
-		return searcher.getIndexReader().maxDoc();
-	}
+    final int maxDoc() {
+        return searcher.getIndexReader().maxDoc();
+    }
 
-	final int numDocs() {
-		return searcher.getIndexReader().numDocs();
-	}
+    final int numDocs() {
+        return searcher.getIndexReader().numDocs();
+    }
 
-	final void release() throws IOException {
-		if (0 == --refs)
-			searcher.close();
-	}
+    final void release() throws IOException {
+        if (0 == --refs)
+            searcher.close();
+    }
 
-	final void retain() {
-		++refs;
-	}
+    final void retain() {
+        ++refs;
+    }
 }

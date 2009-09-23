@@ -12,44 +12,43 @@ import org.apache.lucene.search.TopDocCollector;
 
 final class SearchResults implements Results {
 
-	private final SharedState state;
-	private final Query query;
-	private final int totalHits;
-	private ScoreDoc[] hits;
+    private final SharedState state;
+    private final Query query;
+    private final int totalHits;
+    private ScoreDoc[] hits;
 
-	private final int fetch(int numHits) throws IOException {
-		final TopDocCollector collector = new TopDocCollector(numHits);
-		state.search(query, collector);
-		hits = collector.topDocs().scoreDocs;
-		return collector.getTotalHits();
-	}
+    private final int fetch(int numHits) throws IOException {
+        final TopDocCollector collector = new TopDocCollector(numHits);
+        state.search(query, collector);
+        hits = collector.topDocs().scoreDocs;
+        return collector.getTotalHits();
+    }
 
-	SearchResults(SharedState state, Query query) throws IOException {
-		this.state = state;
-		this.query = query;
-		// Collect first page.
-		totalHits = Math.min(fetch(PAGE_SIZE), Constants.PAGE_SIZE
-				* Constants.MAX_PAGE);
-		state.retain();
-	}
+    SearchResults(SharedState state, Query query) throws IOException {
+        this.state = state;
+        this.query = query;
+        // Collect first page.
+        totalHits = Math.min(fetch(PAGE_SIZE), Constants.MAX_RESULTS);
+        state.retain();
+    }
 
-	public final void close() throws IOException {
-		state.release();
-	}
+    public final void close() throws IOException {
+        state.release();
+    }
 
-	public final void print(PrintWriter out, int i) throws IOException {
+    public final void print(PrintWriter out, int i) throws IOException {
 
-		if (hits.length <= i) {
-			System.out.println("fetching documents...");
-			fetch(totalHits);
-		}
+        if (hits.length <= i) {
+            System.out.println("fetching documents...");
+            fetch(totalHits);
+        }
 
-		final Document doc = state.doc(hits[i].doc);
-		final int id = state.getLocal(doc.get("id"));
-		out.println(Utility.toString(id, doc));
-	}
+        final Document doc = state.doc(hits[i].doc);
+        final int id = state.getLocal(doc.get("id"));
+        out.println(Utility.toString(id, doc));
+    }
 
-	public final int size() {
-		return totalHits;
-	}
+    public final int size() {
+        return totalHits;
+    }
 }

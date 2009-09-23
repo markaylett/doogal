@@ -1,12 +1,12 @@
 package org.doogal;
 
 final class IdentityException extends Exception {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	IdentityException() {
-	}
+    IdentityException() {
+    }
 
-	IdentityException(String s) {
-		super(s);
-	}
+    IdentityException(String s) {
+        super(s);
+    }
 }

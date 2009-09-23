@@ -1,1 +1,6 @@
-export to outgoing
+Export one or more documents to:
+${DOOGAL_REPO}/outgoing
+
+If the Content-Type is "text/wiki" then the exported document will be
+converted to HTML.  Otherwise, the raw contents will be written to a plain
+text file.

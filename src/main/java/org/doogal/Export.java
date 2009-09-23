@@ -1,6 +1,10 @@
 package org.doogal;
 
-import static org.doogal.Utility.*;
+import static org.doogal.Utility.copyFile;
+import static org.doogal.Utility.firstFile;
+import static org.doogal.Utility.getId;
+import static org.doogal.Utility.newBufferedReader;
+import static org.doogal.Utility.toName;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,76 +27,81 @@ import org.apache.maven.doxia.sink.SinkFactory;
 
 final class Export {
 
-	private static String getFirst(InternetHeaders header, String name) {
-		final String[] values = header.getHeader(name);
-		return null == values || 0 == values.length ? null : values[0];
-	}
+    private static String getFirst(InternetHeaders headers, String name) {
+        final String[] values = headers.getHeader(name);
+        return null == values || 0 == values.length ? null : values[0];
+    }
 
-	private static String getTitle(InternetHeaders header, File file) {
-		String s = getFirst(header, "Title");
-		if (null == s) {
-			s = getFirst(header, "Subject");
-			if (null == s) {
-				s = getFirst(header, "Name");
-				if (null == s)
-					getId(file);
-			}
-		}
-		return s;
-	}
+    private static String getTitle(InternetHeaders headers, String def) {
+        String s = getFirst(headers, "Title");
+        if (null == s) {
+            s = getFirst(headers, "Subject");
+            if (null == s) {
+                s = getFirst(headers, "Name");
+                if (null == s)
+                    s = def;
+            }
+        }
+        return s;
+    }
 
-	private static void convert(SharedState state, String title,
-			String[] authors, Date date, Reader contents, String outName)
-			throws IOException, ParseException {
+    // Content-Type: text/wiki
 
-		final Parser parser = new AptParser();
+    private static boolean isWiki(InternetHeaders headers)
+            throws javax.mail.internet.ParseException {
+        final String type = getFirst(headers, "Content-Type");
+        if (null != type) {
+            final ContentType ct = new ContentType(type);
+            if ("text".equalsIgnoreCase(ct.getPrimaryType())
+                    && "wiki".equalsIgnoreCase(ct.getSubType()))
+                return true;
+        }
+        return false;
+    }
 
-		final SinkFactory sinkFactory = new XhtmlSinkFactory();
-		final Sink sink = sinkFactory.createSink(new File(state.getOutgoing()),
-				outName);
-		try {
-			parser.parse(contents, new HeaderSink(title, authors, date, sink));
-		} finally {
-			sink.close();
-		}
-	}
+    private static void convert(SharedState state, String title,
+            String[] authors, Date date, Reader contents, String outName)
+            throws IOException, ParseException {
 
-	static void exec(SharedState state, Term term) throws Exception {
+        final Parser parser = new AptParser();
 
-		final IndexReader reader = state.getIndexReader();
-		final File file = firstFile(reader, state.getData(), term);
-		if (null == file) {
-			System.err.println("no such document");
-			return;
-		}
+        final SinkFactory sinkFactory = new XhtmlSinkFactory();
+        final Sink sink = sinkFactory.createSink(new File(state.getOutgoing()),
+                outName);
+        try {
+            parser.parse(contents, new HeaderSink(title, authors, date, sink));
+        } finally {
+            sink.close();
+        }
+    }
 
-		final InputStream is = new FileInputStream(file);
-		try {
+    static void exec(SharedState state, Term term) throws Exception {
 
-			String inFormat = null;
+        final IndexReader reader = state.getIndexReader();
+        final File file = firstFile(reader, state.getData(), term);
+        if (null == file) {
+            System.err.println("no such document");
+            return;
+        }
 
-			final InternetHeaders header = new InternetHeaders(is);
-			final String type = getFirst(header, "Content-Type");
-			if (null != type) {
-				final ContentType ct = new ContentType(type);
-				if ("text".equalsIgnoreCase(ct.getPrimaryType()))
-					inFormat = ct.getSubType().toLowerCase();
-			}
+        final String id = getId(file);
+        final InputStream is = new FileInputStream(file);
+        try {
 
-			final String title = getTitle(header, file);
-			final String name = toName(title);
+            final InternetHeaders headers = new InternetHeaders(is);
+            final String title = getTitle(headers, id);
+            final String name = toName(title);
 
-			if ("wiki".equalsIgnoreCase(inFormat)) {
-				final Reader contents = newBufferedReader(is);
-				convert(state, getTitle(header, file), header
-						.getHeader("author"), new Date(file.lastModified()),
-						contents, name + ".html");
-			} else
-				copyFile(file, new File(state.getOutgoing(), name + ".txt"));
+            if (isWiki(headers)) {
+                final Reader contents = newBufferedReader(is);
+                convert(state, title, headers.getHeader("author"), new Date(
+                        file.lastModified()), contents, name + ".html");
+            } else
+                copyFile(file, new File(state.getOutgoing(), name + ".txt"));
 
-		} finally {
-			is.close();
-		}
-		state.addRecent(state.getLocal(getId(file)));
-	}
+        } finally {
+            is.close();
+        }
+        state.addRecent(state.getLocal(id));
+    }
 }

@@ -1,1 +1,1 @@
-alias an existing command
+Used either to view existing aliases, or to define a new ones.

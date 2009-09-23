@@ -1,7 +1,7 @@
 package org.doogal;
 
 interface Command {
-	String getDescription();
+    String getDescription();
 
-	Type getType();
+    Type getType();
 }

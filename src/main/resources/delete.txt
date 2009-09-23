@@ -1,1 +1,3 @@
-delete a document
+Delete one or more documents identified either by id or name.
+The deleted documents are moved to:
+${DOOGAL_REPO}/trash

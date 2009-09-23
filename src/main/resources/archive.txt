@@ -1,1 +1,2 @@
-create a backup archive
+Write all documents to a archive named:
+${DOOGAL_REPO}/data.zip
