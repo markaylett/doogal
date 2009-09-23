@@ -1,5 +1,7 @@
-Export one or more documents to:
+Export one or more documents to the outgoing directory:
 ${DOOGAL_REPO}/outgoing
+
+The outgoing directory may be changed using the 'set' command.
 
 If the Content-Type is "text/wiki" then the exported document will be
 converted to HTML.  Otherwise, the raw contents will be written to a plain

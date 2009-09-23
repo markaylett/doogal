@@ -55,6 +55,6 @@ final class New {
     }
 
     static void exec(SharedState state) throws Exception {
-        exec(state, "wiki");
+        exec(state, "plain");
     }
 }

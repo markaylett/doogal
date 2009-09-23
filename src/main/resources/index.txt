@@ -1,1 +1,3 @@
-generate search index
+Re-index the entire repository.
+The repository consists of all .txt files in:
+${DOOGAL_REPO}/data

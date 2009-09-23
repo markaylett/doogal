@@ -1,1 +1,4 @@
-create a new document
+Create a new document based on the default template.
+The defaut template is 'plain'.
+Templates are located in:
+${DOOGAL_REPO}/template

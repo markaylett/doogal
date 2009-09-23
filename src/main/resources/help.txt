@@ -1,1 +1,3 @@
-list commands with help
+List all commands if no hint is given.
+All possibilities for an ambigious hint.
+And detailed help for a specific command.

@@ -1,1 +1,4 @@
-import from incoming
+Import *.txt files from the incoming directory:
+${DOOGAL_REPO}/incoming
+
+The incoming directory may be changed using the 'set' command.
