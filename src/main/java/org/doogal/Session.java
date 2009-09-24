@@ -197,15 +197,31 @@ final class Session {
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 System.out.println("deleting...");
-                Delete.exec(state, getTerm(s));
+                if ("*".equals(s)) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Delete.exec(state, term);
+                } else
+                    Delete.exec(state, getTerm(s));
             }
 
             @SuppressWarnings("unused")
             @Synopsis("delete doc...")
             public final void exec(Object... args) throws Exception {
                 System.out.println("deleting...");
-                for (final Object arg : args)
-                    Delete.exec(state, getTerm(arg.toString()));
+                boolean glob = false;
+                for (final Object arg : args) {
+                    final String s = arg.toString();
+                    if ("*".equals(s))
+                        glob = true;
+                    else
+                        Delete.exec(state, getTerm(arg.toString()));
+                }
+                if (glob) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Delete.exec(state, term);
+                }
             }
         };
     }
@@ -547,15 +563,31 @@ final class Session {
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 System.out.println("tidying...");
-                Tidy.exec(state, getTerm(s));
+                if ("*".equals(s)) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Tidy.exec(state, term);
+                } else
+                    Tidy.exec(state, getTerm(s));
             }
 
             @SuppressWarnings("unused")
             @Synopsis("tidy [doc...]")
             public final void exec(Object... args) throws Exception {
                 System.out.println("tidying...");
-                for (final Object arg : args)
-                    Tidy.exec(state, getTerm(arg.toString()));
+                boolean glob = false;
+                for (final Object arg : args) {
+                    final String s = arg.toString();
+                    if ("*".equals(s))
+                        glob = true;
+                    else
+                        Tidy.exec(state, getTerm(arg.toString()));
+                }
+                if (glob) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Tidy.exec(state, term);
+                }
             }
         };
     }
