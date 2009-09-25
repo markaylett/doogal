@@ -3,6 +3,7 @@ package org.doogal;
 import static org.doogal.Utility.join;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -34,8 +35,11 @@ final class Session {
 
     private static final String[] FIELDS = { "subject", "title", "contents" };
     private static final Random RAND = new Random();
+
+    public final PrintWriter out;
+    public final PrintWriter err;
+    public final Log log;
     private final Environment env;
-    private final Log log;
     private final Repo repo;
     private final IdentityMap identityMap;
     private final Recent recent;
@@ -70,7 +74,7 @@ final class Session {
                 results.add(id, Utility.toString(lid, doc));
             }
         }
-        return new Pager(results);
+        return new Pager(results, out);
     }
 
     @SuppressWarnings("unchecked")
@@ -79,7 +83,7 @@ final class Session {
                 FieldOption.ALL);
         final String[] arr = col.toArray(new String[col.size()]);
         Arrays.sort(arr);
-        return new Pager(new ArrayResults(arr));
+        return new Pager(new ArrayResults(arr), out);
     }
 
     private final Pager more(Term term) throws EvalException, IOException {
@@ -91,7 +95,7 @@ final class Session {
         mlt.setMinDocFreq(1);
         mlt.setMinTermFreq(1);
         final Query query = mlt.like(docs.doc());
-        return new Pager(new SearchResults(state, query));
+        return new Pager(new SearchResults(state, query), out);
     }
 
     private final Pager search(String s) throws IOException, ParseException {
@@ -99,7 +103,7 @@ final class Session {
                 new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
         final Query query = parser.parse(s);
-        return new Pager(new SearchResults(state, query));
+        return new Pager(new SearchResults(state, query), out);
     }
 
     private final Pager values(final String s) throws IOException,
@@ -126,18 +130,21 @@ final class Session {
             throw (IOException) e.getCause();
         }
         final String[] arr = values.toArray(new String[values.size()]);
-        return new Pager(new ArrayResults(arr));
+        return new Pager(new ArrayResults(arr), out);
     }
 
-    Session(Environment env, Log log, Repo repo) throws EvalException, IOException {
-        this.env = env;
+    Session(PrintWriter out, PrintWriter err, Log log, Environment env,
+            Repo repo) throws EvalException, IOException {
+        this.out = out;
+        this.err = err;
         this.log = log;
+        this.env = env;
         this.repo = repo;
         identityMap = new IdentityMap();
         recent = new Recent();
         state = null;
         // Avoid null pager.
-        setPager(new Pager(ListResults.EMPTY));
+        setPager(new Pager(ListResults.EMPTY, out));
     }
 
     final void close() throws IOException {
@@ -162,11 +169,7 @@ final class Session {
             state = null;
         }
         if (null == state)
-            state = new SharedState(env, log, repo, identityMap, recent);
-    }
-
-    final Log getLog() {
-        return log;
+            state = new SharedState(log, env, repo, identityMap, recent);
     }
 
     @Builtin("archive")
@@ -179,7 +182,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("archive")
             public final void exec() throws Exception {
-                System.out.println("archiving...");
+                log.info("archiving...");
                 Archive.exec(repo);
             }
         };
@@ -210,7 +213,7 @@ final class Session {
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                System.out.println("deleting...");
+                log.info("deleting...");
                 if ("*".equals(s)) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
@@ -222,7 +225,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("delete doc...")
             public final void exec(Object... args) throws Exception {
-                System.out.println("deleting...");
+                log.info("deleting...");
                 boolean glob = false;
                 for (final Object arg : args) {
                     final String s = arg.toString();
@@ -249,13 +252,13 @@ final class Session {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                System.out.println("exporting...");
+                log.info("exporting...");
                 Export.exec(state, getTerm());
             }
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                System.out.println("exporting...");
+                log.info("exporting...");
                 if ("*".equals(s)) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
@@ -267,7 +270,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("export [doc...]")
             public final void exec(Object... args) throws Exception {
-                System.out.println("exporting...");
+                log.info("exporting...");
                 boolean glob = false;
                 for (final Object arg : args) {
                     final String s = arg.toString();
@@ -311,7 +314,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("import")
             public final void exec() throws Exception {
-                System.out.println("importing...");
+                log.info("importing...");
                 Import.exec(state);
             }
         };
@@ -327,7 +330,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("index")
             public final void exec() throws Exception {
-                System.out.println("indexing...");
+                log.info("indexing...");
                 Index.exec(repo);
             }
         };
@@ -396,14 +399,14 @@ final class Session {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                System.out.println("new document...");
+                log.info("new document...");
                 New.exec(state);
             }
 
             @SuppressWarnings("unused")
             @Synopsis("new [template]")
             public final void exec(String s) throws Exception {
-                System.out.println("new document...");
+                log.info("new document...");
                 New.exec(state, s);
             }
         };
@@ -434,14 +437,14 @@ final class Session {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                System.out.println("opening...");
+                log.info("opening...");
                 Open.exec(state, getTerm());
             }
 
             @SuppressWarnings("unused")
             @Synopsis("open [doc]")
             public final void exec(String s) throws Exception {
-                System.out.println("opening...");
+                log.info("opening...");
                 Open.exec(state, getTerm(s));
             }
         };
@@ -473,7 +476,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("quit")
             public final void exec() throws ExitException {
-                System.out.println("exiting...");
+                log.info("exiting...");
                 throw new ExitException();
             }
         };
@@ -489,7 +492,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
-                setPager(new Pager(recent.asResults(state)));
+                setPager(new Pager(recent.asResults(state), out));
                 pager.execList();
             }
         };
@@ -506,7 +509,7 @@ final class Session {
 
             @SuppressWarnings("unused")
             public final void exec() throws IOException, ParseException {
-                System.out.printf("searching for '%s'...\n", last);
+                log.info(String.format("searching for '%s'...\n", last));
                 setPager(search(last));
                 pager.execList();
             }
@@ -537,7 +540,7 @@ final class Session {
             @Synopsis("set")
             public final void exec() throws IOException {
                 final String[] arr = env.toArray();
-                setPager(new Pager(new ArrayResults(arr)));
+                setPager(new Pager(new ArrayResults(arr), out));
                 pager.execList();
             }
 
@@ -566,13 +569,13 @@ final class Session {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                System.out.println("tidying...");
+                log.info("tidying...");
                 Tidy.exec(state, getTerm());
             }
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                System.out.println("tidying...");
+                log.info("tidying...");
                 if ("*".equals(s)) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
@@ -584,7 +587,7 @@ final class Session {
             @SuppressWarnings("unused")
             @Synopsis("tidy [doc...]")
             public final void exec(Object... args) throws Exception {
-                System.out.println("tidying...");
+                log.info("tidying...");
                 boolean glob = false;
                 for (final Object arg : args) {
                     final String s = arg.toString();

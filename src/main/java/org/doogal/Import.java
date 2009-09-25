@@ -40,7 +40,8 @@ final class Import {
                     file = importFile(state, file);
                     final String id = getId(file);
                     final int lid = state.getLocal(getId(file));
-                    state.getLog().info(String.format("indexing document %d...", lid));
+                    state.log.info(String
+                            .format("indexing document %d...", lid));
                     Rfc822.addDocument(writer, state.getData(), file);
                     state.addRecent(id);
                     return true;

@@ -3,17 +3,20 @@ package org.doogal;
 import static org.doogal.Constants.PAGE_SIZE;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 
 import org.apache.lucene.index.Term;
 
 final class Pager {
     private final Results results;
+    private final PrintWriter out;
     private int start;
     private int end;
 
-    Pager(Results results) throws IOException {
+    Pager(Results results, PrintWriter out) throws IOException {
         this.results = results;
+        this.out = out;
         start = 0;
         end = Math.min(results.size(), start + PAGE_SIZE);
     }
@@ -41,23 +44,23 @@ final class Pager {
         if (0 < results.size()) {
             final int page = 1 + start / PAGE_SIZE;
             final int total = 1 + (results.size() - 1) / PAGE_SIZE;
-            System.out.println("page " + page + " of " + total + ":");
+            out.println("page " + page + " of " + total + ":");
             if (page < total)
                 prompt = "more...";
         } else
-            System.out.println("no results");
+            out.println("no results");
 
         for (int i = start; i < end; i++) {
 
             final String s = results.get(i);
             if (0 == s.length())
-                System.out.println();
+                out.println();
             else
-                System.out.println(" " + s);
+                out.println(" " + s);
         }
 
         if (null != prompt)
-            System.out.println(prompt);
+            out.println(prompt);
     }
 
     final void execNext() throws IOException {

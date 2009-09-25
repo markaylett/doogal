@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
@@ -69,10 +70,11 @@ final class Utility {
         return true;
     }
 
-    static boolean printResource(String name) throws Exception {
+    static boolean printResource(String name, final PrintWriter out)
+            throws Exception {
         return eachLine(name, new Predicate<String>() {
             public final boolean call(String arg) {
-                System.out.println(arg);
+                out.println(arg);
                 return true;
             }
         });
@@ -227,10 +229,6 @@ final class Utility {
     static BufferedWriter newBufferedWriter(OutputStream out)
             throws UnsupportedEncodingException {
         return new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-    }
-
-    static void prompt() {
-        System.out.print("doogal> ");
     }
 
     static File subdir(File file) {

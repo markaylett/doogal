@@ -42,7 +42,7 @@ final class SearchResults implements Results {
     public final String get(int i) throws IOException {
 
         if (hits.length <= i) {
-            System.out.println("fetching documents...");
+            state.log.info("fetching documents...");
             fetch(totalHits);
         }
 
@@ -53,7 +53,7 @@ final class SearchResults implements Results {
 
     public final Collection<Term> terms() throws IOException {
         if (hits.length < totalHits) {
-            System.out.println("fetching documents...");
+            state.log.info("fetching documents...");
             fetch(totalHits);
         }
         final List<Term> ls = new ArrayList<Term>();

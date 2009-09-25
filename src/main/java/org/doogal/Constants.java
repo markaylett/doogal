@@ -9,4 +9,5 @@ final class Constants {
     static final String DEFAULT_EDITOR = "emacsclient.exe";
     static final int MAX_RESULTS = 200;
     static final int PAGE_SIZE = 15;
+    static final String PROMPT = "doogal> ";
 }

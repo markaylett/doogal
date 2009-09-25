@@ -67,7 +67,7 @@ final class Tidy {
         tidy(trash, file);
 
         final String id = getId(file);
-        System.out.println("indexing document...");
+        state.log.info("indexing document...");
         final IndexWriter writer = new IndexWriter(state.getIndex(),
                 new StandardAnalyzer(), false,
                 IndexWriter.MaxFieldLength.LIMITED);

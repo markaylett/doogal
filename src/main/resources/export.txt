@@ -3,6 +3,5 @@ ${DOOGAL_REPO}/outgoing
 
 The outgoing directory may be changed using the 'set' command.
 
-If the Content-Type is "text/wiki" then the exported document will be
-converted to HTML.  Otherwise, the raw contents will be written to a plain
-text file.
+The exported documents will be converted to HTML.  If the Content-Type is
+"text/apt", then the content will be treated as Wiki markup.

@@ -13,15 +13,15 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
 final class SharedState {
+    public final Log log;
     private final Environment env;
-    private final Log log;
     private final Repo repo;
     private final IdentityMap identityMap;
     private final Recent recent;
     private final IndexSearcher searcher;
     private int refs;
 
-    SharedState(Environment env, Log log, Repo repo, IdentityMap identityMap,
+    SharedState(Log log, Environment env, Repo repo, IdentityMap identityMap,
             Recent recent) throws IOException {
         this.env = env;
         this.log = log;
@@ -50,10 +50,6 @@ final class SharedState {
 
     final String getTemplate() {
         return env.getTemplate();
-    }
-
-    final Log getLog() {
-        return log;
     }
 
     final File getData() {

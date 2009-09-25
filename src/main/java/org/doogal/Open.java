@@ -27,7 +27,7 @@ final class Open {
 
         final String id = getId(file);
         if (stats.hasFileChanged()) {
-            System.out.println("indexing document...");
+            state.log.info("indexing document...");
             final IndexWriter writer = new IndexWriter(state.getIndex(),
                     new StandardAnalyzer(), false,
                     IndexWriter.MaxFieldLength.LIMITED);

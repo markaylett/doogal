@@ -35,7 +35,7 @@ final class New {
         p.waitFor();
 
         if (!stats.hasFileChanged()) {
-            System.out.println("discarding...");
+            state.log.info("discarding...");
             file.delete();
             return;
         }
@@ -45,7 +45,7 @@ final class New {
                 IndexWriter.MaxFieldLength.LIMITED);
         final int lid = state.getLocal(id);
         try {
-            System.out.printf("indexing document %d...\n", lid);
+            state.log.info(String.format("indexing document %d...\n", lid));
             Rfc822.addDocument(writer, state.getData(), file);
         } finally {
             writer.optimize();

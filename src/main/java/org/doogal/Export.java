@@ -1,15 +1,15 @@
 package org.doogal;
 
-import static org.doogal.Utility.copyFile;
 import static org.doogal.Utility.firstFile;
 import static org.doogal.Utility.getId;
-import static org.doogal.Utility.newBufferedReader;
 import static org.doogal.Utility.toName;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Date;
 
@@ -20,12 +20,40 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.maven.doxia.module.apt.AptParser;
 import org.apache.maven.doxia.module.xhtml.XhtmlSinkFactory;
+import org.apache.maven.doxia.parser.AbstractTextParser;
 import org.apache.maven.doxia.parser.ParseException;
 import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkFactory;
 
 final class Export {
+
+    private static final class PlainParser extends AbstractTextParser {
+
+        public void parse(Reader source, Sink sink) throws ParseException {
+            final BufferedReader reader = new BufferedReader(source);
+            try {
+                sink.head();
+                sink.head_();
+                sink.body();
+                sink.paragraph();
+                for (;;) {
+                    final String line = reader.readLine();
+                    if (null == line)
+                        break;
+                    sink.text(line);
+                    sink.lineBreak();
+                }
+                sink.paragraph_();
+                sink.body_();
+            } catch (final IOException e) {
+                throw new ParseException(e.getLocalizedMessage());
+            } finally {
+                sink.close();
+            }
+        }
+
+    };
 
     private static String getFirst(InternetHeaders headers, String name) {
         final String[] values = headers.getHeader(name);
@@ -45,33 +73,32 @@ final class Export {
         return s;
     }
 
-    // Content-Type: text/wiki
+    // Content-Type: text/apt
 
-    private static boolean isWiki(InternetHeaders headers)
+    private static boolean isApt(InternetHeaders headers)
             throws javax.mail.internet.ParseException {
         final String type = getFirst(headers, "Content-Type");
         if (null != type) {
             final ContentType ct = new ContentType(type);
             if ("text".equalsIgnoreCase(ct.getPrimaryType())
-                    && "wiki".equalsIgnoreCase(ct.getSubType()))
+                    && ("apt".equalsIgnoreCase(ct.getSubType()) || "wiki"
+                            .equalsIgnoreCase(ct.getSubType())))
                 return true;
         }
         return false;
     }
 
     private static void convert(SharedState state, String title,
-            String[] authors, Date date, Reader contents, String outName)
-            throws IOException, ParseException {
+            String[] authors, Date date, Reader contents, Parser parser,
+            String outName) throws IOException, ParseException {
 
-        final Parser parser = new AptParser();
-
-        final SinkFactory sinkFactory = new XhtmlSinkFactory();
-        final Sink sink = sinkFactory.createSink(new File(state.getOutgoing()),
+        final SinkFactory factory = new XhtmlSinkFactory();
+        final Sink xhtml = factory.createSink(new File(state.getOutgoing()),
                 outName);
         try {
-            parser.parse(contents, new HeaderSink(title, authors, date, sink));
+            parser.parse(contents, new HeaderSink(title, authors, date, xhtml));
         } finally {
-            sink.close();
+            xhtml.close();
         }
     }
 
@@ -90,12 +117,11 @@ final class Export {
             final String title = getTitle(headers, id);
             final String name = toName(title);
 
-            if (isWiki(headers)) {
-                final Reader contents = newBufferedReader(is);
-                convert(state, title, headers.getHeader("author"), new Date(
-                        file.lastModified()), contents, name + ".html");
-            } else
-                copyFile(file, new File(state.getOutgoing(), name + ".txt"));
+            final Reader contents = new InputStreamReader(is, "UTF-8");
+            final Parser parser = isApt(headers) ? new AptParser()
+                    : new PlainParser();
+            convert(state, title, headers.getHeader("author"), new Date(file
+                    .lastModified()), contents, parser, name + ".html");
 
         } finally {
             is.close();

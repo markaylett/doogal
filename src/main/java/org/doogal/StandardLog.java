@@ -14,6 +14,8 @@ final class StandardLog implements Log {
     public static final int ERROR = 5;
     public static final int FATAL = 6;
 
+    private final PrintWriter out;
+    private final PrintWriter err;
     private int level;
 
     private final boolean isEnabled(int level) {
@@ -36,13 +38,15 @@ final class StandardLog implements Log {
             sb.append(sw.toString());
         }
 
-        if (ERROR <= level)
-            System.err.println(sb.toString());
+        if (level < ERROR)
+            out.println(sb.toString());
         else
-            System.err.println(sb.toString());
+            err.println(sb.toString());
     }
 
-    StandardLog() {
+    StandardLog(PrintWriter out, PrintWriter err) {
+        this.out = out;
+        this.err = err;
         setLevel(INFO);
     }
 

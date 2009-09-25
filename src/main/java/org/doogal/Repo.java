@@ -79,7 +79,6 @@ final class Repo {
         final File dir = new File(root, "template");
         dir.mkdir();
         initType(dir, "plain");
-        initType(dir, "wiki");
         initMail(dir);
     }
 

@@ -1,12 +1,13 @@
 package org.doogal;
 
+import static org.doogal.Constants.PROMPT;
 import static org.doogal.Utility.eachLine;
 import static org.doogal.Utility.printResource;
-import static org.doogal.Utility.prompt;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,12 +19,15 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+
 public final class Main implements Interpreter {
     private final Session session;
     private final Map<String, Command> commands;
     private final int[] maxNames;
 
-    private static Pager helpPager(String cmd, Command value) throws Exception {
+    private static Pager helpPager(String cmd, Command value, PrintWriter out)
+            throws Exception {
         final List<String> ls = new ArrayList<String>();
         ls.add("NAME");
         ls.add(String.format(" s - %s", cmd, value.getDescription()));
@@ -46,7 +50,7 @@ public final class Main implements Interpreter {
             }
 
         });
-        return new Pager(new ListResults(ls));
+        return new Pager(new ListResults(ls), out);
     }
 
     private final void put(String name, Command value) {
@@ -71,7 +75,7 @@ public final class Main implements Interpreter {
         return String.format("%" + max + "s - %s", cmd, value.getDescription());
     }
 
-    Main(Session session) throws IllegalAccessException,
+    Main(final Session session) throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         this.session = session;
         commands = new TreeMap<String, Command>();
@@ -97,7 +101,7 @@ public final class Main implements Interpreter {
                     if (Type.ALIAS == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls));
+                final Pager pager = new Pager(new ListResults(ls), session.out);
                 Main.this.session.setPager(pager);
                 pager.execList();
             }
@@ -115,7 +119,7 @@ public final class Main implements Interpreter {
                             && entry.getKey().startsWith(hint))
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls));
+                final Pager pager = new Pager(new ListResults(ls), session.out);
                 Main.this.session.setPager(pager);
                 pager.execList();
             }
@@ -181,7 +185,7 @@ public final class Main implements Interpreter {
                     if (Type.BUILTIN == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls));
+                final Pager pager = new Pager(new ListResults(ls), session.out);
                 Main.this.session.setPager(pager);
                 pager.execList();
             }
@@ -204,9 +208,9 @@ public final class Main implements Interpreter {
 
                 Pager pager = null;
                 if (1 == ls.size())
-                    pager = helpPager(last, commands.get(last));
+                    pager = helpPager(last, commands.get(last), session.out);
                 else
-                    pager = new Pager(new ListResults(ls));
+                    pager = new Pager(new ListResults(ls), session.out);
 
                 Main.this.session.setPager(pager);
                 pager.execList();
@@ -263,16 +267,16 @@ public final class Main implements Interpreter {
             }
 
         } catch (final NoSuchMethodException e) {
-            session.getLog().error("invalid arguments");
+            session.log.error("invalid arguments");
         } catch (final InvocationTargetException e) {
             final Throwable t = e.getCause();
             if (t instanceof ExitException)
                 throw (ExitException) t;
             if (t instanceof ResetException)
                 throw (ResetException) t;
-            session.getLog().error(t.getLocalizedMessage());
+            session.log.error(t.getLocalizedMessage());
         } catch (final Exception e) {
-            session.getLog().error(e.getLocalizedMessage());
+            session.log.error(e.getLocalizedMessage());
         }
     }
 
@@ -281,13 +285,16 @@ public final class Main implements Interpreter {
 
     public static void main(String[] args) throws Exception {
 
-        printResource("motd.txt");
+        final PrintWriter out = new PrintWriter(System.out, true);
+        final PrintWriter err = new PrintWriter(System.err, true);
+        printResource("motd.txt", out);
 
         final Environment env = new Environment();
+        final Log log = new StandardLog(out, err);
         for (;;) {
             final Repo repo = new Repo(env.getRepo());
             repo.init();
-            final Session s = new Session(env, new StandardLog(), repo);
+            final Session s = new Session(out, err, log, env, repo);
             try {
                 final Main m = new Main(s);
                 final File conf = new File(repo.getEtc(), "doogal.conf");
@@ -299,23 +306,26 @@ public final class Main implements Interpreter {
                         reader.close();
                     }
                 }
-                prompt();
+                out.print(PROMPT);
+                out.flush();
                 Shellwords.readLine(System.in, new Interpreter() {
                     public final void eval(String cmd, Object... args)
                             throws EvalException {
                         m.eval(cmd, args);
-                        prompt();
+                        out.print(PROMPT);
+                        out.flush();
                     }
 
                     public final void eval() throws EvalException {
                         m.eval("next");
-                        prompt();
+                        out.print(PROMPT);
+                        out.flush();
                     }
                 });
             } catch (final ExitException e) {
                 break;
             } catch (final ResetException e) {
-                System.out.println("resetting...");
+                log.info("resetting...");
             } finally {
                 s.close();
             }
