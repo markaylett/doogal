@@ -8,6 +8,9 @@ import static org.doogal.Utility.renameFile;
 import static org.doogal.Utility.subdir;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.mail.MessagingException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
@@ -15,7 +18,7 @@ import org.apache.lucene.index.IndexWriter;
 final class Import {
 
     private static File importFile(SharedState state, File from)
-            throws Exception {
+            throws IOException {
 
         File to = subdir(state.getData());
         final String id = newId();
@@ -30,19 +33,16 @@ final class Import {
                 IndexWriter.MaxFieldLength.LIMITED);
         try {
             listFiles(new File(state.getIncoming()), new Predicate<File>() {
-                public final boolean call(File file) {
+                public final boolean call(File file) throws IOException,
+                        MessagingException {
                     if (ignore(file))
                         return true;
-                    try {
-                        file = importFile(state, file);
-                        final String id = getId(file);
-                        final int lid = state.getLocal(getId(file));
-                        System.out.printf("indexing document %d...\n", lid);
-                        Rfc822.addDocument(writer, state.getData(), file);
-                        state.addRecent(id);
-                    } catch (final Exception e) {
-                        System.err.println("Error: " + file + ": " + e);
-                    }
+                    file = importFile(state, file);
+                    final String id = getId(file);
+                    final int lid = state.getLocal(getId(file));
+                    state.getLog().info(String.format("indexing document %d...", lid));
+                    Rfc822.addDocument(writer, state.getData(), file);
+                    state.addRecent(id);
                     return true;
                 }
             });

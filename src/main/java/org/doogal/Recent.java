@@ -32,7 +32,7 @@ final class Recent {
             ids.remove(i);
     }
 
-    final Results asResults(SharedState state) throws IdentityException,
+    final Results asResults(SharedState state) throws EvalException,
             IOException {
         final IdentityResults results = new IdentityResults();
         for (final String id : ids) {

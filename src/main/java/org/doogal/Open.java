@@ -16,18 +16,14 @@ final class Open {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
-        if (null == file) {
-            System.err.println("no such document");
-            return;
-        }
+        if (null == file)
+            throw new EvalException("no such document");
         final FileStats stats = new FileStats(file);
 
         final Process p = new ProcessBuilder(state.getEditor(), file
                 .getAbsolutePath()).start();
-        if (0 != p.waitFor()) {
-            System.err.println("editor returned error");
-            return;
-        }
+        if (0 != p.waitFor())
+            throw new EvalException("editor error");
 
         final String id = getId(file);
         if (stats.hasFileChanged()) {

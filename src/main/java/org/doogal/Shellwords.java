@@ -43,8 +43,8 @@ final class Shellwords {
         eof = false;
     }
 
-    final List<Object> readLine() throws ExitException, IOException,
-            ParseException, ResetException {
+    final List<Object> readLine() throws EvalException, IOException,
+            ParseException {
 
         // Parse the file
         final List<Object> toks = new ArrayList<Object>();
@@ -84,13 +84,13 @@ final class Shellwords {
         return eof;
     }
 
-    static List<Object> readLine(Reader reader) throws ExitException,
-            IOException, ParseException, ResetException {
+    static List<Object> readLine(Reader reader) throws EvalException,
+            IOException, ParseException {
         return new Shellwords(reader).readLine();
     }
 
     static void readLine(Reader reader, Interpreter interp)
-            throws ExitException, IOException, ParseException, ResetException {
+            throws EvalException, IOException, ParseException {
         final Shellwords sw = new Shellwords(reader);
         do {
             final List<Object> toks = sw.readLine();
@@ -104,11 +104,12 @@ final class Shellwords {
     }
 
     static void readLine(InputStream in, Interpreter interp)
-            throws ExitException, IOException, ParseException, ResetException {
+            throws EvalException, IOException, ParseException {
         readLine(newBufferedReader(in), interp);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws EvalException, IOException,
+            ParseException {
         readLine(System.in, new Interpreter() {
             public final void eval(String cmd, Object... args) {
                 System.out.printf("[%s]\n", cmd);

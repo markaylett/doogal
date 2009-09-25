@@ -26,14 +26,14 @@ final class IdentityMap {
         return null == local ? put(uuid) : local;
     }
 
-    final String getGlobal(int local) throws IdentityException {
+    final String getGlobal(int local) throws EvalException {
         final String uuid = localToGlobal.get(local);
         if (null == uuid)
-            throw new IdentityException("no such identifier");
+            throw new EvalException("no such identifier");
         return uuid;
     }
 
-    final String getGlobal(String uuid) throws IdentityException {
+    final String getGlobal(String uuid) throws EvalException {
         return getGlobal(Integer.valueOf(uuid));
     }
 }

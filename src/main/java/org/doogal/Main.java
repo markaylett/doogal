@@ -37,7 +37,7 @@ public final class Main implements Interpreter {
         ls.add("");
         ls.add("DESCRIPTION");
         eachLine(cmd + ".txt", new Predicate<String>() {
-            public final boolean call(String arg) throws Exception {
+            public final boolean call(String arg) {
                 if (0 == arg.length())
                     ls.add("");
                 else
@@ -133,11 +133,11 @@ public final class Main implements Interpreter {
                         return String.format("alias for '%s'", value);
                     }
 
-                    public final void exec() throws Exception {
+                    public final void exec() throws EvalException {
                         Main.this.eval(name, toks.toArray());
                     }
 
-                    public final void exec(Object... args) throws Exception {
+                    public final void exec(Object... args) throws EvalException {
                         final Object[] all = new Object[toks.size()
                                 + args.length];
                         int i = 0;
@@ -158,13 +158,13 @@ public final class Main implements Interpreter {
 
             @SuppressWarnings("unused")
             @Synopsis("unalias name")
-            public final void exec(String name) {
+            public final void exec(String name) throws EvalException {
                 final Command cmd = commands.get(name);
-                if (null != cmd && Type.ALIAS == cmd.getType()) {
-                    commands.remove(name);
-                    setMaxName();
-                } else
-                    System.err.println("no such alias");
+                if (null == cmd || Type.ALIAS != cmd.getType())
+                    throw new EvalException("unknown alias");
+
+                commands.remove(name);
+                setMaxName();
             }
         });
         put("help", new AbstractBuiltin() {
@@ -215,8 +215,7 @@ public final class Main implements Interpreter {
     }
 
     @SuppressWarnings("unchecked")
-    public final void eval(String cmd, Object... args) throws ExitException,
-            ResetException {
+    public final void eval(String cmd, Object... args) throws EvalException {
         try {
             cmd = cmd.toLowerCase();
             Command value = commands.get(cmd);
@@ -225,10 +224,8 @@ public final class Main implements Interpreter {
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (entry.getKey().startsWith(cmd))
                         fuzzy.add(entry);
-                if (fuzzy.isEmpty()) {
-                    System.err.println("unknown command");
-                    return;
-                }
+                if (fuzzy.isEmpty())
+                    throw new EvalException("unknown command");
                 if (1 < fuzzy.size()) {
                     Collections.sort(fuzzy,
                             new Comparator<Entry<String, Command>>() {
@@ -238,10 +235,13 @@ public final class Main implements Interpreter {
                                     return lhs.getKey().compareTo(rhs.getKey());
                                 }
                             });
-                    System.out.println("ambiguous command:");
-                    for (final Entry<String, Command> entry : fuzzy)
-                        System.out.println("  " + entry.getKey());
-                    return;
+                    final StringBuilder sb = new StringBuilder();
+                    sb.append("ambiguous command:");
+                    for (final Entry<String, Command> entry : fuzzy) {
+                        sb.append(' ');
+                        sb.append(entry.getKey());
+                    }
+                    throw new EvalException(sb.toString());
                 }
                 final Entry<String, Command> entry = fuzzy.get(0);
                 cmd = entry.getKey();
@@ -263,16 +263,16 @@ public final class Main implements Interpreter {
             }
 
         } catch (final NoSuchMethodException e) {
-            System.err.println("invalid arguments");
+            session.getLog().error("invalid arguments");
         } catch (final InvocationTargetException e) {
             final Throwable t = e.getCause();
             if (t instanceof ExitException)
                 throw (ExitException) t;
             if (t instanceof ResetException)
                 throw (ResetException) t;
-            System.err.println(t.getLocalizedMessage());
+            session.getLog().error(t.getLocalizedMessage());
         } catch (final Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            session.getLog().error(e.getLocalizedMessage());
         }
     }
 
@@ -287,7 +287,7 @@ public final class Main implements Interpreter {
         for (;;) {
             final Repo repo = new Repo(env.getRepo());
             repo.init();
-            final Session s = new Session(env, repo);
+            final Session s = new Session(env, new StandardLog(), repo);
             try {
                 final Main m = new Main(s);
                 final File conf = new File(repo.getEtc(), "doogal.conf");
@@ -302,13 +302,12 @@ public final class Main implements Interpreter {
                 prompt();
                 Shellwords.readLine(System.in, new Interpreter() {
                     public final void eval(String cmd, Object... args)
-                            throws ExitException, ResetException {
+                            throws EvalException {
                         m.eval(cmd, args);
                         prompt();
                     }
 
-                    public final void eval() throws ExitException,
-                            ResetException {
+                    public final void eval() throws EvalException {
                         m.eval("next");
                         prompt();
                     }

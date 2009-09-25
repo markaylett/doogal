@@ -4,6 +4,9 @@ import static org.doogal.Utility.ignore;
 import static org.doogal.Utility.listFiles;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.mail.MessagingException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
@@ -14,14 +17,10 @@ final class Index {
             throws Exception {
 
         listFiles(repo.getData(), new Predicate<File>() {
-            public final boolean call(File file) {
-                if (ignore(file))
-                    return true;
-                try {
+            public final boolean call(File file) throws IOException,
+                    MessagingException {
+                if (!ignore(file))
                     Rfc822.addDocument(writer, repo.getData(), file);
-                } catch (final Exception e) {
-                    System.err.println("Error: " + file + ": " + e);
-                }
                 return true;
             }
         });

@@ -7,6 +7,7 @@ import static org.doogal.Utility.listFiles;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -21,7 +22,7 @@ final class Archive {
         try {
 
             listFiles(repo.getData(), new Predicate<File>() {
-                public final boolean call(File file) throws Exception {
+                public final boolean call(File file) throws IOException {
                     if (ignore(file))
                         return true;
                     final FileInputStream in = new FileInputStream(file);

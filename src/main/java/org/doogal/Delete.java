@@ -5,6 +5,7 @@ import static org.doogal.Utility.listFiles;
 import static org.doogal.Utility.renameFile;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
@@ -16,7 +17,8 @@ final class Delete {
     static void exec(final SharedState state, Term term) throws Exception {
         final IndexReader reader = state.getIndexReader();
         listFiles(reader, state.getData(), term, new Predicate<File>() {
-            public final boolean call(File file) throws Exception {
+            public final boolean call(File file) throws EvalException,
+                    IOException {
                 final File trash = new File(state.getTrash(), file.getName());
                 trash.delete();
                 renameFile(file, trash);

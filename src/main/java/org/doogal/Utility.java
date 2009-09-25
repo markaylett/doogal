@@ -32,7 +32,7 @@ final class Utility {
     private static final class FirstPredicate<T> implements Predicate<T> {
         T first = null;
 
-        public final boolean call(T obj) throws Exception {
+        public final boolean call(T obj) {
             this.first = obj;
             return false; // First only.
         }
@@ -71,7 +71,7 @@ final class Utility {
 
     static boolean printResource(String name) throws Exception {
         return eachLine(name, new Predicate<String>() {
-            public final boolean call(String arg) throws Exception {
+            public final boolean call(String arg) {
                 System.out.println(arg);
                 return true;
             }

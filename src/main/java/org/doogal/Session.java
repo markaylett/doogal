@@ -9,10 +9,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.IndexReader.FieldOption;
@@ -24,24 +24,33 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 
 final class Session {
+    private static final class WrapException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        WrapException(Throwable t) {
+            super(t);
+        }
+    }
+
     private static final String[] FIELDS = { "subject", "title", "contents" };
     private static final Random RAND = new Random();
     private final Environment env;
+    private final Log log;
     private final Repo repo;
     private final IdentityMap identityMap;
     private final Recent recent;
     private SharedState state;
     private Pager pager;
 
-    private final Term getTerm(String value) throws IdentityException {
+    private final Term getTerm(String value) throws EvalException {
         return Character.isDigit(value.charAt(0)) ? new Term("id", identityMap
                 .getGlobal(value)) : new Term("name", value);
     }
 
-    private final Term getTerm() throws IdentityException {
+    private final Term getTerm() throws EvalException {
         final String id = recent.top();
         if (null == id)
-            throw new IdentityException("no such identifier");
+            throw new EvalException("no such identifier");
         return new Term("id", id);
     }
 
@@ -73,10 +82,10 @@ final class Session {
         return new Pager(new ArrayResults(arr));
     }
 
-    private final Pager more(Term term) throws IdentityException, IOException {
+    private final Pager more(Term term) throws EvalException, IOException {
         final TermDocs docs = state.getIndexReader().termDocs(term);
         if (!docs.next())
-            throw new IdentityException("no such document");
+            throw new EvalException("no such document");
         final MoreLikeThis mlt = new MoreLikeThis(state.getIndexReader());
         mlt.setFieldNames(FIELDS);
         mlt.setMinDocFreq(1);
@@ -85,8 +94,7 @@ final class Session {
         return new Pager(new SearchResults(state, query));
     }
 
-    private final Pager search(String s) throws CorruptIndexException,
-            IOException, ParseException {
+    private final Pager search(String s) throws IOException, ParseException {
         final QueryParser parser = new MultiFieldQueryParser(FIELDS,
                 new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
@@ -100,28 +108,30 @@ final class Session {
         parser.setAllowLeadingWildcard(true);
         final Query query = parser.parse("*");
         final Set<String> values = new TreeSet<String>();
-        state.search(query, new HitCollector() {
-            @Override
-            public final void collect(int doc, float score) {
-                try {
-                    final Document d = state.doc(doc);
-                    final Field[] fs = d.getFields(s);
-                    for (int i = 0; i < fs.length; ++i)
-                        values.add(fs[i].stringValue());
-                } catch (final CorruptIndexException e) {
-                    System.err.println(e.getLocalizedMessage());
-                } catch (final IOException e) {
-                    System.err.println(e.getLocalizedMessage());
+        try {
+            state.search(query, new HitCollector() {
+                @Override
+                public final void collect(int doc, float score) {
+                    try {
+                        final Document d = state.doc(doc);
+                        final Field[] fs = d.getFields(s);
+                        for (int i = 0; i < fs.length; ++i)
+                            values.add(fs[i].stringValue());
+                    } catch (final IOException e) {
+                        throw new WrapException(e);
+                    }
                 }
-            }
-        });
+            });
+        } catch (final WrapException e) {
+            throw (IOException) e.getCause();
+        }
         final String[] arr = values.toArray(new String[values.size()]);
         return new Pager(new ArrayResults(arr));
     }
 
-    Session(Environment env, Repo repo) throws CorruptIndexException,
-            IdentityException, IOException {
+    Session(Environment env, Log log, Repo repo) throws EvalException, IOException {
         this.env = env;
+        this.log = log;
         this.repo = repo;
         identityMap = new IdentityMap();
         recent = new Recent();
@@ -146,13 +156,17 @@ final class Session {
         pager = p;
     }
 
-    final void update() throws CorruptIndexException, IOException {
+    final void update() throws IOException {
         if (null != state && !state.isCurrent()) {
             state.release();
             state = null;
         }
         if (null == state)
-            state = new SharedState(env, repo, identityMap, recent);
+            state = new SharedState(env, log, repo, identityMap, recent);
+    }
+
+    final Log getLog() {
+        return log;
     }
 
     @Builtin("archive")
@@ -280,7 +294,7 @@ final class Session {
 
             @SuppressWarnings("unused")
             @Synopsis("goto n")
-            public final void exec(String n) throws IOException {
+            public final void exec(String n) throws EvalException, IOException {
                 pager.execGoto(n);
                 pager.execList();
             }
@@ -359,15 +373,14 @@ final class Session {
             }
 
             @SuppressWarnings("unused")
-            public final void exec() throws IdentityException, IOException {
+            public final void exec() throws EvalException, IOException {
                 setPager(more(getTerm()));
                 pager.execList();
             }
 
             @SuppressWarnings("unused")
             @Synopsis("more [doc]")
-            public final void exec(String s) throws IdentityException,
-                    IOException {
+            public final void exec(String s) throws EvalException, IOException {
                 setPager(more(getTerm(s)));
                 pager.execList();
             }
@@ -475,8 +488,7 @@ final class Session {
 
             @SuppressWarnings("unused")
             @Synopsis("recent")
-            public final void exec() throws CorruptIndexException,
-                    IdentityException, IOException {
+            public final void exec() throws EvalException, IOException {
                 setPager(new Pager(recent.asResults(state)));
                 pager.execList();
             }
@@ -493,15 +505,13 @@ final class Session {
             }
 
             @SuppressWarnings("unused")
-            public final void exec() throws CorruptIndexException, IOException,
-                    ParseException {
+            public final void exec() throws IOException, ParseException {
                 System.out.printf("searching for '%s'...\n", last);
                 setPager(search(last));
                 pager.execList();
             }
 
-            public final void exec(String s) throws CorruptIndexException,
-                    IOException, ParseException {
+            public final void exec(String s) throws IOException, ParseException {
                 setPager(search(s));
                 pager.execList();
                 last = s;
@@ -509,8 +519,8 @@ final class Session {
 
             @SuppressWarnings("unused")
             @Synopsis("search [expr...]")
-            public final void exec(Object... args)
-                    throws CorruptIndexException, IOException, ParseException {
+            public final void exec(Object... args) throws IOException,
+                    ParseException {
                 exec(join(args));
             }
         };
@@ -533,15 +543,15 @@ final class Session {
 
             @SuppressWarnings("unused")
             @Synopsis("set name")
-            public final void exec(String name) throws IOException,
-                    NameException, ResetException {
+            public final void exec(String name) throws EvalException,
+                    IOException {
                 env.reset(name);
             }
 
             @SuppressWarnings("unused")
             @Synopsis("set name value")
             public final void exec(String name, String value)
-                    throws IOException, NameException, ResetException {
+                    throws EvalException, IOException {
                 env.set(name, value);
             }
         };
@@ -601,7 +611,7 @@ final class Session {
 
             @SuppressWarnings("unused")
             @Synopsis("values name")
-            public final void exec(String s) throws Exception {
+            public final void exec(String s) throws IOException, ParseException {
                 setPager(values(s));
                 pager.execList();
             }

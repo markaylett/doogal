@@ -58,10 +58,8 @@ final class Tidy {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
-        if (null == file) {
-            System.err.println("no such document");
-            return;
-        }
+        if (null == file)
+            throw new EvalException("no such document");
 
         final File trash = new File(state.getTrash(), file.getName());
         trash.delete();

@@ -26,12 +26,11 @@ final class Pager {
         return results.terms();
     }
 
-    final void execGoto(String n) throws IOException {
-        final int i = Math.max(Integer.valueOf(n) - 1, 0);
-        if (i * PAGE_SIZE < results.size())
-            start = i * PAGE_SIZE;
-        else
-            System.err.println("no such page");
+    final void execGoto(String n) throws EvalException, IOException {
+        final int i = Math.max(Integer.valueOf(n) - 1, 0) * PAGE_SIZE;
+        if (results.size() <= i)
+            throw new EvalException("no such page");
+        start = i;
     }
 
     final void execList() throws IOException {

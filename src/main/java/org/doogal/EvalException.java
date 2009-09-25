@@ -1,12 +1,12 @@
 package org.doogal;
 
-final class NameException extends Exception {
+class EvalException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    NameException() {
+    EvalException() {
     }
 
-    NameException(String s) {
+    EvalException(String s) {
         super(s);
     }
 }

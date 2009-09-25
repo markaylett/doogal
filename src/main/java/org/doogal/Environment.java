@@ -132,25 +132,24 @@ final class Environment {
         });
     }
 
-    final void reset(String name) throws NameException, ResetException {
+    final void reset(String name) throws EvalException {
         final Accessor acc = env.get(name);
         if (null == acc)
-            throw new NameException("no such name");
+            throw new EvalException("no such name");
         acc.reset();
     }
 
-    final void set(String name, Object value) throws NameException,
-            ResetException {
+    final void set(String name, Object value) throws EvalException {
         final Accessor acc = env.get(name);
         if (null == acc)
-            throw new NameException("no such name");
+            throw new EvalException("no such name");
         acc.set(value);
     }
 
-    final Object get(String name) throws NameException {
+    final Object get(String name) throws EvalException {
         final Accessor acc = env.get(name);
         if (null == acc)
-            throw new NameException("no such name");
+            throw new EvalException("no such name");
         return acc.get();
     }
 

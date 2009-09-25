@@ -79,10 +79,8 @@ final class Export {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
-        if (null == file) {
-            System.err.println("no such document");
-            return;
-        }
+        if (null == file)
+            throw new EvalException("no such document");
 
         final String id = getId(file);
         final InputStream is = new FileInputStream(file);
