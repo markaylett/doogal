@@ -243,51 +243,6 @@ final class Session {
         };
     }
 
-    @Builtin("export")
-    public final Command newExport() {
-        return new AbstractBuiltin() {
-            public final String getDescription() {
-                return "export to outgoing";
-            }
-
-            @SuppressWarnings("unused")
-            public final void exec() throws Exception {
-                log.info("exporting...");
-                Export.exec(state, getTerm());
-            }
-
-            @SuppressWarnings("unused")
-            public final void exec(String s) throws Exception {
-                log.info("exporting...");
-                if ("*".equals(s)) {
-                    final Collection<Term> terms = pager.terms();
-                    for (final Term term : terms)
-                        Export.exec(state, term);
-                } else
-                    Export.exec(state, getTerm(s));
-            }
-
-            @SuppressWarnings("unused")
-            @Synopsis("export [doc...]")
-            public final void exec(Object... args) throws Exception {
-                log.info("exporting...");
-                boolean glob = false;
-                for (final Object arg : args) {
-                    final String s = arg.toString();
-                    if ("*".equals(s))
-                        glob = true;
-                    else
-                        Export.exec(state, getTerm(arg.toString()));
-                }
-                if (glob) {
-                    final Collection<Term> terms = pager.terms();
-                    for (final Term term : terms)
-                        Export.exec(state, term);
-                }
-            }
-        };
-    }
-
     @Builtin("goto")
     public final Command newGoto() {
         return new AbstractBuiltin() {
@@ -308,7 +263,7 @@ final class Session {
     public final Command newImport() {
         return new AbstractBuiltin() {
             public final String getDescription() {
-                return "import from incoming";
+                return "import from inbox";
             }
 
             @SuppressWarnings("unused")
@@ -462,6 +417,51 @@ final class Session {
             public final void exec() throws IOException {
                 pager.execPrev();
                 pager.execList();
+            }
+        };
+    }
+
+    @Builtin("publish")
+    public final Command newPublish() {
+        return new AbstractBuiltin() {
+            public final String getDescription() {
+                return "publish to html";
+            }
+
+            @SuppressWarnings("unused")
+            public final void exec() throws Exception {
+                log.info("publishing...");
+                Publish.exec(state, getTerm());
+            }
+
+            @SuppressWarnings("unused")
+            public final void exec(String s) throws Exception {
+                log.info("publishing...");
+                if ("*".equals(s)) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Publish.exec(state, term);
+                } else
+                    Publish.exec(state, getTerm(s));
+            }
+
+            @SuppressWarnings("unused")
+            @Synopsis("publish [doc...]")
+            public final void exec(Object... args) throws Exception {
+                log.info("publishing...");
+                boolean glob = false;
+                for (final Object arg : args) {
+                    final String s = arg.toString();
+                    if ("*".equals(s))
+                        glob = true;
+                    else
+                        Publish.exec(state, getTerm(arg.toString()));
+                }
+                if (glob) {
+                    final Collection<Term> terms = pager.terms();
+                    for (final Term term : terms)
+                        Publish.exec(state, term);
+                }
             }
         };
     }

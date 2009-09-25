@@ -40,12 +40,12 @@ final class SharedState {
         return env.getRepo();
     }
 
-    final String getIncoming() {
-        return env.getIncoming();
+    final String getHtml() {
+        return env.getHtml();
     }
 
-    final String getOutgoing() {
-        return env.getOutgoing();
+    final String getInbox() {
+        return env.getInbox();
     }
 
     final String getTemplate() {

@@ -32,7 +32,7 @@ final class Import {
                 new StandardAnalyzer(), false,
                 IndexWriter.MaxFieldLength.LIMITED);
         try {
-            listFiles(new File(state.getIncoming()), new Predicate<File>() {
+            listFiles(new File(state.getInbox()), new Predicate<File>() {
                 public final boolean call(File file) throws IOException,
                         MessagingException {
                     if (ignore(file))

@@ -26,7 +26,7 @@ import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkFactory;
 
-final class Export {
+final class Publish {
 
     private static final class PlainParser extends AbstractTextParser {
 
@@ -93,7 +93,7 @@ final class Export {
             String outName) throws IOException, ParseException {
 
         final SinkFactory factory = new XhtmlSinkFactory();
-        final Sink xhtml = factory.createSink(new File(state.getOutgoing()),
+        final Sink xhtml = factory.createSink(new File(state.getHtml()),
                 outName);
         try {
             parser.parse(contents, new HeaderSink(title, authors, date, xhtml));

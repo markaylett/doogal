@@ -21,8 +21,8 @@ final class Environment {
     private String editor;
     private String repo;
     private String template;
-    private String incoming;
-    private String outgoing;
+    private String html;
+    private String inbox;
 
     private static String defaultEditor() {
         final String s = System.getenv("EDITOR");
@@ -38,12 +38,12 @@ final class Environment {
         return s;
     }
 
-    private final String defaultIncoming() {
-        return getPath(repo, "incoming");
+    private final String defaultHtml() {
+        return getPath(repo, "html");
     }
 
-    private final String defaultOutgoing() {
-        return getPath(repo, "outgoing");
+    private final String defaultInbox() {
+        return getPath(repo, "inbox");
     }
 
     private final String defaultTemplate() {
@@ -55,8 +55,8 @@ final class Environment {
         editor = defaultEditor();
         repo = defaultRepo();
         template = null;
-        incoming = null;
-        outgoing = null;
+        html = null;
+        inbox = null;
 
         env.put("editor", new Accessor() {
 
@@ -88,32 +88,32 @@ final class Environment {
                 throw new ResetException();
             }
         });
-        env.put("incoming", new Accessor() {
+        env.put("html", new Accessor() {
 
             public final Object get() {
-                return getIncoming();
+                return getHtml();
             }
 
             public final void reset() throws ResetException {
-                incoming = null;
+                html = null;
             }
 
             public final void set(Object value) throws ResetException {
-                incoming = value.toString();
+                html = value.toString();
             }
         });
-        env.put("outgoing", new Accessor() {
+        env.put("inbox", new Accessor() {
 
             public final Object get() {
-                return getOutgoing();
+                return getInbox();
             }
 
             public final void reset() throws ResetException {
-                outgoing = null;
+                inbox = null;
             }
 
             public final void set(Object value) throws ResetException {
-                outgoing = value.toString();
+                inbox = value.toString();
             }
         });
         env.put("template", new Accessor() {
@@ -161,12 +161,12 @@ final class Environment {
         return repo;
     }
 
-    final String getIncoming() {
-        return null == incoming ? defaultIncoming() : incoming;
+    final String getHtml() {
+        return null == html ? defaultHtml() : html;
     }
 
-    final String getOutgoing() {
-        return null == outgoing ? defaultOutgoing() : outgoing;
+    final String getInbox() {
+        return null == inbox ? defaultInbox() : inbox;
     }
 
     final String getTemplate() {

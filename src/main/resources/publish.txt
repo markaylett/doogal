@@ -1,0 +1,7 @@
+Publish one or more documents to the html directory:
+${DOOGAL_REPO}/html
+
+The html directory may be changed using the 'set' command.
+
+Published documents will be converted to HTML.  If the Content-Type is
+"text/apt", then the content will be treated as Wiki markup.

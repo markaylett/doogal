@@ -17,6 +17,8 @@ final class Repo {
             final PrintWriter out = new PrintWriter(file);
             try {
                 out.println("# Doogle config file.");
+                out.println("alias ls list");
+                out.println("alias p publish");
                 out.println("alias s search");
                 out.println("index");
             } finally {
@@ -73,8 +75,8 @@ final class Repo {
 
         initConfig();
 
-        new File(root, "incoming").mkdir();
-        new File(root, "outgoing").mkdir();
+        new File(root, "html").mkdir();
+        new File(root, "inbox").mkdir();
 
         final File dir = new File(root, "template");
         dir.mkdir();
