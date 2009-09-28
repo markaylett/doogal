@@ -61,11 +61,11 @@ final class Publish {
     }
 
     private static String getTitle(InternetHeaders headers, String def) {
-        String s = getFirst(headers, "Title");
+        String s = getFirst(headers, "Name");
         if (null == s) {
-            s = getFirst(headers, "Subject");
+            s = getFirst(headers, "Title");
             if (null == s) {
-                s = getFirst(headers, "Name");
+                s = getFirst(headers, "Subject");
                 if (null == s)
                     s = def;
             }
