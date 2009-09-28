@@ -9,6 +9,7 @@ for f in $(find . -name "*.txt"); do
     bn=$(basename $f)
     dt=$(dirname $f | sed -e 's|[.]/||g' -e 's|/||g')
     ft=$(file -b $f)
+    dos2unix $f
     echo "$dt $bn $ft"
     touch -m -d $dt $f
 done

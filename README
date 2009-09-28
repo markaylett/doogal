@@ -1,3 +1,10 @@
+TODO:
+ * page-size variable
+ * template variable
+ * parser errors
+ * help text
+ * save settings
+
 $ find $DOOGAL_REPO/data -name "*.txt" -exec file {} \; | grep -v ASCII
 
 (defun run-doogal ()
