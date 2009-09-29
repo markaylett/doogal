@@ -4,6 +4,8 @@ TODO:
  * parser errors
  * help text
  * save settings
+ * apt doogal ids
+ * apt css
 
 $ find $DOOGAL_REPO/data -name "*.txt" -exec file {} \; | grep -v ASCII
 
