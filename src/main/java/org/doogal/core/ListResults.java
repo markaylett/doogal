@@ -30,6 +30,6 @@ final class ListResults implements Results {
         return ls.size();
     }
 
-    public static final ListResults EMPTY = new ListResults(Collections
+    static final ListResults EMPTY = new ListResults(Collections
             .<String> emptyList());
 }

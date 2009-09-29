@@ -10,16 +10,16 @@ import java.util.Map.Entry;
 
 public final class Environment {
     private static interface Accessor {
-        void reset() throws ResetException;
+        void reset() throws EvalException;
 
-        void set(Object value) throws ResetException;
+        void set(Object value) throws EvalException;
 
         Object get();
     }
 
     private final Map<String, Accessor> env;
+    private final String repo;
     private String editor;
-    private String repo;
     private String template;
     private String html;
     private String inbox;
@@ -78,14 +78,12 @@ public final class Environment {
                 return getRepo();
             }
 
-            public final void reset() throws ResetException {
-                repo = defaultRepo();
-                throw new ResetException();
+            public final void reset() throws EvalException {
+                throw new EvalException("read-only variable");
             }
 
-            public final void set(Object value) throws ResetException {
-                repo = value.toString();
-                throw new ResetException();
+            public final void set(Object value) throws EvalException {
+                throw new EvalException("read-only variable");
             }
         });
         env.put("html", new Accessor() {
@@ -94,11 +92,11 @@ public final class Environment {
                 return getHtml();
             }
 
-            public final void reset() throws ResetException {
+            public final void reset() {
                 html = null;
             }
 
-            public final void set(Object value) throws ResetException {
+            public final void set(Object value) {
                 html = value.toString();
             }
         });
@@ -108,11 +106,11 @@ public final class Environment {
                 return getInbox();
             }
 
-            public final void reset() throws ResetException {
+            public final void reset() {
                 inbox = null;
             }
 
-            public final void set(Object value) throws ResetException {
+            public final void set(Object value) {
                 inbox = value.toString();
             }
         });
@@ -122,11 +120,11 @@ public final class Environment {
                 return getTemplate();
             }
 
-            public final void reset() throws ResetException {
+            public final void reset() {
                 template = null;
             }
 
-            public final void set(Object value) throws ResetException {
+            public final void set(Object value) {
                 template = value.toString();
             }
         });
@@ -157,7 +155,7 @@ public final class Environment {
         return editor;
     }
 
-    public final String getRepo() {
+    final String getRepo() {
         return repo;
     }
 

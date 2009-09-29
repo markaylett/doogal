@@ -89,8 +89,8 @@ public final class Shellwords {
         return new Shellwords(reader).readLine();
     }
 
-    public static void readLine(Reader reader, Interpreter interp)
-            throws EvalException, IOException, ParseException {
+    public static void parse(Reader reader, Interpreter interp) throws EvalException,
+            IOException, ParseException {
         final Shellwords sw = new Shellwords(reader);
         do {
             final List<Object> toks = sw.readLine();
@@ -103,14 +103,18 @@ public final class Shellwords {
         } while (!sw.isEof());
     }
 
-    public static void readLine(InputStream in, Interpreter interp)
-            throws EvalException, IOException, ParseException {
-        readLine(newBufferedReader(in), interp);
+    public static void parse(InputStream in, Interpreter interp) throws EvalException,
+            IOException, ParseException {
+        parse(newBufferedReader(in), interp);
     }
 
     public static void main(String[] args) throws EvalException, IOException,
             ParseException {
-        readLine(System.in, new Interpreter() {
+        parse(System.in, new Interpreter() {
+            public final void close() {
+
+            }
+
             public final void eval(String cmd, Object... args) {
                 System.out.printf("[%s]\n", cmd);
                 for (final Object arg : args)

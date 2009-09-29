@@ -30,7 +30,7 @@ final class Publish {
 
     private static final class PlainParser extends AbstractTextParser {
 
-        public void parse(Reader source, Sink sink) throws ParseException {
+        public final void parse(Reader source, Sink sink) throws ParseException {
             final BufferedReader reader = new BufferedReader(source);
             try {
                 sink.head();

@@ -1,6 +1,7 @@
 package org.doogal.core;
 
 import static org.doogal.core.Utility.eachLine;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -14,8 +15,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-public final class Doogal implements Interpreter {
-    private final Session session;
+final class Doogal implements Interpreter {
+    private final Model model;
     private final Map<String, Command> commands;
     private final int[] maxNames;
 
@@ -68,17 +69,17 @@ public final class Doogal implements Interpreter {
         return String.format("%" + max + "s - %s", cmd, value.getDescription());
     }
 
-    public Doogal(final Session session) throws IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        this.session = session;
+    Doogal(final Model model) throws IllegalAccessException,
+            InvocationTargetException {
+        this.model = model;
         commands = new TreeMap<String, Command>();
         maxNames = new int[Type.values().length];
-        final Method[] methods = Session.class.getMethods();
+        final Method[] methods = Model.class.getMethods();
         for (int i = 0; i < methods.length; ++i) {
             final Method method = methods[i];
             final Builtin builtin = method.getAnnotation(Builtin.class);
             if (null != builtin)
-                put(builtin.value(), (Command) method.invoke(session));
+                put(builtin.value(), (Command) method.invoke(model));
         }
         commands.put("alias", new AbstractBuiltin() {
             public final String getDescription() {
@@ -94,8 +95,8 @@ public final class Doogal implements Interpreter {
                     if (Type.ALIAS == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), session.out);
-                Doogal.this.session.setPager(pager);
+                final Pager pager = new Pager(new ListResults(ls), model.out);
+                Doogal.this.model.setPager(pager);
                 pager.execList();
             }
 
@@ -112,8 +113,8 @@ public final class Doogal implements Interpreter {
                             && entry.getKey().startsWith(hint))
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), session.out);
-                Doogal.this.session.setPager(pager);
+                final Pager pager = new Pager(new ListResults(ls), model.out);
+                Doogal.this.model.setPager(pager);
                 pager.execList();
             }
 
@@ -178,8 +179,8 @@ public final class Doogal implements Interpreter {
                     if (Type.BUILTIN == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), session.out);
-                Doogal.this.session.setPager(pager);
+                final Pager pager = new Pager(new ListResults(ls), model.out);
+                Doogal.this.model.setPager(pager);
                 pager.execList();
             }
 
@@ -201,14 +202,18 @@ public final class Doogal implements Interpreter {
 
                 Pager pager = null;
                 if (1 == ls.size())
-                    pager = helpPager(last, commands.get(last), session.out);
+                    pager = helpPager(last, commands.get(last), model.out);
                 else
-                    pager = new Pager(new ListResults(ls), session.out);
+                    pager = new Pager(new ListResults(ls), model.out);
 
-                Doogal.this.session.setPager(pager);
+                Doogal.this.model.setPager(pager);
                 pager.execList();
             }
         });
+    }
+
+    public final void close() throws IOException {
+        model.close();
     }
 
     @SuppressWarnings("unchecked")
@@ -248,7 +253,7 @@ public final class Doogal implements Interpreter {
             for (final Object arg : args)
                 types.add(arg.getClass());
 
-            session.update();
+            model.update();
             try {
                 final Method m = value.getClass().getMethod("exec",
                         types.toArray(new Class[types.size()]));
@@ -260,16 +265,14 @@ public final class Doogal implements Interpreter {
             }
 
         } catch (final NoSuchMethodException e) {
-            session.log.error("invalid arguments");
+            model.log.error("invalid arguments");
         } catch (final InvocationTargetException e) {
             final Throwable t = e.getCause();
             if (t instanceof ExitException)
                 throw (ExitException) t;
-            if (t instanceof ResetException)
-                throw (ResetException) t;
-            session.log.error(t.getLocalizedMessage());
+            model.log.error(t.getLocalizedMessage());
         } catch (final Exception e) {
-            session.log.error(e.getLocalizedMessage());
+            model.log.error(e.getLocalizedMessage());
         }
     }
 

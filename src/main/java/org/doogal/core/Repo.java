@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-public final class Repo {
+final class Repo {
     private final File root;
     private final File data;
     private final File etc;
@@ -57,7 +57,7 @@ public final class Repo {
         }
     }
 
-    public Repo(String path) {
+    Repo(String path) {
         root = new File(path);
         data = new File(root, "data");
         etc = new File(root, "etc");
@@ -65,7 +65,7 @@ public final class Repo {
         trash = new File(root, "trash");
     }
 
-    public final void init() throws FileNotFoundException {
+    final void init() throws FileNotFoundException {
 
         root.mkdir();
         data.mkdir();
@@ -88,7 +88,7 @@ public final class Repo {
         return data;
     }
 
-    public final File getEtc() {
+    final File getEtc() {
         return etc;
     }
 

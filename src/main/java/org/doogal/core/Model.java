@@ -24,7 +24,7 @@ import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 
-public final class Session {
+final class Model {
     private static final class WrapException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
@@ -36,9 +36,9 @@ public final class Session {
     private static final String[] FIELDS = { "subject", "title", "contents" };
     private static final Random RAND = new Random();
 
-    public final PrintWriter out;
-    public final PrintWriter err;
-    public final Log log;
+    final PrintWriter out;
+    final PrintWriter err;
+    final Log log;
     private final Environment env;
     private final Repo repo;
     private final IdentityMap identityMap;
@@ -133,8 +133,8 @@ public final class Session {
         return new Pager(new ArrayResults(arr), out);
     }
 
-    public Session(PrintWriter out, PrintWriter err, Log log, Environment env,
-            Repo repo) throws EvalException, IOException {
+    Model(PrintWriter out, PrintWriter err, Log log, Environment env, Repo repo)
+            throws EvalException, IOException {
         this.out = out;
         this.err = err;
         this.log = log;
@@ -147,7 +147,7 @@ public final class Session {
         setPager(new Pager(ListResults.EMPTY, out));
     }
 
-    public final void close() throws IOException {
+    final void close() throws IOException {
         setPager(null);
         if (null != state) {
             state.release();

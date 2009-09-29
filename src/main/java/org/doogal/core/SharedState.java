@@ -13,7 +13,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
 final class SharedState {
-    public final Log log;
+    final Log log;
     private final Environment env;
     private final Repo repo;
     private final IdentityMap identityMap;
