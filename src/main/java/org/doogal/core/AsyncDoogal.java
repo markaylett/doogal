@@ -11,19 +11,28 @@ import javax.mail.internet.ParseException;
 import org.apache.commons.logging.Log;
 
 public final class AsyncDoogal implements Doogal {
-    private final Controller controller;
-    private final Doogal doogal;
     private final Log log;
+    private final Doogal doogal;
+    private final Controller controller;
     private final ExecutorService executor;
 
-    public AsyncDoogal(Controller controller, Doogal doogal, Log log) {
-        this.controller = controller;
-        this.doogal = doogal;
+    public AsyncDoogal(Log log, Doogal doogal, Controller controller) {
         this.log = log;
+        this.doogal = doogal;
+        this.controller = controller;
         this.executor = Executors.newSingleThreadExecutor();
     }
 
     public final void close() {
+        executor.execute(new Runnable() {
+            public final void run() {
+                try {
+                    doogal.close();
+                } catch (IOException e) {
+                    log.error(e.getLocalizedMessage());
+                }
+            }
+        });
         executor.shutdown();
         try {
             executor.awaitTermination(5, TimeUnit.SECONDS);
@@ -32,11 +41,6 @@ public final class AsyncDoogal implements Doogal {
         }
         if (!executor.isShutdown())
             executor.shutdownNow();
-        try {
-            doogal.close();
-        } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-        }
     }
 
     public final void eval(final String cmd, final Object... args) throws EvalException {
@@ -53,7 +57,7 @@ public final class AsyncDoogal implements Doogal {
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } finally {
-                    controller.prompt();
+                    controller.ready();
                 }
             }
         });
@@ -73,7 +77,7 @@ public final class AsyncDoogal implements Doogal {
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } finally {
-                    controller.prompt();
+                    controller.ready();
                 }
             }
         });
@@ -98,7 +102,7 @@ public final class AsyncDoogal implements Doogal {
                 } catch (ParseException e) {
                     log.error(e.getLocalizedMessage());
                 } finally {
-                    controller.prompt();
+                    controller.ready();
                 }
             }
         });
@@ -123,8 +127,16 @@ public final class AsyncDoogal implements Doogal {
                 } catch (ParseException e) {
                     log.error(e.getLocalizedMessage());
                 } finally {
-                    controller.prompt();
+                    controller.ready();
                 }
+            }
+        });
+    }
+
+    public final void setDefault(final String def) {
+        executor.execute(new Runnable() {
+            public final void run() {
+                doogal.setDefault(def);
             }
         });
     }

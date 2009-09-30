@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.logging.Log;
@@ -25,6 +24,7 @@ public final class SyncDoogal implements Doogal {
     private final Model model;
     private final Map<String, Command> commands;
     private final int[] maxNames;
+    private String def;
 
     private static Pager helpPager(String cmd, Command value, PrintWriter out)
             throws Exception {
@@ -218,10 +218,10 @@ public final class SyncDoogal implements Doogal {
         });
     }
 
-    public static final Doogal newInstance(PrintWriter out, PrintWriter err,
+    public static final Doogal newInstance(PrintWriter out,
             Log log, Environment env, Repo repo) throws EvalException,
             IllegalAccessException, InvocationTargetException, IOException {
-        final Model model = new Model(out, err, log, env, repo);
+        final Model model = new Model(out, log, env, repo);
         Doogal doogal = null;
         try {
             doogal = new SyncDoogal(model);
@@ -233,12 +233,12 @@ public final class SyncDoogal implements Doogal {
         return doogal;
     }
 
-    public static Doogal newInstance(PrintWriter out, PrintWriter err, Log log,
+    public static Doogal newInstance(PrintWriter out, Log log,
             Environment env) throws EvalException, IllegalAccessException,
             InvocationTargetException, IOException, ParseException {
         final Repo repo = new Repo(env.getRepo());
         repo.init();
-        return newInstance(out, err, log, env, repo);
+        return newInstance(out, log, env, repo);
     }
     
     public final void close() {
@@ -305,7 +305,9 @@ public final class SyncDoogal implements Doogal {
         }
     }
 
-    public final void eval() {
+    public final void eval() throws EvalException {
+        if (null != def)
+            eval(def);
     }
 
     public final void readConfig(File config) throws EvalException, IOException,
@@ -323,5 +325,9 @@ public final class SyncDoogal implements Doogal {
     public final void readConfig() throws EvalException, IOException,
             ParseException {
         readConfig(model.getConfig());
+    }
+
+    public final void setDefault(String def) {
+        this.def = def;
     }
 }

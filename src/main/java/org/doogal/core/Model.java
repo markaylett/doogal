@@ -39,7 +39,6 @@ final class Model implements Closeable {
     private static final Random RAND = new Random();
 
     final PrintWriter out;
-    final PrintWriter err;
     final Log log;
     private final Environment env;
     private final Repo repo;
@@ -135,10 +134,9 @@ final class Model implements Closeable {
         return new Pager(new ArrayResults(arr), out);
     }
 
-    Model(PrintWriter out, PrintWriter err, Log log, Environment env, Repo repo)
+    Model(PrintWriter out, Log log, Environment env, Repo repo)
             throws EvalException, IOException {
         this.out = out;
-        this.err = err;
         this.log = log;
         this.env = env;
         this.repo = repo;

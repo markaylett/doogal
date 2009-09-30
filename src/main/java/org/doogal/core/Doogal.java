@@ -11,4 +11,6 @@ public interface Doogal extends Closeable, Interpreter {
             ParseException;
 
     void readConfig() throws EvalException, IOException, ParseException;
+
+    void setDefault(String def);
 }

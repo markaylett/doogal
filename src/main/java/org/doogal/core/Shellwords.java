@@ -8,7 +8,6 @@ import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.mail.internet.ParseException;
 
 public final class Shellwords {

@@ -13,11 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
-
 import javax.mail.internet.ParseException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -36,7 +36,7 @@ import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
 
-public final class Main extends JPanel {
+public final class Main extends JPanel implements Doogal {
 
     private static final long serialVersionUID = 1L;
     private static final int FONT_SIZE = 12;
@@ -45,7 +45,7 @@ public final class Main extends JPanel {
     private final JTextField command;
     private final Doogal doogal;
 
-    private static Frame findFrame(Container c) {
+    private static Frame getFrame(Container c) {
         while (c != null) {
             if (c instanceof Frame)
                 return (Frame) c;
@@ -71,7 +71,7 @@ public final class Main extends JPanel {
 
         command = new JTextField(32);
         command.setEditable(false);
-        
+
         final JScrollPane scrollPanel = new JScrollPane();
         scrollPanel.setViewportView(display);
         add(scrollPanel, BorderLayout.CENTER);
@@ -85,12 +85,12 @@ public final class Main extends JPanel {
             public final void close() {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        postWindowClosingEvent(findFrame(Main.this));
+                        postWindowClosingEvent(getFrame(Main.this));
                     }
                 });
             }
 
-            public final void prompt() {
+            public final void ready() {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         command.setEditable(true);
@@ -99,8 +99,8 @@ public final class Main extends JPanel {
                 });
             }
         };
-        doogal = new AsyncDoogal(controller, SyncDoogal.newInstance(out, out,
-                log, env), log);
+        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(out, log, env),
+                controller);
 
         command.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
@@ -110,11 +110,11 @@ public final class Main extends JPanel {
                 try {
                     Shellwords.parse(reader, doogal);
                 } catch (final EvalException e) {
-                    e.printStackTrace();
+                    log.error(e.getLocalizedMessage());
                 } catch (final IOException e) {
-                    e.printStackTrace();
+                    log.error(e.getLocalizedMessage());
                 } catch (final ParseException e) {
-                    e.printStackTrace();
+                    log.error(e.getLocalizedMessage());
                 }
             }
         });
@@ -122,12 +122,55 @@ public final class Main extends JPanel {
         printResource("motd.txt", out);
     }
 
-    final void close() throws IOException {
+    public final void close() throws IOException {
         doogal.close();
     }
 
-    final void readConfig() throws EvalException, IOException, ParseException {
+    public final void eval(String cmd, Object... args) throws EvalException {
+        doogal.eval(cmd, args);
+    }
+
+    public final void eval() throws EvalException {
+        doogal.eval();
+    }
+
+    public final void readConfig(File config) throws EvalException,
+            IOException, ParseException {
+        doogal.readConfig(config);
+    }
+
+    public final void readConfig() throws EvalException, IOException,
+            ParseException {
         doogal.readConfig();
+    }
+
+    public final void setDefault(String def) {
+        doogal.setDefault(def);
+    }
+
+    private static void run() throws Exception {
+        final JFrame f = new JFrame("Doogal");
+        final Main m = new Main();
+        f.addWindowListener(new WindowAdapter() {
+            @Override
+            public final void windowClosing(WindowEvent ev) {
+                try {
+                    m.close();
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        f.setLayout(new BorderLayout());
+        f.add(m, BorderLayout.CENTER);
+        f.pack();
+        f.setVisible(true);
+        final Dimension d = f.getToolkit().getScreenSize();
+        f.setSize(d.width / 2, d.height / 2);
+        m.readConfig();
+        m.setDefault("next");
     }
 
     public static void main(String[] args) {
@@ -136,28 +179,7 @@ public final class Main extends JPanel {
 
             public final void run() {
                 try {
-                    final JFrame f = new JFrame("Doogal");
-                    final Main m = new Main();
-                    f.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public final void windowClosing(WindowEvent ev) {
-                            try {
-                                m.close();
-                            } catch (final IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    f
-                            .setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-                    f.setLayout(new BorderLayout());
-                    f.add(m, BorderLayout.CENTER);
-                    f.pack();
-                    f.setVisible(true);
-                    final Dimension d = f.getToolkit().getScreenSize();
-                    f.setSize(d.width / 2, d.height / 2);
-                    m.readConfig();
+                    Main.run();
                 } catch (final Exception e) {
                     e.printStackTrace();
                 }
