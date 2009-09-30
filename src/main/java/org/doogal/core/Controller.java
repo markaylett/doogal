@@ -1,7 +1,6 @@
 package org.doogal.core;
 
-import java.io.Closeable;
-
-public interface Controller extends Closeable {
+public interface Controller {
+    void exit() throws ExitException;
     void ready();
 }

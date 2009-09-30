@@ -478,22 +478,6 @@ final class Model implements Closeable {
         };
     }
 
-    @Builtin("quit")
-    public final Command newQuit() {
-        return new AbstractBuiltin() {
-            public final String getDescription() {
-                return "exit application";
-            }
-
-            @SuppressWarnings("unused")
-            @Synopsis("quit")
-            public final void exec() throws ExitException {
-                log.info("exiting...");
-                throw new ExitException();
-            }
-        };
-    }
-
     @Builtin("recent")
     public final Command newRecent() {
         return new AbstractBuiltin() {

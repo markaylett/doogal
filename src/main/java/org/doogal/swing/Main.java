@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+
 import javax.mail.internet.ParseException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -82,7 +83,7 @@ public final class Main extends JPanel implements Doogal {
         final Log log = new StandardLog(out, out);
         final Environment env = new Environment();
         final Controller controller = new Controller() {
-            public final void close() {
+            public final void exit() {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         postWindowClosingEvent(getFrame(Main.this));
@@ -99,8 +100,8 @@ public final class Main extends JPanel implements Doogal {
                 });
             }
         };
-        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(out, log, env),
-                controller);
+        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(out, log, env,
+                controller));
 
         command.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
@@ -134,18 +135,19 @@ public final class Main extends JPanel implements Doogal {
         doogal.eval();
     }
 
-    public final void readConfig(File config) throws EvalException,
+    public final void readConfig(Reader reader) throws EvalException,
             IOException, ParseException {
-        doogal.readConfig(config);
+        doogal.readConfig(reader);
+    }
+
+    public final void readConfig(File file) throws EvalException, IOException,
+            ParseException {
+        doogal.readConfig(file);
     }
 
     public final void readConfig() throws EvalException, IOException,
             ParseException {
         doogal.readConfig();
-    }
-
-    public final void setDefault(String def) {
-        doogal.setDefault(def);
     }
 
     private static void run() throws Exception {
@@ -166,11 +168,11 @@ public final class Main extends JPanel implements Doogal {
         f.setLayout(new BorderLayout());
         f.add(m, BorderLayout.CENTER);
         f.pack();
-        f.setVisible(true);
+
         final Dimension d = f.getToolkit().getScreenSize();
         f.setSize(d.width / 2, d.height / 2);
+        f.setVisible(true);
         m.readConfig();
-        m.setDefault("next");
     }
 
     public static void main(String[] args) {

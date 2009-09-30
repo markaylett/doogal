@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,9 +23,10 @@ import org.apache.commons.logging.Log;
 
 public final class SyncDoogal implements Doogal {
     private final Model model;
+    private final Controller controller;
     private final Map<String, Command> commands;
     private final int[] maxNames;
-    private String def;
+    private boolean interact;
 
     private static Pager helpPager(String cmd, Command value, PrintWriter out)
             throws Exception {
@@ -75,11 +77,14 @@ public final class SyncDoogal implements Doogal {
         return String.format("%" + max + "s - %s", cmd, value.getDescription());
     }
 
-    private SyncDoogal(final Model model) throws IllegalAccessException,
-            InvocationTargetException {
+    private SyncDoogal(final Model model, final Controller controller)
+            throws IllegalAccessException, InvocationTargetException {
         this.model = model;
-        commands = new TreeMap<String, Command>();
-        maxNames = new int[Type.values().length];
+        this.controller = controller;
+        this.commands = new TreeMap<String, Command>();
+        this.maxNames = new int[Type.values().length];
+        this.interact = true;
+
         final Method[] methods = Model.class.getMethods();
         for (int i = 0; i < methods.length; ++i) {
             final Method method = methods[i];
@@ -216,15 +221,30 @@ public final class SyncDoogal implements Doogal {
                 pager.execList();
             }
         });
+
+        put("quit", new AbstractBuiltin() {
+            public final String getDescription() {
+                return "exit application";
+            }
+
+            @SuppressWarnings("unused")
+            @Synopsis("quit")
+            public final void exec() throws ExitException {
+                model.log.info("exiting...");
+                interact = false;
+                controller.exit();
+            }
+        });
     }
 
-    public static final Doogal newInstance(PrintWriter out,
-            Log log, Environment env, Repo repo) throws EvalException,
-            IllegalAccessException, InvocationTargetException, IOException {
+    public static final Doogal newInstance(PrintWriter out, Log log,
+            Environment env, Repo repo, Controller controller)
+            throws EvalException, IllegalAccessException,
+            InvocationTargetException, IOException {
         final Model model = new Model(out, log, env, repo);
         Doogal doogal = null;
         try {
-            doogal = new SyncDoogal(model);
+            doogal = new SyncDoogal(model, controller);
         } finally {
             if (null == doogal)
                 model.close();
@@ -233,14 +253,15 @@ public final class SyncDoogal implements Doogal {
         return doogal;
     }
 
-    public static Doogal newInstance(PrintWriter out, Log log,
-            Environment env) throws EvalException, IllegalAccessException,
-            InvocationTargetException, IOException, ParseException {
+    public static Doogal newInstance(PrintWriter out, Log log, Environment env,
+            Controller controller) throws EvalException,
+            IllegalAccessException, InvocationTargetException, IOException,
+            ParseException {
         final Repo repo = new Repo(env.getRepo());
         repo.init();
-        return newInstance(out, log, env, repo);
+        return newInstance(out, log, env, repo, controller);
     }
-    
+
     public final void close() {
         model.close();
     }
@@ -302,32 +323,44 @@ public final class SyncDoogal implements Doogal {
             model.log.error(t.getLocalizedMessage());
         } catch (final Exception e) {
             model.log.error(e.getLocalizedMessage());
+        } finally {
+            if (interact)
+                controller.ready();
         }
     }
 
     public final void eval() throws EvalException {
-        if (null != def)
-            eval(def);
+        if (interact)
+            eval("next");
     }
 
-    public final void readConfig(File config) throws EvalException, IOException,
-            ParseException {
-        if (config.canRead()) {
-            final FileReader reader = new FileReader(config);
+    public final void readConfig(Reader reader) throws EvalException,
+            IOException, ParseException {
+        final boolean orig = interact;
+        interact = false;
+        try {
+            Shellwords.parse(reader, this);
+        } finally {
+            interact = orig;
+            controller.ready();
+        }
+    }
+
+    public final void readConfig(File file) throws EvalException,
+            IOException, ParseException {
+        if (file.canRead()) {
+            final FileReader reader = new FileReader(file);
             try {
-                Shellwords.parse(reader, this);
+                readConfig(reader);
             } finally {
                 reader.close();
             }
-        }
+        } else
+            controller.ready();
     }
 
     public final void readConfig() throws EvalException, IOException,
             ParseException {
         readConfig(model.getConfig());
-    }
-
-    public final void setDefault(String def) {
-        this.def = def;
     }
 }
