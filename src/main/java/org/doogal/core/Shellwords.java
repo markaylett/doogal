@@ -111,10 +111,6 @@ public final class Shellwords {
     public static void main(String[] args) throws EvalException, IOException,
             ParseException {
         parse(System.in, new Interpreter() {
-            public final void close() {
-
-            }
-
             public final void eval(String cmd, Object... args) {
                 System.out.printf("[%s]\n", cmd);
                 for (final Object arg : args)

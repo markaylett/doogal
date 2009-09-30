@@ -2,6 +2,8 @@ package org.doogal.core;
 
 import static org.doogal.core.Utility.join;
 
+import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -24,7 +26,7 @@ import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 
-final class Model {
+final class Model implements Closeable {
     private static final class WrapException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
@@ -147,10 +149,18 @@ final class Model {
         setPager(new Pager(ListResults.EMPTY, out));
     }
 
-    final void close() throws IOException {
-        setPager(null);
+    public final void close() {
+        try {
+            setPager(null);
+        } catch (IOException e) {
+            log.error(e.getLocalizedMessage());
+        }
         if (null != state) {
-            state.release();
+            try {
+                state.release();
+            } catch (IOException e) {
+                log.error(e.getLocalizedMessage());
+            }
             state = null;
         }
     }
@@ -170,6 +180,10 @@ final class Model {
         }
         if (null == state)
             state = new SharedState(log, env, repo, identityMap, recent);
+    }
+
+    final File getConfig() {
+        return new File(repo.getEtc(), "doogal.conf");
     }
 
     @Builtin("archive")
