@@ -12,7 +12,7 @@ import org.apache.lucene.index.Term;
 
 final class Open {
 
-    static void exec(SharedState state, Term term) throws Exception {
+    static void exec(View view, SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -27,7 +27,7 @@ final class Open {
 
         final String id = getId(file);
         if (stats.hasFileChanged()) {
-            state.log.info("indexing document...");
+            view.getLog().info("indexing document...");
             final IndexWriter writer = new IndexWriter(state.getIndex(),
                     new StandardAnalyzer(), false,
                     IndexWriter.MaxFieldLength.LIMITED);
@@ -40,7 +40,8 @@ final class Open {
                 writer.optimize();
                 writer.close();
             }
-        }
+        } else
+            view.getLog().info("no change...");
         state.addRecent(id);
     }
 }

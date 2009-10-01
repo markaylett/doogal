@@ -15,9 +15,11 @@ final class History {
         index = -1;
     }
     final void add(String s) {
-        history.add(0, s);
-        if (MAX < history.size())
-            history.remove(MAX);
+        if (history.isEmpty() || !history.get(0).equals(s)) {
+            history.add(0, s);
+            if (MAX < history.size())
+                history.remove(MAX);
+        }
         index = -1;
     }
     final String next() {

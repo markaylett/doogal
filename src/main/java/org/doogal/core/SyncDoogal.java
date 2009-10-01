@@ -19,11 +19,10 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 import javax.mail.internet.ParseException;
 
-import org.apache.commons.logging.Log;
-
 public final class SyncDoogal implements Doogal {
-    private final Model model;
+    private final View view;
     private final Controller controller;
+    private final Model model;
     private final Map<String, Command> commands;
     private final int[] maxNames;
     private boolean interact;
@@ -77,10 +76,11 @@ public final class SyncDoogal implements Doogal {
         return String.format("%" + max + "s - %s", cmd, value.getDescription());
     }
 
-    private SyncDoogal(final Model model, final Controller controller)
+    private SyncDoogal(final View view, final Controller controller, final Model model)
             throws IllegalAccessException, InvocationTargetException {
-        this.model = model;
+        this.view = view;
         this.controller = controller;
+        this.model = model;
         this.commands = new TreeMap<String, Command>();
         this.maxNames = new int[Type.values().length];
         this.interact = true;
@@ -106,7 +106,7 @@ public final class SyncDoogal implements Doogal {
                     if (Type.ALIAS == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), model.out);
+                final Pager pager = new Pager(new ListResults(ls), view.getOut());
                 SyncDoogal.this.model.setPager(pager);
                 pager.execList();
             }
@@ -124,7 +124,7 @@ public final class SyncDoogal implements Doogal {
                             && entry.getKey().startsWith(hint))
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), model.out);
+                final Pager pager = new Pager(new ListResults(ls), view.getOut());
                 SyncDoogal.this.model.setPager(pager);
                 pager.execList();
             }
@@ -202,7 +202,7 @@ public final class SyncDoogal implements Doogal {
                     if (Type.BUILTIN == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), model.out);
+                final Pager pager = new Pager(new ListResults(ls), view.getOut());
                 SyncDoogal.this.model.setPager(pager);
                 pager.execList();
             }
@@ -225,9 +225,9 @@ public final class SyncDoogal implements Doogal {
 
                 Pager pager = null;
                 if (1 == ls.size())
-                    pager = helpPager(last, commands.get(last), model.out);
+                    pager = helpPager(last, commands.get(last), view.getOut());
                 else
-                    pager = new Pager(new ListResults(ls), model.out);
+                    pager = new Pager(new ListResults(ls), view.getOut());
 
                 SyncDoogal.this.model.setPager(pager);
                 pager.execList();
@@ -242,23 +242,18 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             @Synopsis("quit")
             public final void exec() throws ExitException {
-                if (!interact)
-                    throw new ExitException();
-                model.log.info("exiting...");
-                interact = false;
-                controller.exit();
+                controller.exit(interact);
             }
         });
     }
 
-    public static final Doogal newInstance(PrintWriter out, Log log,
-            Environment env, Repo repo, Controller controller)
-            throws EvalException, IllegalAccessException,
-            InvocationTargetException, IOException {
-        final Model model = new Model(out, log, env, repo);
+    public static final Doogal newInstance(Environment env, View view,
+            Controller controller, Repo repo) throws EvalException,
+            IllegalAccessException, InvocationTargetException, IOException {
+        final Model model = new Model(env, view, repo);
         Doogal doogal = null;
         try {
-            doogal = new SyncDoogal(model, controller);
+            doogal = new SyncDoogal(view, controller, model);
         } finally {
             if (null == doogal)
                 model.close();
@@ -267,13 +262,13 @@ public final class SyncDoogal implements Doogal {
         return doogal;
     }
 
-    public static Doogal newInstance(PrintWriter out, Log log, Environment env,
+    public static Doogal newInstance(Environment env, View view,
             Controller controller) throws EvalException,
             IllegalAccessException, InvocationTargetException, IOException,
             ParseException {
         final Repo repo = new Repo(env.getRepo());
         repo.init();
-        return newInstance(out, log, env, repo, controller);
+        return newInstance(env, view, controller, repo);
     }
 
     public final void close() {
@@ -329,14 +324,17 @@ public final class SyncDoogal implements Doogal {
             }
 
         } catch (final NoSuchMethodException e) {
-            model.log.error("invalid arguments");
+            view.getLog().error("invalid arguments");
         } catch (final InvocationTargetException e) {
             final Throwable t = e.getCause();
-            if (t instanceof ExitException)
+            if (t instanceof ExitException) {
+                // No ready prompt.
+                interact = false;
                 throw (ExitException) t;
-            model.log.error(t.getLocalizedMessage());
+            }
+            view.getLog().error(t.getLocalizedMessage());
         } catch (final Exception e) {
-            model.log.error(e.getLocalizedMessage());
+            view.getLog().error(e.getLocalizedMessage());
         } finally {
             if (interact)
                 controller.ready();
@@ -348,8 +346,8 @@ public final class SyncDoogal implements Doogal {
             eval("next");
     }
 
-    public final void batch(Reader reader) throws EvalException,
-            IOException, ParseException {
+    public final void batch(Reader reader) throws EvalException, IOException,
+            ParseException {
         final boolean orig = interact;
         interact = false;
         try {
@@ -360,8 +358,8 @@ public final class SyncDoogal implements Doogal {
         }
     }
 
-    public final void batch(File file) throws EvalException,
-            IOException, ParseException {
+    public final void batch(File file) throws EvalException, IOException,
+            ParseException {
         if (file.canRead()) {
             final FileReader reader = new FileReader(file);
             try {

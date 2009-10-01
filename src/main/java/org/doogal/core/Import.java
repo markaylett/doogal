@@ -27,7 +27,7 @@ final class Import {
         return to;
     }
 
-    static void exec(final SharedState state) throws Exception {
+    static void exec(final View view, final SharedState state) throws Exception {
         final IndexWriter writer = new IndexWriter(state.getIndex(),
                 new StandardAnalyzer(), false,
                 IndexWriter.MaxFieldLength.LIMITED);
@@ -40,7 +40,7 @@ final class Import {
                     file = importFile(state, file);
                     final String id = getId(file);
                     final int lid = state.getLocal(getId(file));
-                    state.log.info(String
+                    view.getLog().info(String
                             .format("indexing document %d...", lid));
                     Rfc822.addDocument(writer, state.getData(), file);
                     state.addRecent(id);

@@ -5,14 +5,12 @@ import static org.doogal.core.Utility.join;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -38,9 +36,8 @@ final class Model implements Closeable {
     private static final String[] FIELDS = { "subject", "title", "contents" };
     private static final Random RAND = new Random();
 
-    final PrintWriter out;
-    final Log log;
     private final Environment env;
+    private final View view;
     private final Repo repo;
     private final IdentityMap identityMap;
     private final Recent recent;
@@ -75,7 +72,7 @@ final class Model implements Closeable {
                 results.add(id, Utility.toString(lid, doc));
             }
         }
-        return new Pager(results, out);
+        return new Pager(results, view.getOut());
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +81,7 @@ final class Model implements Closeable {
                 FieldOption.ALL);
         final String[] arr = col.toArray(new String[col.size()]);
         Arrays.sort(arr);
-        return new Pager(new ArrayResults(arr), out);
+        return new Pager(new ArrayResults(arr), view.getOut());
     }
 
     private final Pager more(Term term) throws EvalException, IOException {
@@ -96,7 +93,7 @@ final class Model implements Closeable {
         mlt.setMinDocFreq(1);
         mlt.setMinTermFreq(1);
         final Query query = mlt.like(docs.doc());
-        return new Pager(new SearchResults(state, query), out);
+        return new Pager(new SearchResults(view, state, query), view.getOut());
     }
 
     private final Pager search(String s) throws IOException, ParseException {
@@ -104,7 +101,7 @@ final class Model implements Closeable {
                 new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
         final Query query = parser.parse(s);
-        return new Pager(new SearchResults(state, query), out);
+        return new Pager(new SearchResults(view, state, query), view.getOut());
     }
 
     private final Pager values(final String s) throws IOException,
@@ -131,33 +128,32 @@ final class Model implements Closeable {
             throw (IOException) e.getCause();
         }
         final String[] arr = values.toArray(new String[values.size()]);
-        return new Pager(new ArrayResults(arr), out);
+        return new Pager(new ArrayResults(arr), view.getOut());
     }
 
-    Model(PrintWriter out, Log log, Environment env, Repo repo)
+    Model(Environment env, View view, Repo repo)
             throws EvalException, IOException {
-        this.out = out;
-        this.log = log;
         this.env = env;
+        this.view = view;
         this.repo = repo;
         identityMap = new IdentityMap();
         recent = new Recent();
         state = null;
         // Avoid null pager.
-        setPager(new Pager(ListResults.EMPTY, out));
+        setPager(new Pager(ListResults.EMPTY, view.getOut()));
     }
 
     public final void close() {
         try {
             setPager(null);
         } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
+            view.getLog().error(e.getLocalizedMessage());
         }
         if (null != state) {
             try {
                 state.release();
             } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
+                view.getLog().error(e.getLocalizedMessage());
             }
             state = null;
         }
@@ -177,7 +173,7 @@ final class Model implements Closeable {
             state = null;
         }
         if (null == state)
-            state = new SharedState(log, env, repo, identityMap, recent);
+            state = new SharedState(env, repo, identityMap, recent);
     }
 
     final File getConfig() {
@@ -194,7 +190,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("archive")
             public final void exec() throws Exception {
-                log.info("archiving...");
+                view.getLog().info("archiving...");
                 Archive.exec(repo);
             }
         };
@@ -225,7 +221,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                log.info("deleting...");
+                view.getLog().info("deleting...");
                 if ("*".equals(s)) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
@@ -237,7 +233,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("delete doc...")
             public final void exec(Object... args) throws Exception {
-                log.info("deleting...");
+                view.getLog().info("deleting...");
                 boolean glob = false;
                 for (final Object arg : args) {
                     final String s = arg.toString();
@@ -281,8 +277,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("import")
             public final void exec() throws Exception {
-                log.info("importing...");
-                Import.exec(state);
+                view.getLog().info("importing...");
+                Import.exec(view, state);
             }
         };
     }
@@ -297,7 +293,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("index")
             public final void exec() throws Exception {
-                log.info("indexing...");
+                view.getLog().info("indexing...");
                 Index.exec(repo);
             }
         };
@@ -366,15 +362,15 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                log.info("new document...");
-                New.exec(state);
+                view.getLog().info("new document...");
+                New.exec(view, state);
             }
 
             @SuppressWarnings("unused")
             @Synopsis("new [template]")
             public final void exec(String s) throws Exception {
-                log.info("new document...");
-                New.exec(state, s);
+                view.getLog().info("new document...");
+                New.exec(view, state, s);
             }
         };
     }
@@ -404,15 +400,15 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                log.info("opening...");
-                Open.exec(state, getTerm());
+                view.getLog().info("opening...");
+                Open.exec(view, state, getTerm());
             }
 
             @SuppressWarnings("unused")
             @Synopsis("open [doc]")
             public final void exec(String s) throws Exception {
-                log.info("opening...");
-                Open.exec(state, getTerm(s));
+                view.getLog().info("opening...");
+                Open.exec(view, state, getTerm(s));
             }
         };
     }
@@ -442,13 +438,13 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                log.info("publishing...");
+                view.getLog().info("publishing...");
                 Publish.exec(state, getTerm());
             }
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                log.info("publishing...");
+                view.getLog().info("publishing...");
                 if ("*".equals(s)) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
@@ -460,7 +456,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("publish [doc...]")
             public final void exec(Object... args) throws Exception {
-                log.info("publishing...");
+                view.getLog().info("publishing...");
                 boolean glob = false;
                 for (final Object arg : args) {
                     final String s = arg.toString();
@@ -488,7 +484,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
-                setPager(new Pager(recent.asResults(state), out));
+                setPager(new Pager(recent.asResults(state), view.getOut()));
                 pager.execList();
             }
         };
@@ -505,7 +501,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws IOException, ParseException {
-                log.info(String.format("searching for '%s'...\n", last));
+                view.getLog().info(String.format("searching for '%s'...\n", last));
                 setPager(search(last));
                 pager.execList();
             }
@@ -536,7 +532,7 @@ final class Model implements Closeable {
             @Synopsis("set")
             public final void exec() throws IOException {
                 final String[] arr = env.toArray();
-                setPager(new Pager(new ArrayResults(arr), out));
+                setPager(new Pager(new ArrayResults(arr), view.getOut()));
                 pager.execList();
             }
 
@@ -565,37 +561,37 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                log.info("tidying...");
-                Tidy.exec(state, getTerm());
+                view.getLog().info("tidying...");
+                Tidy.exec(view, state, getTerm());
             }
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                log.info("tidying...");
+                view.getLog().info("tidying...");
                 if ("*".equals(s)) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
-                        Tidy.exec(state, term);
+                        Tidy.exec(view, state, term);
                 } else
-                    Tidy.exec(state, getTerm(s));
+                    Tidy.exec(view, state, getTerm(s));
             }
 
             @SuppressWarnings("unused")
             @Synopsis("tidy [doc...]")
             public final void exec(Object... args) throws Exception {
-                log.info("tidying...");
+                view.getLog().info("tidying...");
                 boolean glob = false;
                 for (final Object arg : args) {
                     final String s = arg.toString();
                     if ("*".equals(s))
                         glob = true;
                     else
-                        Tidy.exec(state, getTerm(arg.toString()));
+                        Tidy.exec(view, state, getTerm(arg.toString()));
                 }
                 if (glob) {
                     final Collection<Term> terms = pager.terms();
                     for (final Term term : terms)
-                        Tidy.exec(state, term);
+                        Tidy.exec(view, state, term);
                 }
             }
         };

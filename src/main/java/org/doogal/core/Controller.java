@@ -1,6 +1,6 @@
 package org.doogal.core;
 
 public interface Controller {
-    void exit() throws ExitException;
+    void exit(boolean interact) throws ExitException;
     void ready();
 }

@@ -54,7 +54,7 @@ final class Tidy {
         }
     }
 
-    static void exec(final SharedState state, Term term) throws Exception {
+    static void exec(View view, final SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -67,7 +67,7 @@ final class Tidy {
         tidy(trash, file);
 
         final String id = getId(file);
-        state.log.info("indexing document...");
+        view.getLog().info("indexing document...");
         final IndexWriter writer = new IndexWriter(state.getIndex(),
                 new StandardAnalyzer(), false,
                 IndexWriter.MaxFieldLength.LIMITED);

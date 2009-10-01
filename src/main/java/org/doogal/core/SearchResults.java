@@ -15,6 +15,7 @@ import org.apache.lucene.search.TopDocCollector;
 
 final class SearchResults implements Results {
 
+    private final View view;
     private final SharedState state;
     private final Query query;
     private final int totalHits;
@@ -27,7 +28,8 @@ final class SearchResults implements Results {
         return collector.getTotalHits();
     }
 
-    SearchResults(SharedState state, Query query) throws IOException {
+    SearchResults(View view, SharedState state, Query query) throws IOException {
+        this.view = view;
         this.state = state;
         this.query = query;
         // Collect first page.
@@ -42,7 +44,7 @@ final class SearchResults implements Results {
     public final String get(int i) throws IOException {
 
         if (hits.length <= i) {
-            state.log.info("fetching documents...");
+            view.getLog().info("fetching documents...");
             fetch(totalHits);
         }
 
@@ -53,7 +55,7 @@ final class SearchResults implements Results {
 
     public final Collection<Term> terms() throws IOException {
         if (hits.length < totalHits) {
-            state.log.info("fetching documents...");
+            view.getLog().info("fetching documents...");
             fetch(totalHits);
         }
         final List<Term> ls = new ArrayList<Term>();

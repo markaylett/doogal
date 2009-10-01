@@ -3,7 +3,6 @@ package org.doogal.core;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -13,7 +12,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
 final class SharedState {
-    final Log log;
     private final Environment env;
     private final Repo repo;
     private final IdentityMap identityMap;
@@ -21,10 +19,9 @@ final class SharedState {
     private final IndexSearcher searcher;
     private int refs;
 
-    SharedState(Log log, Environment env, Repo repo, IdentityMap identityMap,
+    SharedState(Environment env, Repo repo, IdentityMap identityMap,
             Recent recent) throws IOException {
         this.env = env;
-        this.log = log;
         this.repo = repo;
         this.identityMap = identityMap;
         this.recent = recent;

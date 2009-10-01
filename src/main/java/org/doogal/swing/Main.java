@@ -43,14 +43,17 @@ import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
+import org.doogal.core.ExitException;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
+import org.doogal.core.View;
 
 public final class Main extends JPanel implements Doogal {
 
     private static final long serialVersionUID = 1L;
-    private static final int FONT_SIZE = 12;
+    private static final int SMALL_FONT = 12;
+    private static final int BIG_FONT = 14;
 
     private final History history;
     private final JTextArea display;
@@ -151,13 +154,15 @@ public final class Main extends JPanel implements Doogal {
         history = new History();
         
         display = new JTextArea();
-        display.setEditable(false);
         display.setLineWrap(true);
         display.setMargin(new Insets(5, 5, 5, 5));
-        display.setFont(new Font("Monospaced", Font.PLAIN, FONT_SIZE));
+        display.setEditable(false);
+        display.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
 
-        command = new JTextField(32);
+        command = new JTextField();
+        command.setMargin(new Insets(5, 5, 5, 5));
         command.setEditable(false);
+        command.setFont(new Font("Monospaced", Font.BOLD, BIG_FONT));
         setEmacs(command);
 
         final JScrollPane scrollPanel = new JScrollPane();
@@ -165,14 +170,28 @@ public final class Main extends JPanel implements Doogal {
         add(scrollPanel, BorderLayout.CENTER);
         add(command, BorderLayout.SOUTH);
 
+        final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(display),
                 true);
         final Log log = new StandardLog(out, out);
-        final Environment env = new Environment();
+        final View view = new View() {
+
+            public final Log getLog() {
+                return log;
+            }
+
+            public final PrintWriter getOut() {
+                return out;
+            }
+            
+        };
         final Controller controller = new Controller() {
-            public final void exit() {
+            public final void exit(boolean interact) throws ExitException {
+                if (!interact)
+                    throw new ExitException();
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
+                        log.info("exiting...");
                         postWindowClosingEvent(getFrame(Main.this));
                     }
                 });
@@ -187,8 +206,8 @@ public final class Main extends JPanel implements Doogal {
                 });
             }
         };
-        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(out, log, env,
-                controller));
+        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(env,
+               view, controller));
 
         command.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {

@@ -11,7 +11,7 @@ import org.apache.lucene.index.IndexWriter;
 
 final class New {
 
-    static void exec(SharedState state, String template) throws Exception {
+    static void exec(View view, SharedState state, String template) throws Exception {
         File file = subdir(state.getData());
         final String id = newId();
         file = new File(file, id + ".txt");
@@ -35,7 +35,7 @@ final class New {
         p.waitFor();
 
         if (!stats.hasFileChanged()) {
-            state.log.info("discarding...");
+            view.getLog().info("discarding...");
             file.delete();
             return;
         }
@@ -45,7 +45,7 @@ final class New {
                 IndexWriter.MaxFieldLength.LIMITED);
         final int lid = state.getLocal(id);
         try {
-            state.log.info(String.format("indexing document %d...\n", lid));
+            view.getLog().info(String.format("indexing document %d...\n", lid));
             Rfc822.addDocument(writer, state.getData(), file);
         } finally {
             writer.optimize();
@@ -54,7 +54,7 @@ final class New {
         state.addRecent(id);
     }
 
-    static void exec(SharedState state) throws Exception {
-        exec(state, "plain");
+    static void exec(View view, SharedState state) throws Exception {
+        exec(view, state, "plain");
     }
 }
