@@ -67,12 +67,12 @@ public final class AsyncDoogal implements Doogal {
         });
     }
 
-    public final void readConfig(final Reader reader) throws EvalException,
+    public final void batch(final Reader reader) throws EvalException,
             IOException, ParseException {
         executor.execute(new Runnable() {
             public final void run() {
                 try {
-                    doogal.readConfig(reader);
+                    doogal.batch(reader);
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (IOException e) {
@@ -84,12 +84,12 @@ public final class AsyncDoogal implements Doogal {
         });
     }
 
-    public final void readConfig(final File file) throws EvalException,
+    public final void batch(final File file) throws EvalException,
             IOException, ParseException {
         executor.execute(new Runnable() {
             public final void run() {
                 try {
-                    doogal.readConfig(file);
+                    doogal.batch(file);
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (IOException e) {
@@ -101,12 +101,12 @@ public final class AsyncDoogal implements Doogal {
         });
     }
 
-    public final void readConfig() throws EvalException, IOException,
+    public final void config() throws EvalException, IOException,
             ParseException {
         executor.execute(new Runnable() {
             public final void run() {
                 try {
-                    doogal.readConfig();
+                    doogal.config();
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (IOException e) {

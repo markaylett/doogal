@@ -9,11 +9,10 @@ import javax.mail.internet.ParseException;
 
 public interface Doogal extends Closeable, Interpreter {
 
-    void readConfig(Reader reader) throws EvalException, IOException,
+    void batch(Reader reader) throws EvalException, IOException, ParseException;
+
+    void batch(final File config) throws EvalException, IOException,
             ParseException;
 
-    void readConfig(final File config) throws EvalException, IOException,
-            ParseException;
-
-    void readConfig() throws EvalException, IOException, ParseException;
+    void config() throws EvalException, IOException, ParseException;
 }

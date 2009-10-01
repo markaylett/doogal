@@ -1,4 +1,4 @@
 #!/bin/sh
 
 home=${DOOGAL_HOME:-'.'}
-$JAVA_HOME/bin/java -server -jar $home/lib/doogal-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+$JAVA_HOME/bin/java -server -cp $home/lib/doogal-0.0.1-SNAPSHOT-jar-with-dependencies.jar org.doogal.console.Main

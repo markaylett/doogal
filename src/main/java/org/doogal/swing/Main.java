@@ -135,19 +135,19 @@ public final class Main extends JPanel implements Doogal {
         doogal.eval();
     }
 
-    public final void readConfig(Reader reader) throws EvalException,
-            IOException, ParseException {
-        doogal.readConfig(reader);
+    public final void batch(Reader reader) throws EvalException, IOException,
+            ParseException {
+        doogal.batch(reader);
     }
 
-    public final void readConfig(File file) throws EvalException, IOException,
+    public final void batch(File file) throws EvalException, IOException,
             ParseException {
-        doogal.readConfig(file);
+        doogal.batch(file);
     }
 
-    public final void readConfig() throws EvalException, IOException,
+    public final void config() throws EvalException, IOException,
             ParseException {
-        doogal.readConfig();
+        doogal.config();
     }
 
     private static void run() throws Exception {
@@ -172,7 +172,7 @@ public final class Main extends JPanel implements Doogal {
         final Dimension d = f.getToolkit().getScreenSize();
         f.setSize(d.width / 2, d.height / 2);
         f.setVisible(true);
-        m.readConfig();
+        m.config();
     }
 
     public static void main(String[] args) {

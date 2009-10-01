@@ -36,7 +36,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>org.doogal.console.Main</mainClass>
+              <mainClass>org.doogal.swing.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

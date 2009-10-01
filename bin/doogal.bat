@@ -14,4 +14,4 @@ echo The DOOGAL_HOME environment variable is not defined correctly.
 set DOOGAL_HOME=.
 :haveDoogalHome
 
-%JAVA% -server -jar %DOOGAL_HOME%\lib\doogal-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+%JAVA% -server -cp %DOOGAL_HOME%\lib\doogal-0.0.1-SNAPSHOT-jar-with-dependencies.jar org.doogal.console.Main

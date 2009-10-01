@@ -43,7 +43,7 @@ public final class Main {
         final Doogal doogal = SyncDoogal.newInstance(out, log, env, controller);
         try {
             printResource("motd.txt", out);
-            doogal.readConfig();
+            doogal.config();
             Shellwords.parse(System.in, doogal);
         } catch (final ExitException e) {
         } finally {

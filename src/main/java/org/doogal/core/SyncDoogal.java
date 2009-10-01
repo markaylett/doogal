@@ -334,7 +334,7 @@ public final class SyncDoogal implements Doogal {
             eval("next");
     }
 
-    public final void readConfig(Reader reader) throws EvalException,
+    public final void batch(Reader reader) throws EvalException,
             IOException, ParseException {
         final boolean orig = interact;
         interact = false;
@@ -346,12 +346,12 @@ public final class SyncDoogal implements Doogal {
         }
     }
 
-    public final void readConfig(File file) throws EvalException,
+    public final void batch(File file) throws EvalException,
             IOException, ParseException {
         if (file.canRead()) {
             final FileReader reader = new FileReader(file);
             try {
-                readConfig(reader);
+                batch(reader);
             } finally {
                 reader.close();
             }
@@ -359,8 +359,8 @@ public final class SyncDoogal implements Doogal {
             controller.ready();
     }
 
-    public final void readConfig() throws EvalException, IOException,
+    public final void config() throws EvalException, IOException,
             ParseException {
-        readConfig(model.getConfig());
+        batch(model.getConfig());
     }
 }

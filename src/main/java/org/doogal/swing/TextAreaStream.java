@@ -8,7 +8,11 @@ import java.io.OutputStream;
 import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
 
+import static org.doogal.core.Constants.MAX_RESULTS;
+
 final class TextAreaStream extends OutputStream {
+
+    private static final int MAX_LINES = MAX_RESULTS * 10;
 
     private final JTextArea textArea;
     private final StringBuilder sb;
@@ -16,7 +20,12 @@ final class TextAreaStream extends OutputStream {
     private final void append(String s) {
         textArea.append(s);
         try {
-            final int lc = textArea.getLineCount();
+            int lc = textArea.getLineCount();
+            if (MAX_LINES < lc) {
+                textArea.replaceRange(null, 0, textArea.getLineEndOffset(lc
+                        - MAX_LINES - 1));
+                lc = MAX_LINES;
+            }
             textArea.scrollRectToVisible(new Rectangle(0, textArea
                     .getLineEndOffset(lc - 1), 1, 1));
         } catch (final BadLocationException e) {
