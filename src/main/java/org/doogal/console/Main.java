@@ -43,9 +43,12 @@ public final class Main {
         final Doogal doogal = SyncDoogal.newInstance(out, log, env, controller);
         try {
             printResource("motd.txt", out);
-            doogal.config();
+            try {
+                doogal.config();
+            } catch (ExitException e) {
+            }
             Shellwords.parse(System.in, doogal);
-        } catch (final ExitException e) {
+        } catch (ExitException e) {
         } finally {
             doogal.close();
         }

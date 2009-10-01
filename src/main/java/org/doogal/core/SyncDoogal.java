@@ -143,7 +143,13 @@ public final class SyncDoogal implements Doogal {
                     }
 
                     public final void exec() throws EvalException {
-                        SyncDoogal.this.eval(name, toks.toArray());
+                        final boolean orig = interact;
+                        interact = false;
+                        try {
+                            SyncDoogal.this.eval(name, toks.toArray());
+                        } finally {
+                            interact = orig;
+                        }
                     }
 
                     public final void exec(Object... args) throws EvalException {
@@ -155,7 +161,13 @@ public final class SyncDoogal implements Doogal {
                         System
                                 .arraycopy(args, 0, all, toks.size(),
                                         args.length);
-                        SyncDoogal.this.eval(name, all);
+                        final boolean orig = interact;
+                        interact = false;
+                        try {
+                            SyncDoogal.this.eval(name, all);
+                        } finally {
+                            interact = orig;
+                        }
                     }
                 });
             }
@@ -230,6 +242,8 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             @Synopsis("quit")
             public final void exec() throws ExitException {
+                if (!interact)
+                    throw new ExitException();
                 model.log.info("exiting...");
                 interact = false;
                 controller.exit();

@@ -73,6 +73,7 @@ public final class AsyncDoogal implements Doogal {
             public final void run() {
                 try {
                     doogal.batch(reader);
+                } catch (ExitException e) {
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (IOException e) {
@@ -90,6 +91,7 @@ public final class AsyncDoogal implements Doogal {
             public final void run() {
                 try {
                     doogal.batch(file);
+                } catch (ExitException e) {
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (IOException e) {
@@ -107,6 +109,7 @@ public final class AsyncDoogal implements Doogal {
             public final void run() {
                 try {
                     doogal.config();
+                } catch (ExitException e) {
                 } catch (EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (IOException e) {
