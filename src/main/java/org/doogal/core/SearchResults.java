@@ -1,17 +1,31 @@
 package org.doogal.core;
 
 import static org.doogal.core.Constants.PAGE_SIZE;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetHeaders;
+
+import org.apache.lucene.analysis.SimpleAnalyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocCollector;
+import org.apache.lucene.search.highlight.Formatter;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.TokenGroup;
 
 final class SearchResults implements Results {
 
@@ -50,6 +64,40 @@ final class SearchResults implements Results {
 
         final Document doc = state.doc(hits[i].doc);
         final int id = state.getLocal(doc.get("id"));
+
+        final Highlighter h = new Highlighter(new Formatter() {
+
+            public final String highlightTerm(String originalText,
+                    TokenGroup tokenGroup) {
+                return originalText;
+            }
+        }, new QueryScorer(query));
+
+        final StringBuilder sb = new StringBuilder();
+        final File file = new File(state.getData(), doc.get("path"));
+        final InputStream is = new FileInputStream(file);
+        try {
+            new InternetHeaders(is);
+            final BufferedReader in = new BufferedReader(new InputStreamReader(
+                    is, "UTF-8"));
+
+            for (;;) {
+                final String line = in.readLine();
+                if (null == line)
+                    break;
+                sb.append(line);
+                sb.append('\n');
+            }
+        } catch (MessagingException e) {
+        } finally {
+            is.close();
+        }
+
+        final TokenStream ts = new SimpleAnalyzer().tokenStream("contents",
+                new StringReader(sb.toString()));
+        final String s = h.getBestFragment(ts, sb.toString());
+        if (null != s)
+            view.getOut().println(s);
         return Utility.toString(id, doc);
     }
 
