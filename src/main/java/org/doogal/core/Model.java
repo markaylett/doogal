@@ -42,7 +42,6 @@ final class Model implements Closeable {
     private final IdentityMap identityMap;
     private final Recent recent;
     private SharedState state;
-    private Pager pager;
 
     private final Term getTerm(String value) throws EvalException {
         return Character.isDigit(value.charAt(0)) ? new Term("id", identityMap
@@ -56,7 +55,7 @@ final class Model implements Closeable {
         return new Term("id", id);
     }
 
-    private final Pager browse() throws IOException {
+    private final Results browse() throws IOException {
 
         final int max = state.maxDoc();
         final int n = Math.min(state.numDocs(), Constants.MAX_RESULTS);
@@ -72,19 +71,19 @@ final class Model implements Closeable {
                 results.add(id, Utility.toString(lid, doc));
             }
         }
-        return new PrintPager(results, view.getOut());
+        return results;
     }
 
     @SuppressWarnings("unchecked")
-    private final Pager keys() throws IOException, ParseException {
+    private final Results keys() throws IOException, ParseException {
         final Collection<String> col = state.getIndexReader().getFieldNames(
                 FieldOption.ALL);
         final String[] arr = col.toArray(new String[col.size()]);
         Arrays.sort(arr);
-        return new PrintPager(new ArrayResults(arr), view.getOut());
+        return new ArrayResults(arr);
     }
 
-    private final Pager more(Term term) throws EvalException, IOException {
+    private final Results more(Term term) throws EvalException, IOException {
         final TermDocs docs = state.getIndexReader().termDocs(term);
         if (!docs.next())
             throw new EvalException("no such document");
@@ -93,18 +92,18 @@ final class Model implements Closeable {
         mlt.setMinDocFreq(1);
         mlt.setMinTermFreq(1);
         final Query query = mlt.like(docs.doc());
-        return new PrintPager(new SearchResults(view, state, query), view.getOut());
+        return new SearchResults(view, state, query);
     }
 
-    private final Pager search(String s) throws IOException, ParseException {
+    private final Results search(String s) throws IOException, ParseException {
         final QueryParser parser = new MultiFieldQueryParser(FIELDS,
                 new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
         final Query query = parser.parse(s);
-        return new PrintPager(new SearchResults(view, state, query), view.getOut());
+        return new SearchResults(view, state, query);
     }
 
-    private final Pager values(final String s) throws IOException,
+    private final Results values(final String s) throws IOException,
             ParseException {
         final QueryParser parser = new QueryParser(s, new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
@@ -128,7 +127,7 @@ final class Model implements Closeable {
             throw (IOException) e.getCause();
         }
         final String[] arr = values.toArray(new String[values.size()]);
-        return new PrintPager(new ArrayResults(arr), view.getOut());
+        return new ArrayResults(arr);
     }
 
     Model(Environment env, View view, Repo repo)
@@ -139,13 +138,11 @@ final class Model implements Closeable {
         identityMap = new IdentityMap();
         recent = new Recent();
         state = null;
-        // Avoid null pager.
-        setPager(new PrintPager(ListResults.EMPTY, view.getOut()));
     }
 
     public final void close() {
         try {
-            setPager(null);
+            view.close();
         } catch (IOException e) {
             view.getLog().error(e.getLocalizedMessage());
         }
@@ -157,14 +154,6 @@ final class Model implements Closeable {
             }
             state = null;
         }
-    }
-
-    final void setPager(Pager p) throws IOException {
-        if (null != pager) {
-            pager.close();
-            pager = null;
-        }
-        pager = p;
     }
 
     final void update() throws IOException {
@@ -206,8 +195,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("browse")
             public final void exec() throws Exception {
-                setPager(browse());
-                pager.showPage();
+                view.setResults(browse());
+                view.showPage();
             }
         };
     }
@@ -223,7 +212,7 @@ final class Model implements Closeable {
             public final void exec(String s) throws Exception {
                 view.getLog().info("deleting...");
                 if ("*".equals(s)) {
-                    final Collection<Term> terms = pager.terms();
+                    final Collection<Term> terms = view.terms();
                     for (final Term term : terms)
                         Delete.exec(state, term);
                 } else
@@ -243,7 +232,7 @@ final class Model implements Closeable {
                         Delete.exec(state, getTerm(arg.toString()));
                 }
                 if (glob) {
-                    final Collection<Term> terms = pager.terms();
+                    final Collection<Term> terms = view.terms();
                     for (final Term term : terms)
                         Delete.exec(state, term);
                 }
@@ -261,8 +250,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("goto n")
             public final void exec(String n) throws EvalException, IOException {
-                pager.setPage(n);
-                pager.showPage();
+                view.setPage(n);
+                view.showPage();
             }
         };
     }
@@ -309,8 +298,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("keys")
             public final void exec() throws Exception {
-                setPager(keys());
-                pager.showPage();
+                view.setResults(keys());
+                view.showPage();
             }
         };
     }
@@ -325,7 +314,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("list")
             public final void exec() throws IOException {
-                pager.showPage();
+                view.showPage();
             }
         };
     }
@@ -340,15 +329,15 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
-                setPager(more(getTerm()));
-                pager.showPage();
+                view.setResults(more(getTerm()));
+                view.showPage();
             }
 
             @SuppressWarnings("unused")
             @Synopsis("more [doc]")
             public final void exec(String s) throws EvalException, IOException {
-                setPager(more(getTerm(s)));
-                pager.showPage();
+                view.setResults(more(getTerm(s)));
+                view.showPage();
             }
         };
     }
@@ -385,8 +374,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("next")
             public final void exec() throws IOException {
-                pager.nextPage();
-                pager.showPage();
+                view.nextPage();
+                view.showPage();
             }
         };
     }
@@ -423,8 +412,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("previous")
             public final void exec() throws IOException {
-                pager.prevPage();
-                pager.showPage();
+                view.prevPage();
+                view.showPage();
             }
         };
     }
@@ -446,7 +435,7 @@ final class Model implements Closeable {
             public final void exec(String s) throws Exception {
                 view.getLog().info("publishing...");
                 if ("*".equals(s)) {
-                    final Collection<Term> terms = pager.terms();
+                    final Collection<Term> terms = view.terms();
                     for (final Term term : terms)
                         Publish.exec(state, term);
                 } else
@@ -466,7 +455,7 @@ final class Model implements Closeable {
                         Publish.exec(state, getTerm(arg.toString()));
                 }
                 if (glob) {
-                    final Collection<Term> terms = pager.terms();
+                    final Collection<Term> terms = view.terms();
                     for (final Term term : terms)
                         Publish.exec(state, term);
                 }
@@ -484,8 +473,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
-                setPager(new PrintPager(recent.asResults(state), view.getOut()));
-                pager.showPage();
+                view.setResults(recent.asResults(state));
+                view.showPage();
             }
         };
     }
@@ -502,13 +491,13 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws IOException, ParseException {
                 view.getLog().info(String.format("searching for '%s'...\n", last));
-                setPager(search(last));
-                pager.showPage();
+                view.setResults(search(last));
+                view.showPage();
             }
 
             public final void exec(String s) throws IOException, ParseException {
-                setPager(search(s));
-                pager.showPage();
+                view.setResults(search(s));
+                view.showPage();
                 last = s;
             }
 
@@ -532,8 +521,8 @@ final class Model implements Closeable {
             @Synopsis("set")
             public final void exec() throws IOException {
                 final String[] arr = env.toArray();
-                setPager(new PrintPager(new ArrayResults(arr), view.getOut()));
-                pager.showPage();
+                view.setResults(new ArrayResults(arr));
+                view.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -569,7 +558,7 @@ final class Model implements Closeable {
             public final void exec(String s) throws Exception {
                 view.getLog().info("tidying...");
                 if ("*".equals(s)) {
-                    final Collection<Term> terms = pager.terms();
+                    final Collection<Term> terms = view.terms();
                     for (final Term term : terms)
                         Tidy.exec(view, state, term);
                 } else
@@ -589,7 +578,7 @@ final class Model implements Closeable {
                         Tidy.exec(view, state, getTerm(arg.toString()));
                 }
                 if (glob) {
-                    final Collection<Term> terms = pager.terms();
+                    final Collection<Term> terms = view.terms();
                     for (final Term term : terms)
                         Tidy.exec(view, state, term);
                 }
@@ -607,8 +596,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("values name")
             public final void exec(String s) throws IOException, ParseException {
-                setPager(values(s));
-                pager.showPage();
+                view.setResults(values(s));
+                view.showPage();
             }
         };
     }

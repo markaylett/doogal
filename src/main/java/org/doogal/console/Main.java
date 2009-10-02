@@ -9,7 +9,7 @@ import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.ExitException;
-import org.doogal.core.Results;
+import org.doogal.core.PrintView;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
@@ -45,20 +45,7 @@ public final class Main {
         final PrintWriter out = new PrintWriter(System.out, true);
         final PrintWriter err = new PrintWriter(System.err, true);
         final Log log = new StandardLog(out, err);
-        final View view = new View() {
-
-            public final Log getLog() {
-                return log;
-            }
-
-            public final PrintWriter getOut() {
-                return out;
-            }
-
-            public final void setResults(Results results) {
-            }
-            
-        };
+        final View view = new PrintView(out, log);
         final Controller controller = new PrintController(out, log);
         final Doogal doogal = SyncDoogal.newInstance(env, view, controller);
         try {

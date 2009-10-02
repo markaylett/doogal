@@ -27,7 +27,7 @@ public final class SyncDoogal implements Doogal {
     private final int[] maxNames;
     private boolean interact;
 
-    private static Pager helpPager(String cmd, Command value, PrintWriter out)
+    private static Results helpResults(String cmd, Command value, PrintWriter out)
             throws Exception {
         final List<String> ls = new ArrayList<String>();
         ls.add("NAME");
@@ -51,7 +51,7 @@ public final class SyncDoogal implements Doogal {
             }
 
         });
-        return new PrintPager(new ListResults(ls), out);
+        return new ListResults(ls);
     }
 
     private final void put(String name, Command value) {
@@ -106,9 +106,9 @@ public final class SyncDoogal implements Doogal {
                     if (Type.ALIAS == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new PrintPager(new ListResults(ls), view.getOut());
-                SyncDoogal.this.model.setPager(pager);
-                pager.showPage();
+                final Results results = new ListResults(ls);
+                view.setResults(results);
+                view.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -124,9 +124,9 @@ public final class SyncDoogal implements Doogal {
                             && entry.getKey().startsWith(hint))
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new PrintPager(new ListResults(ls), view.getOut());
-                SyncDoogal.this.model.setPager(pager);
-                pager.showPage();
+                final Results results = new ListResults(ls);
+                view.setResults(results);
+                view.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -202,9 +202,9 @@ public final class SyncDoogal implements Doogal {
                     if (Type.BUILTIN == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new PrintPager(new ListResults(ls), view.getOut());
-                SyncDoogal.this.model.setPager(pager);
-                pager.showPage();
+                final Results results = new ListResults(ls);
+                view.setResults(results);
+                view.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -223,14 +223,14 @@ public final class SyncDoogal implements Doogal {
                         last = entry.getKey();
                     }
 
-                Pager pager = null;
+                Results results;
                 if (1 == ls.size())
-                    pager = helpPager(last, commands.get(last), view.getOut());
+                    results = helpResults(last, commands.get(last), view.getOut());
                 else
-                    pager = new PrintPager(new ListResults(ls), view.getOut());
+                    results = new ListResults(ls);
 
-                SyncDoogal.this.model.setPager(pager);
-                pager.showPage();
+                view.setResults(results);
+                view.showPage();
             }
         });
 
