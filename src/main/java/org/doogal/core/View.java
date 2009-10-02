@@ -7,4 +7,5 @@ import org.apache.commons.logging.Log;
 public interface View {
     PrintWriter getOut();
     Log getLog();
+    void setResults(Results results);
 }

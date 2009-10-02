@@ -9,6 +9,7 @@ import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.ExitException;
+import org.doogal.core.Results;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
@@ -52,6 +53,9 @@ public final class Main {
 
             public final PrintWriter getOut() {
                 return out;
+            }
+
+            public final void setResults(Results results) {
             }
             
         };

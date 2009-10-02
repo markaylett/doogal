@@ -51,7 +51,7 @@ public final class SyncDoogal implements Doogal {
             }
 
         });
-        return new Pager(new ListResults(ls), out);
+        return new PrintPager(new ListResults(ls), out);
     }
 
     private final void put(String name, Command value) {
@@ -106,9 +106,9 @@ public final class SyncDoogal implements Doogal {
                     if (Type.ALIAS == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), view.getOut());
+                final Pager pager = new PrintPager(new ListResults(ls), view.getOut());
                 SyncDoogal.this.model.setPager(pager);
-                pager.execList();
+                pager.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -124,9 +124,9 @@ public final class SyncDoogal implements Doogal {
                             && entry.getKey().startsWith(hint))
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), view.getOut());
+                final Pager pager = new PrintPager(new ListResults(ls), view.getOut());
                 SyncDoogal.this.model.setPager(pager);
-                pager.execList();
+                pager.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -202,9 +202,9 @@ public final class SyncDoogal implements Doogal {
                     if (Type.BUILTIN == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Pager pager = new Pager(new ListResults(ls), view.getOut());
+                final Pager pager = new PrintPager(new ListResults(ls), view.getOut());
                 SyncDoogal.this.model.setPager(pager);
-                pager.execList();
+                pager.showPage();
             }
 
             @SuppressWarnings("unused")
@@ -227,10 +227,10 @@ public final class SyncDoogal implements Doogal {
                 if (1 == ls.size())
                     pager = helpPager(last, commands.get(last), view.getOut());
                 else
-                    pager = new Pager(new ListResults(ls), view.getOut());
+                    pager = new PrintPager(new ListResults(ls), view.getOut());
 
                 SyncDoogal.this.model.setPager(pager);
-                pager.execList();
+                pager.showPage();
             }
         });
 

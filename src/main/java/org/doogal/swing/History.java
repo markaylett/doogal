@@ -27,7 +27,7 @@ final class History {
             --index;
         return get();
     }
-    final String previous() {
+    final String prev() {
         if (index < history.size() - 1)
             ++index;
         return get();

@@ -3,6 +3,7 @@ package org.doogal.swing;
 import static org.doogal.core.Utility.printResource;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Event;
@@ -44,6 +45,7 @@ import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
+import org.doogal.core.PrintView;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
@@ -75,15 +77,23 @@ public final class Main extends JPanel implements Doogal {
         frame.getToolkit().getSystemEventQueue().postEvent(windowClosingEvent);
     }
 
-    private void setEmacs(JTextComponent textPane) {
+    private final void setPrompt(boolean b) {
+        command.setEnabled(b);
+        if (b) {
+            command.requestFocus();
+            command.setBackground(Color.black);
+        } else
+            command.setBackground(Color.darkGray);
+    }
+
+    private void setEmacs() {
 
         final Map<String, Action> actions = new HashMap<String, Action>();
-        final Action[] actionsArray = textPane.getActions();
-        for (final Action a : actionsArray) {
+        final Action[] actionsArray = command.getActions();
+        for (final Action a : actionsArray)
             actions.put(a.getValue(Action.NAME).toString(), a);
-        }
 
-        final Keymap keymap = JTextComponent.addKeymap("emacs", textPane
+        final Keymap keymap = JTextComponent.addKeymap("emacs", command
                 .getKeymap());
 
         Action action;
@@ -104,9 +114,10 @@ public final class Main extends JPanel implements Doogal {
         key = KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK);
         keymap.addActionForKeyStroke(key, new AbstractAction() {
             private static final long serialVersionUID = 1L;
+
             public final void actionPerformed(ActionEvent e) {
                 command.setText("");
-            }            
+            }
         });
 
         action = actions.get(DefaultEditorKit.endLineAction);
@@ -123,9 +134,10 @@ public final class Main extends JPanel implements Doogal {
 
         action = new AbstractAction() {
             private static final long serialVersionUID = 1L;
+
             public final void actionPerformed(ActionEvent e) {
                 command.setText(history.next());
-            }            
+            }
         };
 
         key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
@@ -135,35 +147,44 @@ public final class Main extends JPanel implements Doogal {
 
         action = new AbstractAction() {
             private static final long serialVersionUID = 1L;
+
             public final void actionPerformed(ActionEvent e) {
-                command.setText(history.previous());
-            }            
+                command.setText(history.prev());
+            }
         };
-        
+
         key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
         keymap.addActionForKeyStroke(key, action);
         key = KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0);
         keymap.addActionForKeyStroke(key, action);
-        
-        textPane.setKeymap(keymap);
+
+        command.setKeymap(keymap);
     }
 
     Main() throws Exception {
         super(new BorderLayout());
 
         history = new History();
-        
+
         display = new JTextArea();
-        display.setLineWrap(true);
         display.setMargin(new Insets(5, 5, 5, 5));
-        display.setEditable(false);
         display.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
+        display.setForeground(Color.green);
+        display.setBackground(Color.black);
+
+        display.setDoubleBuffered(true);
+        display.setEditable(false);
+        display.setFocusable(false);
+        display.setLineWrap(true);
 
         command = new JTextField();
         command.setMargin(new Insets(5, 5, 5, 5));
-        command.setEditable(false);
-        command.setFont(new Font("Monospaced", Font.BOLD, BIG_FONT));
-        setEmacs(command);
+        command.setFont(new Font("Monospaced", Font.PLAIN, BIG_FONT));
+        command.setForeground(Color.green);
+        command.setCaretColor(Color.green);
+
+        setPrompt(false);
+        setEmacs();
 
         final JScrollPane scrollPanel = new JScrollPane();
         scrollPanel.setViewportView(display);
@@ -174,17 +195,7 @@ public final class Main extends JPanel implements Doogal {
         final PrintWriter out = new PrintWriter(new TextAreaStream(display),
                 true);
         final Log log = new StandardLog(out, out);
-        final View view = new View() {
-
-            public final Log getLog() {
-                return log;
-            }
-
-            public final PrintWriter getOut() {
-                return out;
-            }
-            
-        };
+        final View view = new PrintView(out, log);
         final Controller controller = new Controller() {
             public final void exit(boolean interact) throws ExitException {
                 if (!interact)
@@ -200,14 +211,13 @@ public final class Main extends JPanel implements Doogal {
             public final void ready() {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        command.setEditable(true);
-                        command.requestFocusInWindow();
+                        setPrompt(true);
                     }
                 });
             }
         };
-        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(env,
-               view, controller));
+        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(env, view,
+                controller));
 
         command.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
@@ -215,7 +225,7 @@ public final class Main extends JPanel implements Doogal {
                 history.add(s);
                 final Reader reader = new StringReader(s);
                 command.setText("");
-                command.setEditable(false);
+                setPrompt(false);
                 try {
                     Shellwords.parse(reader, doogal);
                 } catch (final EvalException e) {
