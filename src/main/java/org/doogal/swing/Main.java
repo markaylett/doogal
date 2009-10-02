@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
@@ -299,6 +300,10 @@ public final class Main extends JPanel implements Doogal {
 
             public final void run() {
                 try {
+                    try {
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    } catch (Exception e) {
+                    }
                     Main.run();
                 } catch (final Exception e) {
                     e.printStackTrace();
