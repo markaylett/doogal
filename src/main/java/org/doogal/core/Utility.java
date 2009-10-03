@@ -21,6 +21,9 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetHeaders;
+
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -108,6 +111,21 @@ public final class Utility {
                     to.delete();
             }
         }
+    }
+
+    static InputStream openContents(File file) throws IOException,
+            MessagingException {
+        final InputStream is = new FileInputStream(file);
+        boolean done = false;
+        try {
+            // Skip headers.
+            new InternetHeaders(is);
+            done = true;
+        } finally {
+            if (!done)
+                is.close();
+        }
+        return is;
     }
 
     static boolean isEmpty(String s) {

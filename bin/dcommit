@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+repo=${DOOGAL_REPO:-'.'}
+
+pushd $repo/data
+find . -type f -a ! -name "*.txt" -exec rm {} \;
+git add .
+git commit -a -m "Doogal commit."
+popd

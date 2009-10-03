@@ -2,7 +2,10 @@ package org.doogal.core;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
+
+import javax.mail.MessagingException;
 
 import org.apache.lucene.index.Term;
 
@@ -16,9 +19,11 @@ import org.apache.lucene.index.Term;
 
 public interface Results extends Closeable {
 
+    void what(Term term, PrintWriter out) throws IOException, MessagingException;
+    
+    Collection<Term> getTerms() throws IOException;
+    
     String get(int i) throws IOException;
-
-    Collection<Term> terms() throws IOException;
 
     int size();
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
 
@@ -48,6 +50,10 @@ public final class PrintView implements View {
         pager.prevPage();
     }
     
+    public final void what(Term term) throws IOException, MessagingException {
+        pager.what(term);
+    }
+
     public final Collection<Term> terms() throws IOException {
         return pager.terms();
     }

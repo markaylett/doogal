@@ -601,4 +601,46 @@ final class Model implements Closeable {
             }
         };
     }
+    
+    @Builtin("what")
+    public final Command newWhat() {
+        return new AbstractBuiltin() {
+            public final String getDescription() {
+                return "what document";
+            }
+
+            @SuppressWarnings("unused")
+            public final void exec() throws Exception {
+                view.what(getTerm());
+            }
+
+            @SuppressWarnings("unused")
+            public final void exec(String s) throws Exception {
+                if ("*".equals(s)) {
+                    final Collection<Term> terms = view.terms();
+                    for (final Term term : terms)
+                        view.what(term);
+                } else
+                    view.what(getTerm(s));
+            }
+
+            @SuppressWarnings("unused")
+            @Synopsis("what [doc...]")
+            public final void exec(Object... args) throws Exception {
+                boolean glob = false;
+                for (final Object arg : args) {
+                    final String s = arg.toString();
+                    if ("*".equals(s))
+                        glob = true;
+                    else
+                        view.what(getTerm(arg.toString()));
+                }
+                if (glob) {
+                    final Collection<Term> terms = view.terms();
+                    for (final Term term : terms)
+                        view.what(term);
+                }
+            }
+        };
+    }
 }

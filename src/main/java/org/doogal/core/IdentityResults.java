@@ -1,6 +1,7 @@
 package org.doogal.core;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,12 +20,15 @@ final class IdentityResults implements Results {
     public final void close() throws IOException {
     }
 
-    public final String get(int i) throws IOException {
-        return values.get(i);
+    public final void what(Term term, PrintWriter out) {
+    }
+    
+    public final Collection<Term> getTerms() {
+        return terms;
     }
 
-    public final Collection<Term> terms() {
-        return terms;
+    public final String get(int i) throws IOException {
+        return values.get(i);
     }
 
     public final int size() {

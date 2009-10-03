@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 
+import javax.mail.MessagingException;
+
 import org.apache.lucene.index.Term;
 
 final class PrintPager implements Pager {
@@ -68,7 +70,11 @@ final class PrintPager implements Pager {
         start = Math.max(0, start - PAGE_SIZE);
     }
 
+    public final void what(Term term) throws IOException, MessagingException {
+        results.what(term, out);
+    }
+
     public final Collection<Term> terms() throws IOException {
-        return results.terms();
+        return results.getTerms();
     }
 }

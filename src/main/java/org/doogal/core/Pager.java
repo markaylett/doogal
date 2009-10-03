@@ -4,6 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 
+import javax.mail.MessagingException;
+
 import org.apache.lucene.index.Term;
 
 interface Pager extends Closeable {
@@ -15,6 +17,8 @@ interface Pager extends Closeable {
     void nextPage() throws IOException;
 
     void prevPage() throws IOException;
+    
+    void what(Term term) throws IOException, MessagingException;
     
     Collection<Term> terms() throws IOException;
 }
