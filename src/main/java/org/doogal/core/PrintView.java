@@ -50,8 +50,8 @@ public final class PrintView implements View {
         pager.prevPage();
     }
     
-    public final void what(Term term) throws IOException, MessagingException {
-        pager.what(term);
+    public final String peek(Term term) throws IOException, MessagingException {
+        return pager.peek(term);
     }
 
     public final Collection<Term> terms() throws IOException {

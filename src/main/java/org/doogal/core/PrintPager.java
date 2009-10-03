@@ -70,8 +70,8 @@ final class PrintPager implements Pager {
         start = Math.max(0, start - PAGE_SIZE);
     }
 
-    public final void what(Term term) throws IOException, MessagingException {
-        results.what(term, out);
+    public final String peek(Term term) throws IOException, MessagingException {
+        return results.peek(term, out);
     }
 
     public final Collection<Term> terms() throws IOException {

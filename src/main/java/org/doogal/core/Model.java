@@ -401,6 +401,48 @@ final class Model implements Closeable {
             }
         };
     }
+    
+    @Builtin("peek")
+    public final Command newWhat() {
+        return new AbstractBuiltin() {
+            public final String getDescription() {
+                return "peek inside document";
+            }
+
+            @SuppressWarnings("unused")
+            public final void exec() throws Exception {
+                Peek.exec(view, state, getTerm());
+            }
+
+            @SuppressWarnings("unused")
+            public final void exec(String s) throws Exception {
+                if ("*".equals(s)) {
+                    final Collection<Term> terms = view.terms();
+                    for (final Term term : terms)
+                        Peek.exec(view, state, term);
+                } else
+                    Peek.exec(view, state, getTerm(s));
+            }
+
+            @SuppressWarnings("unused")
+            @Synopsis("peek [doc...]")
+            public final void exec(Object... args) throws Exception {
+                boolean glob = false;
+                for (final Object arg : args) {
+                    final String s = arg.toString();
+                    if ("*".equals(s))
+                        glob = true;
+                    else
+                        Peek.exec(view, state, getTerm(arg.toString()));
+                }
+                if (glob) {
+                    final Collection<Term> terms = view.terms();
+                    for (final Term term : terms)
+                        Peek.exec(view, state, term);
+                }
+            }
+        };
+    }
 
     @Builtin("previous")
     public final Command newPrev() {
@@ -598,48 +640,6 @@ final class Model implements Closeable {
             public final void exec(String s) throws IOException, ParseException {
                 view.setResults(values(s));
                 view.showPage();
-            }
-        };
-    }
-    
-    @Builtin("what")
-    public final Command newWhat() {
-        return new AbstractBuiltin() {
-            public final String getDescription() {
-                return "what document";
-            }
-
-            @SuppressWarnings("unused")
-            public final void exec() throws Exception {
-                view.what(getTerm());
-            }
-
-            @SuppressWarnings("unused")
-            public final void exec(String s) throws Exception {
-                if ("*".equals(s)) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        view.what(term);
-                } else
-                    view.what(getTerm(s));
-            }
-
-            @SuppressWarnings("unused")
-            @Synopsis("what [doc...]")
-            public final void exec(Object... args) throws Exception {
-                boolean glob = false;
-                for (final Object arg : args) {
-                    final String s = arg.toString();
-                    if ("*".equals(s))
-                        glob = true;
-                    else
-                        view.what(getTerm(arg.toString()));
-                }
-                if (glob) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        view.what(term);
-                }
             }
         };
     }

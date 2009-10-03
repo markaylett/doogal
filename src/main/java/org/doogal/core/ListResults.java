@@ -19,7 +19,8 @@ final class ListResults implements Results {
     public final void close() throws IOException {
     }
 
-    public final void what(Term term, PrintWriter out) {
+    public final String peek(Term term, PrintWriter out) {
+        return null;
     }
 
     public final Collection<Term> getTerms() {

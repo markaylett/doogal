@@ -7,5 +7,6 @@ repo=${DOOGAL_REPO:-'.'}
 pushd $repo/data
 find . -type f -a ! -name "*.txt" -exec rm {} \;
 git add .
+git diff
 git commit -a -m "Doogal commit."
 popd

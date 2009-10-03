@@ -18,7 +18,7 @@ interface Pager extends Closeable {
 
     void prevPage() throws IOException;
     
-    void what(Term term) throws IOException, MessagingException;
+    String peek(Term term) throws IOException, MessagingException;
     
     Collection<Term> terms() throws IOException;
 }

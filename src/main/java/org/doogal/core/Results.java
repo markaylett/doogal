@@ -19,7 +19,7 @@ import org.apache.lucene.index.Term;
 
 public interface Results extends Closeable {
 
-    void what(Term term, PrintWriter out) throws IOException, MessagingException;
+    String peek(Term term, PrintWriter out) throws IOException, MessagingException;
     
     Collection<Term> getTerms() throws IOException;
     

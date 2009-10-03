@@ -18,7 +18,7 @@ final class Repo {
             try {
                 out.println("# Doogle config file.");
                 out.println("alias ls list");
-                out.println("alias p publish");
+                out.println("alias p peek");
                 out.println("alias s search");
                 out.println("index");
             } finally {

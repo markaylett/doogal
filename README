@@ -1,4 +1,5 @@
 TODO:
+ * encoding variable
  * page-size variable
  * template variable
  * parser errors
@@ -6,6 +7,7 @@ TODO:
  * save settings
  * apt doogal ids
  * apt css
+ * email
 
 $ find $DOOGAL_REPO/data -name "*.txt" -exec file {} \; | grep -v ASCII
 

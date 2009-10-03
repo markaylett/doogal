@@ -57,18 +57,23 @@ final class SearchResults implements Results {
         // Collect first page.
         totalHits = Math.min(fetch(PAGE_SIZE), Constants.MAX_RESULTS);
         state.retain();
+        if (0 < hits.length) {
+            final Document doc = state.doc(hits[0].doc);
+            state.addRecent(doc.get("id"));
+        }
     }
 
     public final void close() throws IOException {
         state.release();
     }
 
-    public final void what(Term term, PrintWriter out) throws IOException,
+    public final String peek(Term term, PrintWriter out) throws IOException,
             MessagingException {
 
         final Document doc = find(term);
         if (null == doc)
-            return;
+            return null;
+        final String id = doc.get("id");
         final Highlighter hl = new Highlighter(new Formatter() {
             public final String highlightTerm(String originalText,
                     TokenGroup tokenGroup) {
@@ -99,14 +104,15 @@ final class SearchResults implements Results {
         final TokenStream ts = new StandardAnalyzer().tokenStream("contents",
                 new StringReader(sb.toString()));
         final String[] ls = hl.getBestFragments(ts, sb.toString(), 3);
-        out.println("highlights:");
-        out.println(Utility.toString(state.getLocal(doc.get("id")), doc));
+        out.println("best of document:");
+        out.println(Utility.toString(state.getLocal(id), doc));
         out.println();
         if (0 < ls.length) {
             for (int j = 0; j < ls.length; ++j)
                 out.println(ls[j]);
             out.println();
         }
+        return id;
     }
 
     public final Collection<Term> getTerms() throws IOException {
