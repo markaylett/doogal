@@ -27,31 +27,28 @@ public final class SyncDoogal implements Doogal {
     private final int[] maxNames;
     private boolean interact;
 
-    private static Results helpResults(String cmd, Command value, PrintWriter out)
-            throws Exception {
-        final List<String> ls = new ArrayList<String>();
-        ls.add("NAME");
-        ls.add(String.format(" s - %s", cmd, value.getDescription()));
-        ls.add("");
-        ls.add("SYNOPSIS");
+    private static void printHelp(String cmd, Command value, final PrintWriter out) throws Exception {
+        out.println("NAME");
+        out.printf(" s - %s\n", cmd, value.getDescription());
+        out.println();
+        out.println("SYNOPSIS");
         for (final Method method : value.getClass().getMethods()) {
             final Synopsis synopsis = method.getAnnotation(Synopsis.class);
             if (null != synopsis)
-                ls.add(" " + synopsis.value());
+                out.printf(" %s\n", synopsis.value());
         }
-        ls.add("");
-        ls.add("DESCRIPTION");
+        out.println();
+        out.println("DESCRIPTION");
         eachLine(cmd + ".txt", new Predicate<String>() {
             public final boolean call(String arg) {
                 if (0 == arg.length())
-                    ls.add("");
+                    out.println();
                 else
-                    ls.add(" " + arg);
+                    out.printf(" %s\n", arg);
                 return true;
             }
 
         });
-        return new ListResults(ls);
     }
 
     private final void put(String name, Command value) {
@@ -223,12 +220,12 @@ public final class SyncDoogal implements Doogal {
                         last = entry.getKey();
                     }
 
-                Results results;
-                if (1 == ls.size())
-                    results = helpResults(last, commands.get(last), view.getOut());
-                else
-                    results = new ListResults(ls);
+                if (1 == ls.size()) {
+                    printHelp(last, commands.get(last), view.getOut());
+                    return;
+                }
 
+                final Results results = new ListResults(ls);
                 view.setResults(results);
                 view.showPage();
             }
