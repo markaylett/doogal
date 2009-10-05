@@ -103,8 +103,8 @@ public final class SyncDoogal implements Doogal {
                     if (Type.ALIAS == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Results results = new ListResults(ls);
-                view.setResults(results);
+                final DataSet dataSet = new ListSet(ls);
+                view.setDataSet(dataSet);
                 view.showPage();
             }
 
@@ -121,8 +121,8 @@ public final class SyncDoogal implements Doogal {
                             && entry.getKey().startsWith(hint))
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Results results = new ListResults(ls);
-                view.setResults(results);
+                final DataSet dataSet = new ListSet(ls);
+                view.setDataSet(dataSet);
                 view.showPage();
             }
 
@@ -199,8 +199,8 @@ public final class SyncDoogal implements Doogal {
                     if (Type.BUILTIN == entry.getValue().getType())
                         ls.add(toHelp(entry.getKey(), entry.getValue()));
 
-                final Results results = new ListResults(ls);
-                view.setResults(results);
+                final DataSet dataSet = new ListSet(ls);
+                view.setDataSet(dataSet);
                 view.showPage();
             }
 
@@ -225,8 +225,8 @@ public final class SyncDoogal implements Doogal {
                     return;
                 }
 
-                final Results results = new ListResults(ls);
-                view.setResults(results);
+                final DataSet dataSet = new ListSet(ls);
+                view.setDataSet(dataSet);
                 view.showPage();
             }
         });

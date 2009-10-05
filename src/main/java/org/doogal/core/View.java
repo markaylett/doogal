@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import org.apache.commons.logging.Log;
 
 public interface View extends Pager {
-    void setResults(Results results) throws IOException;
+    void setDataSet(DataSet dataSet) throws IOException;
     PrintWriter getOut();
     Log getLog();
 }

@@ -26,7 +26,7 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
 
-final class SearchResults implements Results {
+final class SearchSet implements DocumentSet {
 
     private final View view;
     private final SharedState state;
@@ -50,7 +50,7 @@ final class SearchResults implements Results {
         return null;
     }
     
-    SearchResults(View view, SharedState state, Query query) throws IOException {
+    SearchSet(View view, SharedState state, Query query) throws IOException {
         this.view = view;
         this.state = state;
         this.query = query.rewrite(state.getIndexReader());

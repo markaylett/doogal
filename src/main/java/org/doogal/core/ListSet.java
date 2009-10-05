@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.apache.lucene.index.Term;
 
-final class ListResults implements Results {
+final class ListSet implements DataSet {
 
     private final List<String> ls;
 
-    ListResults(List<String> ls) {
+    ListSet(List<String> ls) {
         this.ls = ls;
     }
 
@@ -35,6 +35,6 @@ final class ListResults implements Results {
         return ls.size();
     }
 
-    static final ListResults EMPTY = new ListResults(Collections
+    static final ListSet EMPTY = new ListSet(Collections
             .<String> emptyList());
 }

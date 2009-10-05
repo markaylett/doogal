@@ -27,7 +27,7 @@ public final class PrintView implements View {
         this.out = out;
         this.log = log;
         // Avoid null pager.
-        setPager(new PrintPager(ListResults.EMPTY, out));
+        setPager(new PrintPager(ListSet.EMPTY, out));
     }
 
     public final void close() throws IOException {
@@ -58,8 +58,8 @@ public final class PrintView implements View {
         return pager.terms();
     }
 
-    public final void setResults(Results results) throws IOException {
-        setPager(new PrintPager(results, out));
+    public final void setDataSet(DataSet dataSet) throws IOException {
+        setPager(new PrintPager(dataSet, out));
     }
 
     public final Log getLog() {

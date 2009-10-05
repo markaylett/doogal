@@ -32,9 +32,9 @@ final class Recent {
             ids.remove(i);
     }
 
-    final Results asResults(SharedState state) throws EvalException,
+    final DocumentSet asDataSet(SharedState state) throws EvalException,
             IOException {
-        final IdentityResults results = new IdentityResults();
+        final IdentitySet docSet = new IdentitySet();
         for (final String id : ids) {
             final Term term = new Term("id", id);
             final TermDocs docs = state.termDocs(term);
@@ -42,13 +42,13 @@ final class Recent {
                 if (docs.next()) {
                     final int lid = state.getLocal(id);
                     final Document doc = state.doc(docs.doc());
-                    results.add(id, Utility.toString(lid, doc));
+                    docSet.add(id, Utility.toString(lid, doc));
                 }
             } finally {
                 docs.close();
             }
         }
-        return results;
+        return docSet;
     }
 
     final String top() {

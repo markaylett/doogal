@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.apache.lucene.index.Term;
 
-final class IdentityResults implements Results {
+final class IdentitySet implements DocumentSet {
     private final List<Term> terms;
     private final List<String> values;
 
-    IdentityResults() {
+    IdentitySet() {
         terms = new ArrayList<Term>();
         values = new ArrayList<String>();
     }
