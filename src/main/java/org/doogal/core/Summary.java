@@ -27,7 +27,7 @@ final class Summary {
         try {
             this.modified = DateTools.stringToDate(doc.get("modified"));
         } catch (final ParseException e) {
-            throw new IOException(e.getLocalizedMessage(), e);
+            throw new IOException(e.getLocalizedMessage());
         }
 
         String display = doc.get("title");

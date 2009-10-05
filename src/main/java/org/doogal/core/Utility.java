@@ -114,7 +114,7 @@ public final class Utility {
             new InternetHeaders(is);
             done = true;
         } catch (final MessagingException e) {
-            throw new IOException(e.getLocalizedMessage(), e);
+            throw new IOException(e.getLocalizedMessage());
         } finally {
             if (!done)
                 is.close();

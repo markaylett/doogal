@@ -96,7 +96,7 @@ final class Rfc822 {
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.addDocument(doc);
         } catch (final MessagingException e) {
-            throw new IOException(e.getLocalizedMessage(), e);
+            throw new IOException(e.getLocalizedMessage());
         } finally {
             is.close();
         }
@@ -112,7 +112,7 @@ final class Rfc822 {
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.updateDocument(new Term("id", id), doc);
         } catch (final MessagingException e) {
-            throw new IOException(e.getLocalizedMessage(), e);
+            throw new IOException(e.getLocalizedMessage());
         } finally {
             is.close();
         }
