@@ -12,7 +12,7 @@ final class ArraySet implements DataSet {
 
     public final void close() throws IOException {
     }
-    
+
     public final String get(int i) throws IOException {
         return arr[i];
     }

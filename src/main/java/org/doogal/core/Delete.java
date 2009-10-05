@@ -1,8 +1,8 @@
 package org.doogal.core;
 
 import static org.doogal.core.Utility.getId;
-import static org.doogal.core.Utility.listFiles;
 import static org.doogal.core.Utility.renameFile;
+import static org.doogal.core.Utility.whileFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,7 @@ final class Delete {
 
     static void exec(final SharedState state, Term term) throws Exception {
         final IndexReader reader = state.getIndexReader();
-        listFiles(reader, state.getData(), term, new Predicate<File>() {
+        whileFile(reader, state.getData(), term, new Predicate<File>() {
             public final boolean call(File file) throws EvalException,
                     IOException {
                 final File trash = new File(state.getTrash(), file.getName());

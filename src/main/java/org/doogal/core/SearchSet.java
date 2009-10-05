@@ -2,6 +2,7 @@ package org.doogal.core;
 
 import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.openContents;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -9,11 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
-import javax.mail.MessagingException;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -49,7 +46,7 @@ final class SearchSet implements DocumentSet {
         }
         return null;
     }
-    
+
     SearchSet(View view, SharedState state, Query query) throws IOException {
         this.view = view;
         this.state = state;
@@ -67,8 +64,23 @@ final class SearchSet implements DocumentSet {
         state.release();
     }
 
-    public final String peek(Term term, PrintWriter out) throws IOException,
-            MessagingException {
+    public final String get(int i) throws IOException {
+
+        if (hits.length <= i) {
+            view.getLog().info("fetching documents...");
+            fetch(totalHits);
+        }
+
+        final Document doc = state.doc(hits[i].doc);
+        final int id = state.getLocal(doc.get("id"));
+        return new Summary(id, doc).toString();
+    }
+
+    public final int size() {
+        return totalHits;
+    }
+
+    public final String peek(Term term, PrintWriter out) throws IOException {
 
         final Document doc = find(term);
         if (null == doc)
@@ -105,7 +117,7 @@ final class SearchSet implements DocumentSet {
                 new StringReader(sb.toString()));
         final String[] ls = hl.getBestFragments(ts, sb.toString(), 3);
         out.println("best of document:");
-        out.println(Utility.toString(state.getLocal(id), doc));
+        out.println(new Summary(state.getLocal(id), doc).toString());
         out.println();
         if (0 < ls.length) {
             for (int j = 0; j < ls.length; ++j)
@@ -115,21 +127,7 @@ final class SearchSet implements DocumentSet {
         return id;
     }
 
-    public final Collection<Term> getTerms() throws IOException {
-        if (hits.length < totalHits) {
-            view.getLog().info("fetching documents...");
-            fetch(totalHits);
-        }
-        final List<Term> ls = new ArrayList<Term>();
-        for (int i = 0; i < hits.length; ++i) {
-            final Document doc = state.doc(hits[i].doc);
-            ls.add(new Term("id", doc.get("id")));
-        }
-        return ls;
-    }
-
-    public final String get(int i) throws IOException {
-
+    public final Summary getSummary(int i) throws IOException {
         if (hits.length <= i) {
             view.getLog().info("fetching documents...");
             fetch(totalHits);
@@ -137,10 +135,6 @@ final class SearchSet implements DocumentSet {
 
         final Document doc = state.doc(hits[i].doc);
         final int id = state.getLocal(doc.get("id"));
-        return Utility.toString(id, doc);
-    }
-
-    public final int size() {
-        return totalHits;
+        return new Summary(id, doc);
     }
 }

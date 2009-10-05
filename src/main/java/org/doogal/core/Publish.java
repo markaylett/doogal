@@ -47,7 +47,7 @@ final class Publish {
                 sink.paragraph_();
                 sink.body_();
             } catch (final IOException e) {
-                throw new ParseException(e.getLocalizedMessage());
+                throw new ParseException(e.getLocalizedMessage(), e);
             } finally {
                 sink.close();
             }

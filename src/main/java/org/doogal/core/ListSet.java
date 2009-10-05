@@ -35,6 +35,5 @@ final class ListSet implements DataSet {
         return ls.size();
     }
 
-    static final ListSet EMPTY = new ListSet(Collections
-            .<String> emptyList());
+    static final ListSet EMPTY = new ListSet(Collections.<String> emptyList());
 }

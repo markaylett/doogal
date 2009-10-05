@@ -34,7 +34,7 @@ final class Recent {
 
     final DocumentSet asDataSet(SharedState state) throws EvalException,
             IOException {
-        final IdentitySet docSet = new IdentitySet();
+        final SummarySet docSet = new SummarySet();
         for (final String id : ids) {
             final Term term = new Term("id", id);
             final TermDocs docs = state.termDocs(term);
@@ -42,7 +42,7 @@ final class Recent {
                 if (docs.next()) {
                     final int lid = state.getLocal(id);
                     final Document doc = state.doc(docs.doc());
-                    docSet.add(id, Utility.toString(lid, doc));
+                    docSet.add(new Summary(lid, doc));
                 }
             } finally {
                 docs.close();

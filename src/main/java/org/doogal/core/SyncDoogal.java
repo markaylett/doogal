@@ -1,6 +1,6 @@
 package org.doogal.core;
 
-import static org.doogal.core.Utility.eachLine;
+import static org.doogal.core.Utility.whileLine;
 
 import java.io.File;
 import java.io.FileReader;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
 import javax.mail.internet.ParseException;
 
 public final class SyncDoogal implements Doogal {
@@ -27,7 +28,8 @@ public final class SyncDoogal implements Doogal {
     private final int[] maxNames;
     private boolean interact;
 
-    private static void printHelp(String cmd, Command value, final PrintWriter out) throws Exception {
+    private static void printHelp(String cmd, Command value,
+            final PrintWriter out) throws Exception {
         out.println("NAME");
         out.printf(" s - %s\n", cmd, value.getDescription());
         out.println();
@@ -39,7 +41,7 @@ public final class SyncDoogal implements Doogal {
         }
         out.println();
         out.println("DESCRIPTION");
-        eachLine(cmd + ".txt", new Predicate<String>() {
+        whileLine(cmd + ".txt", new Predicate<String>() {
             public final boolean call(String arg) {
                 if (0 == arg.length())
                     out.println();
@@ -73,8 +75,9 @@ public final class SyncDoogal implements Doogal {
         return String.format("%" + max + "s - %s", cmd, value.getDescription());
     }
 
-    private SyncDoogal(final View view, final Controller controller, final Model model)
-            throws IllegalAccessException, InvocationTargetException {
+    private SyncDoogal(final View view, final Controller controller,
+            final Model model) throws IllegalAccessException,
+            InvocationTargetException {
         this.view = view;
         this.controller = controller;
         this.model = model;
@@ -95,7 +98,7 @@ public final class SyncDoogal implements Doogal {
             }
 
             @SuppressWarnings("unused")
-            public final void exec() throws IOException {
+            public final void exec() throws EvalException, IOException {
 
                 final List<String> ls = new ArrayList<String>();
 
@@ -110,7 +113,8 @@ public final class SyncDoogal implements Doogal {
 
             @SuppressWarnings("unused")
             @Synopsis("alias [hint]")
-            public final void exec(String hint) throws IOException {
+            public final void exec(String hint) throws EvalException,
+                    IOException {
 
                 hint = hint.toLowerCase();
 
@@ -191,7 +195,7 @@ public final class SyncDoogal implements Doogal {
             }
 
             @SuppressWarnings("unused")
-            public final void exec() throws IOException {
+            public final void exec() throws EvalException, IOException {
 
                 final List<String> ls = new ArrayList<String>();
 

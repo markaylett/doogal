@@ -2,7 +2,7 @@ package org.doogal.core;
 
 import static org.doogal.core.Utility.getRelativePath;
 import static org.doogal.core.Utility.ignore;
-import static org.doogal.core.Utility.listFiles;
+import static org.doogal.core.Utility.whileFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +21,7 @@ final class Archive {
                 path));
         try {
 
-            listFiles(repo.getData(), new Predicate<File>() {
+            whileFile(repo.getData(), new Predicate<File>() {
                 public final boolean call(File file) throws IOException {
                     if (ignore(file))
                         return true;

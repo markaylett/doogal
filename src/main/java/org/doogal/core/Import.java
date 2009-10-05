@@ -2,15 +2,13 @@ package org.doogal.core;
 
 import static org.doogal.core.Utility.getId;
 import static org.doogal.core.Utility.ignore;
-import static org.doogal.core.Utility.listFiles;
 import static org.doogal.core.Utility.newId;
 import static org.doogal.core.Utility.renameFile;
 import static org.doogal.core.Utility.subdir;
+import static org.doogal.core.Utility.whileFile;
 
 import java.io.File;
 import java.io.IOException;
-
-import javax.mail.MessagingException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
@@ -32,16 +30,15 @@ final class Import {
                 new StandardAnalyzer(), false,
                 IndexWriter.MaxFieldLength.LIMITED);
         try {
-            listFiles(new File(state.getInbox()), new Predicate<File>() {
-                public final boolean call(File file) throws IOException,
-                        MessagingException {
+            whileFile(new File(state.getInbox()), new Predicate<File>() {
+                public final boolean call(File file) throws IOException {
                     if (ignore(file))
                         return true;
                     file = importFile(state, file);
                     final String id = getId(file);
                     final int lid = state.getLocal(getId(file));
-                    view.getLog().info(String
-                            .format("indexing document %d...", lid));
+                    view.getLog().info(
+                            String.format("indexing document %d...", lid));
                     Rfc822.addDocument(writer, state.getData(), file);
                     state.addRecent(id);
                     return true;

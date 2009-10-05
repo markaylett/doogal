@@ -11,7 +11,8 @@ import org.apache.lucene.index.IndexWriter;
 
 final class New {
 
-    static void exec(View view, SharedState state, String template) throws Exception {
+    static void exec(View view, SharedState state, String template)
+            throws Exception {
         File file = subdir(state.getData());
         final String id = newId();
         file = new File(file, id + ".txt");

@@ -54,7 +54,8 @@ final class Tidy {
         }
     }
 
-    static void exec(View view, final SharedState state, Term term) throws Exception {
+    static void exec(View view, final SharedState state, Term term)
+            throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);

@@ -1,7 +1,10 @@
 package org.doogal.core;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.lucene.index.Term;
 
 final class IdentityMap {
     private final Map<String, Integer> globalToLocal;
@@ -26,14 +29,22 @@ final class IdentityMap {
         return null == local ? put(uuid) : local;
     }
 
-    final String getGlobal(int local) throws EvalException {
+    final String getGlobal(int local) throws IOException {
         final String uuid = localToGlobal.get(local);
         if (null == uuid)
-            throw new EvalException("no such identifier");
+            throw new IOException("no such identifier");
         return uuid;
     }
 
-    final String getGlobal(String uuid) throws EvalException {
-        return getGlobal(Integer.valueOf(uuid));
+    final String getGlobal(String local) throws IOException {
+        return getGlobal(Integer.valueOf(local));
+    }
+
+    final Term getTerm(int local) throws IOException {
+        return new Term("id", getGlobal(local));
+    }
+
+    final Term getTerm(String local) throws IOException {
+        return new Term("id", getGlobal(local));
     }
 }

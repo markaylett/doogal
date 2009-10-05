@@ -28,7 +28,7 @@ import org.apache.lucene.index.Term;
 
 final class Rfc822 {
 
-    static Collection<String> splitRfc822(String value, String delims)
+    private static Collection<String> splitRfc822(String value, String delims)
             throws ParseException {
         final Collection<String> toks = new ArrayList<String>();
         final HeaderTokenizer ht = new HeaderTokenizer(value, delims, true);
@@ -41,7 +41,7 @@ final class Rfc822 {
         return toks;
     }
 
-    static String addStandard(Document doc, File dir, File file)
+    private static String addStandard(Document doc, File dir, File file)
             throws IOException {
         final String id = getId(file);
         doc.add(new Field("id", id, Field.Store.YES, Field.Index.NOT_ANALYZED));
@@ -54,8 +54,8 @@ final class Rfc822 {
     }
 
     @SuppressWarnings("unchecked")
-    static void addFields(Document doc, InputStream is) throws IOException,
-            MessagingException {
+    private static void addFields(Document doc, InputStream is)
+            throws IOException, MessagingException {
         final InternetHeaders headers = new InternetHeaders(is);
         final List<Header> l = Collections.<Header> list(headers
                 .getAllHeaders());
@@ -87,7 +87,7 @@ final class Rfc822 {
     }
 
     static final void addDocument(IndexWriter writer, File dir, File file)
-            throws IOException, MessagingException {
+            throws IOException {
         final Document doc = new Document();
         final InputStream is = new FileInputStream(file);
         try {
@@ -95,13 +95,15 @@ final class Rfc822 {
             addFields(doc, is);
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.addDocument(doc);
+        } catch (final MessagingException e) {
+            throw new IOException(e.getLocalizedMessage(), e);
         } finally {
             is.close();
         }
     }
 
     static final void updateDocument(IndexWriter writer, File dir, File file)
-            throws IOException, MessagingException {
+            throws IOException {
         final Document doc = new Document();
         final InputStream is = new FileInputStream(file);
         try {
@@ -109,6 +111,8 @@ final class Rfc822 {
             addFields(doc, is);
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.updateDocument(new Term("id", id), doc);
+        } catch (final MessagingException e) {
+            throw new IOException(e.getLocalizedMessage(), e);
         } finally {
             is.close();
         }

@@ -1,5 +1,7 @@
 package org.doogal.swing;
 
+import static org.doogal.core.Constants.MAX_RESULTS;
+
 import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -7,8 +9,6 @@ import java.io.OutputStream;
 
 import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
-
-import static org.doogal.core.Constants.MAX_RESULTS;
 
 final class TextAreaStream extends OutputStream {
 

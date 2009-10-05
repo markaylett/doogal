@@ -2,71 +2,43 @@ package org.doogal.core;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-
-import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
-import org.apache.lucene.index.Term;
 
-public final class PrintView implements View {
+public final class PrintView extends AbstractView {
 
-    private final PrintWriter out;
-    private final Log log;
-    private Pager pager;
+    private final PrintPager pager;
 
-    final void setPager(Pager p) throws IOException {
-        if (null != pager) {
-            pager.close();
-            pager = null;
-        }
-        pager = p;
-    }
-    
     public PrintView(PrintWriter out, Log log) throws IOException {
-        this.out = out;
-        this.log = log;
-        // Avoid null pager.
-        setPager(new PrintPager(ListSet.EMPTY, out));
+        super(out, log);
+        pager = new PrintPager(out);
     }
 
     public final void close() throws IOException {
-        setPager(null);
+        pager.close();
     }
-    
+
     public final void setPage(String n) throws EvalException, IOException {
         pager.setPage(n);
     }
 
-    public final void showPage() throws IOException {
+    public final void showPage() throws EvalException, IOException {
         pager.showPage();
     }
 
-    public final void nextPage() throws IOException {
+    public final void nextPage() throws EvalException, IOException {
         pager.nextPage();
     }
 
-    public final void prevPage() throws IOException {
+    public final void prevPage() throws EvalException, IOException {
         pager.prevPage();
-    }
-    
-    public final String peek(Term term) throws IOException, MessagingException {
-        return pager.peek(term);
-    }
-
-    public final Collection<Term> terms() throws IOException {
-        return pager.terms();
     }
 
     public final void setDataSet(DataSet dataSet) throws IOException {
-        setPager(new PrintPager(dataSet, out));
+        pager.setDataSet(dataSet);
     }
 
-    public final Log getLog() {
-        return log;
-    }
-
-    public final PrintWriter getOut() {
-        return out;
+    public DataSet getDataSet() {
+        return pager.getDataSet();
     }
 }

@@ -27,12 +27,14 @@ final class Peek {
             throw new EvalException("no such document");
 
         id = doc.get("id");
-        final InputStream is = openContents(new File(state.getData(), doc.get("path")));
+        final InputStream is = openContents(new File(state.getData(), doc
+                .get("path")));
         try {
             final BufferedReader in = new BufferedReader(new InputStreamReader(
                     is, "UTF-8"));
             view.getOut().println("head of document:");
-            view.getOut().println(Utility.toString(state.getLocal(id), doc));
+            view.getOut().println(
+                    new Summary(state.getLocal(id), doc).toString());
             view.getOut().println();
             int i = 0;
             while (i < 10) {

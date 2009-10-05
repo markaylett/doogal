@@ -4,6 +4,7 @@ import static org.doogal.core.Utility.printResource;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Event;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,11 +32,15 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.event.EventListenerList;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
@@ -59,8 +65,8 @@ public final class Main extends JPanel implements Doogal {
     private static final int BIG_FONT = 14;
 
     private final History history;
-    private final JTextArea display;
-    private final JTextField command;
+    private final JTextArea console;
+    private final JTextField prompt;
     private final Doogal doogal;
 
     private static Frame getFrame(Container c) {
@@ -72,6 +78,12 @@ public final class Main extends JPanel implements Doogal {
         return null;
     }
 
+    private static Component newScrollPane(Component view) {
+        final JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(view);
+        return scrollPane;
+    }
+
     private static void postWindowClosingEvent(Frame frame) {
         final WindowEvent windowClosingEvent = new WindowEvent(frame,
                 WindowEvent.WINDOW_CLOSING);
@@ -79,22 +91,22 @@ public final class Main extends JPanel implements Doogal {
     }
 
     private final void setPrompt(boolean b) {
-        command.setEnabled(b);
+        prompt.setEnabled(b);
         if (b) {
-            command.requestFocus();
-            command.setBackground(Color.black);
+            prompt.requestFocus();
+            prompt.setBackground(Color.black);
         } else
-            command.setBackground(Color.darkGray);
+            prompt.setBackground(Color.darkGray);
     }
 
-    private void setEmacs() {
+    private final void setEmacs() {
 
         final Map<String, Action> actions = new HashMap<String, Action>();
-        final Action[] actionsArray = command.getActions();
+        final Action[] actionsArray = prompt.getActions();
         for (final Action a : actionsArray)
             actions.put(a.getValue(Action.NAME).toString(), a);
 
-        final Keymap keymap = JTextComponent.addKeymap("emacs", command
+        final Keymap keymap = JTextComponent.addKeymap("emacs", prompt
                 .getKeymap());
 
         Action action;
@@ -117,7 +129,7 @@ public final class Main extends JPanel implements Doogal {
             private static final long serialVersionUID = 1L;
 
             public final void actionPerformed(ActionEvent e) {
-                command.setText("");
+                prompt.setText("");
             }
         });
 
@@ -137,7 +149,7 @@ public final class Main extends JPanel implements Doogal {
             private static final long serialVersionUID = 1L;
 
             public final void actionPerformed(ActionEvent e) {
-                command.setText(history.next());
+                prompt.setText(history.next());
             }
         };
 
@@ -150,7 +162,7 @@ public final class Main extends JPanel implements Doogal {
             private static final long serialVersionUID = 1L;
 
             public final void actionPerformed(ActionEvent e) {
-                command.setText(history.prev());
+                prompt.setText(history.prev());
             }
         };
 
@@ -159,7 +171,7 @@ public final class Main extends JPanel implements Doogal {
         key = KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0);
         keymap.addActionForKeyStroke(key, action);
 
-        command.setKeymap(keymap);
+        prompt.setKeymap(keymap);
     }
 
     Main() throws Exception {
@@ -167,33 +179,104 @@ public final class Main extends JPanel implements Doogal {
 
         history = new History();
 
-        display = new JTextArea();
-        display.setMargin(new Insets(5, 5, 5, 5));
-        display.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
-        display.setForeground(Color.green);
-        display.setBackground(Color.black);
+        console = new JTextArea();
+        console.setMargin(new Insets(5, 5, 5, 5));
+        console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
+        console.setForeground(Color.green);
+        console.setBackground(Color.black);
 
-        display.setDoubleBuffered(true);
-        display.setEditable(false);
-        display.setFocusable(false);
-        display.setLineWrap(true);
+        console.setDoubleBuffered(true);
+        console.setEditable(false);
+        console.setFocusable(false);
+        console.setLineWrap(true);
 
-        command = new JTextField();
-        command.setMargin(new Insets(5, 5, 5, 5));
-        command.setFont(new Font("Monospaced", Font.PLAIN, BIG_FONT));
-        command.setForeground(Color.green);
-        command.setCaretColor(Color.green);
+        prompt = new JTextField();
+        prompt.setMargin(new Insets(5, 5, 5, 5));
+        prompt.setFont(new Font("Monospaced", Font.PLAIN, BIG_FONT));
+        prompt.setForeground(Color.green);
+        prompt.setCaretColor(Color.green);
 
         setPrompt(false);
         setEmacs();
 
-        final JScrollPane scrollPanel = new JScrollPane();
-        scrollPanel.setViewportView(display);
-        add(scrollPanel, BorderLayout.CENTER);
-        add(command, BorderLayout.SOUTH);
+        final TableModel tableModel = new TableModel() {
+            private final EventListenerList listeners = new EventListenerList();
+
+            public final void addTableModelListener(TableModelListener l) {
+                listeners.add(TableModelListener.class, l);
+            }
+
+            public final Class<?> getColumnClass(int columnIndex) {
+                Class<?> clazz;
+                switch (columnIndex) {
+                case 0:
+                    clazz = Integer.class;
+                    break;
+                case 1:
+                    clazz = Date.class;
+                    break;
+                case 2:
+                    clazz = String.class;
+                    break;
+                default:
+                    clazz = Object.class;
+                }
+                return clazz;
+            }
+
+            public final int getColumnCount() {
+                return 0;
+            }
+
+            public final String getColumnName(int columnIndex) {
+                String name;
+                switch (columnIndex) {
+                case 0:
+                    name = "Id";
+                    break;
+                case 1:
+                    name = "Modified";
+                    break;
+                case 2:
+                    name = "Display";
+                    break;
+                default:
+                    name = "Unknown";
+                }
+                return name;
+            }
+
+            public final int getRowCount() {
+                return 0;
+            }
+
+            public final Object getValueAt(int rowIndex, int columnIndex) {
+                return "";
+            }
+
+            public final boolean isCellEditable(int rowIndex, int columnIndex) {
+                return false;
+            }
+
+            public final void removeTableModelListener(TableModelListener l) {
+                listeners.remove(TableModelListener.class, l);
+            }
+
+            public final void setValueAt(Object aValue, int rowIndex,
+                    int columnIndex) {
+            }
+        };
+
+        final JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Documents", newScrollPane(new JTable(tableModel)));
+        tabbedPane.addTab("Console", newScrollPane(console));
+        tabbedPane.setSelectedIndex(1);
+
+        add(tabbedPane, BorderLayout.CENTER);
+        add(prompt, BorderLayout.SOUTH);
 
         final Environment env = new Environment();
-        final PrintWriter out = new PrintWriter(new TextAreaStream(display),
+        final PrintWriter out = new PrintWriter(new TextAreaStream(console),
                 true);
         final Log log = new StandardLog(out, out);
         final View view = new PrintView(out, log);
@@ -220,12 +303,12 @@ public final class Main extends JPanel implements Doogal {
         doogal = new AsyncDoogal(log, SyncDoogal.newInstance(env, view,
                 controller));
 
-        command.addActionListener(new ActionListener() {
+        prompt.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
-                final String s = command.getText();
+                final String s = prompt.getText();
                 history.add(s);
                 final Reader reader = new StringReader(s);
-                command.setText("");
+                prompt.setText("");
                 setPrompt(false);
                 try {
                     Shellwords.parse(reader, doogal);
@@ -300,10 +383,6 @@ public final class Main extends JPanel implements Doogal {
 
             public final void run() {
                 try {
-                    try {
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    } catch (Exception e) {
-                    }
                     Main.run();
                 } catch (final Exception e) {
                     e.printStackTrace();

@@ -4,38 +4,36 @@ import static org.doogal.core.Constants.PAGE_SIZE;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Collections;
-
-import javax.mail.MessagingException;
-
-import org.apache.lucene.index.Term;
 
 final class PrintPager implements Pager {
-    private final DataSet dataSet;
     private final PrintWriter out;
+    private DataSet dataSet;
     private int start;
     private int end;
 
-    PrintPager(DataSet dataSet, PrintWriter out) throws IOException {
-        this.dataSet = dataSet;
+    PrintPager(PrintWriter out) throws IOException {
         this.out = out;
-        start = 0;
-        end = Math.min(dataSet.size(), start + PAGE_SIZE);
+        setDataSet(null);
     }
 
     public final void close() throws IOException {
-        dataSet.close();
+        setDataSet(null);
     }
-    
+
     public final void setPage(String n) throws EvalException, IOException {
+        if (null == dataSet)
+            throw new EvalException("no such page");
+
         final int i = Math.max(Integer.valueOf(n) - 1, 0) * PAGE_SIZE;
         if (dataSet.size() <= i)
             throw new EvalException("no such page");
         start = i;
     }
 
-    public final void showPage() throws IOException {
+    public final void showPage() throws EvalException, IOException {
+
+        if (null == dataSet)
+            throw new EvalException("no such page");
 
         end = Math.min(dataSet.size(), start + PAGE_SIZE);
 
@@ -62,26 +60,30 @@ final class PrintPager implements Pager {
             out.println(prompt);
     }
 
-    public final void nextPage() throws IOException {
+    public final void nextPage() throws EvalException, IOException {
+        if (null == dataSet)
+            throw new EvalException("no such page");
+
         if (start + PAGE_SIZE < dataSet.size())
             start += PAGE_SIZE;
     }
 
-    public final void prevPage() throws IOException {
+    public final void prevPage() throws EvalException, IOException {
+        if (null == dataSet)
+            throw new EvalException("no such page");
+
         start = Math.max(0, start - PAGE_SIZE);
     }
 
-    public final String peek(Term term) throws IOException, MessagingException {
-        if (!(dataSet instanceof DocumentSet))
-            return null;
-        final DocumentSet docSet = (DocumentSet) dataSet;
-        return docSet.peek(term, out);
+    public final void setDataSet(DataSet dataSet) throws IOException {
+        if (null != this.dataSet)
+            this.dataSet.close();
+        this.dataSet = dataSet;
+        start = 0;
+        end = null == dataSet ? 0 : Math.min(dataSet.size(), start + PAGE_SIZE);
     }
 
-    public final Collection<Term> terms() throws IOException {
-        if (!(dataSet instanceof DocumentSet))
-            return Collections.<Term>emptyList();
-        final DocumentSet docSet = (DocumentSet) dataSet;
-        return docSet.getTerms();
+    public final DataSet getDataSet() {
+        return dataSet;
     }
 }

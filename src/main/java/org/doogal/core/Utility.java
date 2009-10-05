@@ -14,9 +14,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -24,15 +21,12 @@ import java.util.UUID;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
-import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 
 public final class Utility {
-    private static final DateFormat df = new SimpleDateFormat("dd-MMM-yy");
-
     private static final class FirstPredicate<T> implements Predicate<T> {
         T first = null;
 
@@ -52,7 +46,7 @@ public final class Utility {
     private Utility() {
     }
 
-    static boolean eachLine(String name, Predicate<String> pred)
+    static boolean whileLine(String name, Predicate<String> pred)
             throws Exception {
         final InputStream is = Utility.class.getClassLoader()
                 .getResourceAsStream(name);
@@ -63,9 +57,8 @@ public final class Utility {
                     new InputStreamReader(is));
             for (;;) {
                 final String line = reader.readLine();
-                if (null == line)
+                if (null == line || !pred.call(line))
                     break;
-                pred.call(line);
             }
         } finally {
             is.close();
@@ -75,7 +68,7 @@ public final class Utility {
 
     public static boolean printResource(String name, final PrintWriter out)
             throws Exception {
-        return eachLine(name, new Predicate<String>() {
+        return whileLine(name, new Predicate<String>() {
             public final boolean call(String arg) {
                 out.println(arg);
                 return true;
@@ -113,14 +106,15 @@ public final class Utility {
         }
     }
 
-    static InputStream openContents(File file) throws IOException,
-            MessagingException {
+    static InputStream openContents(File file) throws IOException {
         final InputStream is = new FileInputStream(file);
         boolean done = false;
         try {
             // Skip headers.
             new InternetHeaders(is);
             done = true;
+        } catch (final MessagingException e) {
+            throw new IOException(e.getLocalizedMessage(), e);
         } finally {
             if (!done)
                 is.close();
@@ -183,59 +177,57 @@ public final class Utility {
         return !name.endsWith(".txt");
     }
 
-    static boolean listFiles(File dir, Predicate<File> pred) throws Exception {
+    static boolean whileFile(File dir, Predicate<File> pred) throws Exception {
         if (!dir.exists())
             throw new FileNotFoundException(dir.getPath());
         if (!dir.isDirectory())
             return pred.call(dir);
 
         for (final File f : dir.listFiles())
-            if (!listFiles(f, pred))
+            if (!whileFile(f, pred))
                 return false;
         return true;
     }
 
-    static boolean listDocuments(IndexReader reader, Term term,
+    static void whileDocument(IndexReader reader, Term term,
             Predicate<Document> pred) throws Exception {
         final TermDocs docs = reader.termDocs(term);
         try {
             while (docs.next()) {
                 final Document doc = reader.document(docs.doc());
                 if (!pred.call(doc))
-                    return false;
+                    break;
             }
         } finally {
             docs.close();
         }
-        return true;
     }
 
-    static boolean listFiles(IndexReader reader, File dir, Term term,
+    static void whileFile(IndexReader reader, File dir, Term term,
             Predicate<File> pred) throws Exception {
         final TermDocs docs = reader.termDocs(term);
         try {
             while (docs.next()) {
                 final Document doc = reader.document(docs.doc());
                 if (!pred.call(new File(dir, doc.get("path"))))
-                    return false;
+                    break;
             }
         } finally {
             docs.close();
         }
-        return true;
     }
 
     static Document firstDocument(IndexReader reader, Term term)
             throws Exception {
         final FirstPredicate<Document> pred = new FirstPredicate<Document>();
-        listDocuments(reader, term, pred);
+        whileDocument(reader, term, pred);
         return pred.first;
     }
 
     static File firstFile(IndexReader reader, File dir, Term term)
             throws Exception {
         final FirstPredicate<File> pred = new FirstPredicate<File>();
-        listFiles(reader, dir, term, pred);
+        whileFile(reader, dir, term, pred);
         return pred.first;
     }
 
@@ -272,32 +264,5 @@ public final class Utility {
                 }
         }
         return sb.toString();
-    }
-
-    static String toString(int id, Document doc) {
-
-        String modified = doc.get("modified");
-        try {
-            // 14-Sep-09
-            modified = df.format(DateTools.stringToDate(modified));
-        } catch (final ParseException e) {
-            // 20090914
-            modified = " " + modified.substring(0, 8);
-        }
-
-        String display = doc.get("title");
-        final String name = doc.get("name");
-
-        if (null == display) {
-            display = doc.get("subject");
-            if (null == display) {
-                display = name;
-                if (null == display)
-                    display = "Untitled";
-            }
-        }
-
-        return null == name ? String.format("%5d %s %s", id, modified, display)
-                : String.format("%5d %s %s [%s]", id, modified, display, name);
     }
 }

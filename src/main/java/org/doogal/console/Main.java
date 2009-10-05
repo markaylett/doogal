@@ -4,6 +4,7 @@ import static org.doogal.core.Constants.PROMPT;
 import static org.doogal.core.Utility.printResource;
 
 import java.io.PrintWriter;
+
 import org.apache.commons.logging.Log;
 import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
@@ -52,10 +53,10 @@ public final class Main {
             printResource("motd.txt", out);
             try {
                 doogal.config();
-            } catch (ExitException e) {
+            } catch (final ExitException e) {
             }
             Shellwords.parse(System.in, doogal);
-        } catch (ExitException e) {
+        } catch (final ExitException e) {
         } finally {
             doogal.close();
         }

@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.mail.internet.ParseException;
 
 public final class Shellwords {
@@ -88,8 +89,8 @@ public final class Shellwords {
         return new Shellwords(reader).readLine();
     }
 
-    public static void parse(Reader reader, Interpreter interp) throws EvalException,
-            IOException, ParseException {
+    public static void parse(Reader reader, Interpreter interp)
+            throws EvalException, IOException, ParseException {
         final Shellwords sw = new Shellwords(reader);
         do {
             final List<Object> toks = sw.readLine();
@@ -102,8 +103,8 @@ public final class Shellwords {
         } while (!sw.isEof());
     }
 
-    public static void parse(InputStream in, Interpreter interp) throws EvalException,
-            IOException, ParseException {
+    public static void parse(InputStream in, Interpreter interp)
+            throws EvalException, IOException, ParseException {
         parse(newBufferedReader(in), interp);
     }
 

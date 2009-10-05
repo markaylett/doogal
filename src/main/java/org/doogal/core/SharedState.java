@@ -69,14 +69,6 @@ final class SharedState {
         return identityMap.getLocal(uuid);
     }
 
-    final String getGlobal(int local) throws EvalException {
-        return identityMap.getGlobal(local);
-    }
-
-    final String getGlobal(String uuid) throws EvalException {
-        return identityMap.getGlobal(uuid);
-    }
-
     final void addRecent(String id) {
         recent.add(id);
     }

@@ -43,9 +43,9 @@ final class Model implements Closeable {
     private final Recent recent;
     private SharedState state;
 
-    private final Term getTerm(String value) throws EvalException {
-        return Character.isDigit(value.charAt(0)) ? new Term("id", identityMap
-                .getGlobal(value)) : new Term("name", value);
+    private final Term getTerm(String value) throws IOException {
+        return Character.isDigit(value.charAt(0)) ? identityMap.getTerm(value)
+                : new Term("name", value);
     }
 
     private final Term getTerm() throws EvalException {
@@ -59,7 +59,7 @@ final class Model implements Closeable {
 
         final int max = state.maxDoc();
         final int n = Math.min(state.numDocs(), Constants.MAX_RESULTS);
-        final IdentitySet docSet = new IdentitySet();
+        final SummarySet docSet = new SummarySet();
 
         int i = Math.abs(RAND.nextInt(max));
         while (docSet.size() < n) {
@@ -68,7 +68,7 @@ final class Model implements Closeable {
                 final Document doc = state.doc(j);
                 final String id = doc.get("id");
                 final int lid = state.getLocal(id);
-                docSet.add(id, Utility.toString(lid, doc));
+                docSet.add(new Summary(lid, doc));
             }
         }
         return docSet;
@@ -95,7 +95,8 @@ final class Model implements Closeable {
         return new SearchSet(view, state, query);
     }
 
-    private final DocumentSet search(String s) throws IOException, ParseException {
+    private final DocumentSet search(String s) throws IOException,
+            ParseException {
         final QueryParser parser = new MultiFieldQueryParser(FIELDS,
                 new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
@@ -130,8 +131,8 @@ final class Model implements Closeable {
         return new ArraySet(arr);
     }
 
-    Model(Environment env, View view, Repo repo)
-            throws EvalException, IOException {
+    Model(Environment env, View view, Repo repo) throws EvalException,
+            IOException {
         this.env = env;
         this.view = view;
         this.repo = repo;
@@ -143,13 +144,13 @@ final class Model implements Closeable {
     public final void close() {
         try {
             view.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             view.getLog().error(e.getLocalizedMessage());
         }
         if (null != state) {
             try {
                 state.release();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 view.getLog().error(e.getLocalizedMessage());
             }
             state = null;
@@ -211,11 +212,16 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 view.getLog().info("deleting...");
-                if ("*".equals(s)) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Delete.exec(state, term);
-                } else
+                if ("*".equals(s))
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Delete
+                                    .exec(state, identityMap.getTerm(arg
+                                            .getId()));
+                            return true;
+                        }
+                    });
+                else
                     Delete.exec(state, getTerm(s));
             }
 
@@ -231,11 +237,15 @@ final class Model implements Closeable {
                     else
                         Delete.exec(state, getTerm(arg.toString()));
                 }
-                if (glob) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Delete.exec(state, term);
-                }
+                if (glob)
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Delete
+                                    .exec(state, identityMap.getTerm(arg
+                                            .getId()));
+                            return true;
+                        }
+                    });
             }
         };
     }
@@ -313,7 +323,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             @Synopsis("list")
-            public final void exec() throws IOException {
+            public final void exec() throws EvalException, IOException {
                 view.showPage();
             }
         };
@@ -373,7 +383,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             @Synopsis("next")
-            public final void exec() throws IOException {
+            public final void exec() throws EvalException, IOException {
                 view.nextPage();
                 view.showPage();
             }
@@ -401,7 +411,7 @@ final class Model implements Closeable {
             }
         };
     }
-    
+
     @Builtin("peek")
     public final Command newWhat() {
         return new AbstractBuiltin() {
@@ -416,11 +426,15 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                if ("*".equals(s)) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Peek.exec(view, state, term);
-                } else
+                if ("*".equals(s))
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Peek.exec(view, state, identityMap.getTerm(arg
+                                    .getId()));
+                            return true;
+                        }
+                    });
+                else
                     Peek.exec(view, state, getTerm(s));
             }
 
@@ -435,11 +449,14 @@ final class Model implements Closeable {
                     else
                         Peek.exec(view, state, getTerm(arg.toString()));
                 }
-                if (glob) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Peek.exec(view, state, term);
-                }
+                if (glob)
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Peek.exec(view, state, identityMap.getTerm(arg
+                                    .getId()));
+                            return true;
+                        }
+                    });
             }
         };
     }
@@ -453,7 +470,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             @Synopsis("previous")
-            public final void exec() throws IOException {
+            public final void exec() throws EvalException, IOException {
                 view.prevPage();
                 view.showPage();
             }
@@ -476,11 +493,15 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 view.getLog().info("publishing...");
-                if ("*".equals(s)) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Publish.exec(state, term);
-                } else
+                if ("*".equals(s))
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Publish.exec(state, identityMap
+                                    .getTerm(arg.getId()));
+                            return true;
+                        }
+                    });
+                else
                     Publish.exec(state, getTerm(s));
             }
 
@@ -496,11 +517,14 @@ final class Model implements Closeable {
                     else
                         Publish.exec(state, getTerm(arg.toString()));
                 }
-                if (glob) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Publish.exec(state, term);
-                }
+                if (glob)
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Publish.exec(state, identityMap
+                                    .getTerm(arg.getId()));
+                            return true;
+                        }
+                    });
             }
         };
     }
@@ -531,13 +555,16 @@ final class Model implements Closeable {
             }
 
             @SuppressWarnings("unused")
-            public final void exec() throws IOException, ParseException {
-                view.getLog().info(String.format("searching for '%s'...\n", last));
+            public final void exec() throws EvalException, IOException,
+                    ParseException {
+                view.getLog().info(
+                        String.format("searching for '%s'...\n", last));
                 view.setDataSet(search(last));
                 view.showPage();
             }
 
-            public final void exec(String s) throws IOException, ParseException {
+            public final void exec(String s) throws EvalException, IOException,
+                    ParseException {
                 view.setDataSet(search(s));
                 view.showPage();
                 last = s;
@@ -545,8 +572,8 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             @Synopsis("search [expr...]")
-            public final void exec(Object... args) throws IOException,
-                    ParseException {
+            public final void exec(Object... args) throws EvalException,
+                    IOException, ParseException {
                 exec(join(args));
             }
         };
@@ -561,7 +588,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             @Synopsis("set")
-            public final void exec() throws IOException {
+            public final void exec() throws EvalException, IOException {
                 final String[] arr = env.toArray();
                 view.setDataSet(new ArraySet(arr));
                 view.showPage();
@@ -599,11 +626,15 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 view.getLog().info("tidying...");
-                if ("*".equals(s)) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Tidy.exec(view, state, term);
-                } else
+                if ("*".equals(s))
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Tidy.exec(view, state, identityMap.getTerm(arg
+                                    .getId()));
+                            return true;
+                        }
+                    });
+                else
                     Tidy.exec(view, state, getTerm(s));
             }
 
@@ -619,11 +650,14 @@ final class Model implements Closeable {
                     else
                         Tidy.exec(view, state, getTerm(arg.toString()));
                 }
-                if (glob) {
-                    final Collection<Term> terms = view.terms();
-                    for (final Term term : terms)
-                        Tidy.exec(view, state, term);
-                }
+                if (glob)
+                    view.whileSummary(new Predicate<Summary>() {
+                        public final boolean call(Summary arg) throws Exception {
+                            Tidy.exec(view, state, identityMap.getTerm(arg
+                                    .getId()));
+                            return true;
+                        }
+                    });
             }
         };
     }
@@ -637,7 +671,8 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             @Synopsis("values name")
-            public final void exec(String s) throws IOException, ParseException {
+            public final void exec(String s) throws EvalException, IOException,
+                    ParseException {
                 view.setDataSet(values(s));
                 view.showPage();
             }
