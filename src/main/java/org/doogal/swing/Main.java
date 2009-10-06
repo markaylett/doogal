@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,15 +31,11 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
@@ -178,7 +173,7 @@ public final class Main extends JPanel implements Doogal {
         super(new BorderLayout());
 
         history = new History();
-
+        
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
@@ -199,80 +194,7 @@ public final class Main extends JPanel implements Doogal {
         setPrompt(false);
         setEmacs();
 
-        final TableModel tableModel = new TableModel() {
-            private final EventListenerList listeners = new EventListenerList();
-
-            public final void addTableModelListener(TableModelListener l) {
-                listeners.add(TableModelListener.class, l);
-            }
-
-            public final Class<?> getColumnClass(int columnIndex) {
-                Class<?> clazz;
-                switch (columnIndex) {
-                case 0:
-                    clazz = Integer.class;
-                    break;
-                case 1:
-                    clazz = Date.class;
-                    break;
-                case 2:
-                    clazz = String.class;
-                    break;
-                default:
-                    clazz = Object.class;
-                }
-                return clazz;
-            }
-
-            public final int getColumnCount() {
-                return 0;
-            }
-
-            public final String getColumnName(int columnIndex) {
-                String name;
-                switch (columnIndex) {
-                case 0:
-                    name = "Id";
-                    break;
-                case 1:
-                    name = "Modified";
-                    break;
-                case 2:
-                    name = "Display";
-                    break;
-                default:
-                    name = "Unknown";
-                }
-                return name;
-            }
-
-            public final int getRowCount() {
-                return 0;
-            }
-
-            public final Object getValueAt(int rowIndex, int columnIndex) {
-                return "";
-            }
-
-            public final boolean isCellEditable(int rowIndex, int columnIndex) {
-                return false;
-            }
-
-            public final void removeTableModelListener(TableModelListener l) {
-                listeners.remove(TableModelListener.class, l);
-            }
-
-            public final void setValueAt(Object aValue, int rowIndex,
-                    int columnIndex) {
-            }
-        };
-
-        final JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Documents", newScrollPane(new JTable(tableModel)));
-        tabbedPane.addTab("Console", newScrollPane(console));
-        tabbedPane.setSelectedIndex(1);
-
-        add(tabbedPane, BorderLayout.CENTER);
+        add(newScrollPane(console), BorderLayout.CENTER);
         add(prompt, BorderLayout.SOUTH);
 
         final Environment env = new Environment();
@@ -383,6 +305,10 @@ public final class Main extends JPanel implements Doogal {
 
             public final void run() {
                 try {
+                    try {
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    } catch (Exception e) {
+                    }
                     Main.run();
                 } catch (final Exception e) {
                     e.printStackTrace();

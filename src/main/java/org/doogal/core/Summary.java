@@ -9,7 +9,7 @@ import java.util.Date;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 
-final class Summary {
+public final class Summary {
     private static final DateFormat df = new SimpleDateFormat("dd-MMM-yy");
     private final int id;
     private final Date modified;
@@ -51,15 +51,15 @@ final class Summary {
         return String.format("%5d %s %s", id, df.format(modified), display);
     }
 
-    final int getId() {
+    public final int getId() {
         return id;
     }
 
-    final Date getModified() {
+    public final Date getModified() {
         return modified;
     }
 
-    final String getDisplay() {
+    public final String getDisplay() {
         return display;
     }
 }

@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 
-public final class PrintView extends AbstractView {
+public class PrintView extends AbstractView {
 
     private int start;
     private int end;
@@ -65,7 +65,7 @@ public final class PrintView extends AbstractView {
             start = Math.max(0, start - PAGE_SIZE);
     }
 
-    public final void setDataSet(DataSet dataSet) throws IOException {
+    public void setDataSet(DataSet dataSet) throws IOException {
         super.setDataSet(dataSet);
         start = 0;
         end = null == dataSet ? 0 : Math.min(dataSet.size(), start + PAGE_SIZE);
