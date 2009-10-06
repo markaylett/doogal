@@ -42,6 +42,7 @@ public final class Main {
 
     public static void main(String[] args) throws Exception {
 
+        System.setProperty("line.separator", "\n");
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(System.out, true);
         final PrintWriter err = new PrintWriter(System.err, true);

@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import org.doogal.core.table.PairTable;
+import org.doogal.core.table.Table;
+
 public final class Environment {
     private static interface Accessor {
         void reset() throws EvalException;
@@ -171,12 +174,10 @@ public final class Environment {
         return null == template ? defaultTemplate() : template;
     }
 
-    final String[] toArray() {
-        final String[] arr = new String[env.size()];
-        int i = 0;
+    final Table asTable() {
+        final PairTable table = new PairTable("Name", "Value");
         for (final Entry<String, Accessor> entry : env.entrySet())
-            arr[i++] = String.format("%s=%s", entry.getKey(), entry.getValue()
-                    .get().toString());
-        return arr;
+            table.add(entry.getKey(), entry.getValue().get().toString());
+        return table;
     }
 }

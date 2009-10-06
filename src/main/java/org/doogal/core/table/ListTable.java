@@ -1,15 +1,19 @@
 package org.doogal.core.table;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
-final class ValueTable implements Table {
+public final class ListTable implements Table {
     private final String columnName;
     private final List<String> list;
-    ValueTable(String columnName) {
+    public ListTable(String columnName, List<String> list) {
         this.columnName = columnName;
-        this.list = new ArrayList<String>();
+        this.list = list;
     }
+    public void close() throws IOException {
+        
+    }
+
     public final int getRowCount() {
         return list.size();
     }
@@ -28,8 +32,5 @@ final class ValueTable implements Table {
 
     public final Object getValueAt(int rowIndex, int columnIndex) {
         return list.get(rowIndex);
-    }
-    final void add(String value) {
-        list.add(value);
     }
 }

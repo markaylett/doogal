@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import javax.mail.internet.ParseException;
 
+import org.doogal.core.table.PairTable;
 import org.doogal.core.view.View;
 
 public final class SyncDoogal implements Doogal {
@@ -62,6 +63,7 @@ public final class SyncDoogal implements Doogal {
                 .ordinal()], name.length());
     }
 
+    @Deprecated
     private final void setMaxName() {
         for (final Type type : Type.values())
             maxNames[type.ordinal()] = 0;
@@ -71,11 +73,6 @@ public final class SyncDoogal implements Doogal {
             maxNames[value.getType().ordinal()] = Math.max(maxNames[value
                     .getType().ordinal()], name.length());
         }
-    }
-
-    private final String toHelp(String cmd, Command value) {
-        final int max = maxNames[value.getType().ordinal()];
-        return String.format("%" + max + "s - %s", cmd, value.getDescription());
     }
 
     private SyncDoogal(final View view, final Controller controller,
@@ -103,14 +100,12 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
-                final List<String> ls = new ArrayList<String>();
-
+                final PairTable table = new PairTable("Alias", "Description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType())
-                        ls.add(toHelp(entry.getKey(), entry.getValue()));
+                        table.add(entry.getKey(), entry.getValue().getDescription());
 
-                final DataSet dataSet = new ListSet(ls);
-                view.setDataSet(dataSet);
+                view.setTable(table);
                 view.showPage();
             }
 
@@ -121,15 +116,13 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final List<String> ls = new ArrayList<String>();
-
+                final PairTable table = new PairTable("Alias", "Description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType()
                             && entry.getKey().startsWith(hint))
-                        ls.add(toHelp(entry.getKey(), entry.getValue()));
+                        table.add(entry.getKey(), entry.getValue().getDescription());
 
-                final DataSet dataSet = new ListSet(ls);
-                view.setDataSet(dataSet);
+                view.setTable(table);
                 view.showPage();
             }
 
@@ -200,14 +193,14 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
+                final PairTable table = new PairTable("Command", "Description");
                 final List<String> ls = new ArrayList<String>();
 
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.BUILTIN == entry.getValue().getType())
-                        ls.add(toHelp(entry.getKey(), entry.getValue()));
+                        table.add(entry.getKey(), entry.getValue().getDescription());
 
-                final DataSet dataSet = new ListSet(ls);
-                view.setDataSet(dataSet);
+                view.setTable(table);
                 view.showPage();
             }
 
@@ -217,23 +210,22 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final List<String> ls = new ArrayList<String>();
+                final PairTable table = new PairTable("Command", "Description");
 
                 String last = null;
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.BUILTIN == entry.getValue().getType()
                             && entry.getKey().startsWith(hint)) {
-                        ls.add(toHelp(entry.getKey(), entry.getValue()));
+                        table.add(entry.getKey(), entry.getValue().getDescription());
                         last = entry.getKey();
                     }
 
-                if (1 == ls.size()) {
+                if (1 == table.getRowCount()) {
                     printHelp(last, commands.get(last), view.getOut());
                     return;
                 }
 
-                final DataSet dataSet = new ListSet(ls);
-                view.setDataSet(dataSet);
+                view.setTable(table);
                 view.showPage();
             }
         });

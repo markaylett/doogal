@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.doogal.core.table.DocumentTable;
+import org.doogal.core.table.SummaryTable;
 
 final class Recent {
     final List<String> ids;
@@ -32,9 +34,9 @@ final class Recent {
             ids.remove(i);
     }
 
-    final DocumentSet asDataSet(SharedState state) throws EvalException,
+    final DocumentTable asTable(SharedState state) throws EvalException,
             IOException {
-        final SummarySet docSet = new SummarySet();
+        final SummaryTable table = new SummaryTable();
         for (final String id : ids) {
             final Term term = new Term("id", id);
             final TermDocs docs = state.termDocs(term);
@@ -42,13 +44,13 @@ final class Recent {
                 if (docs.next()) {
                     final int lid = state.getLocal(id);
                     final Document doc = state.doc(docs.doc());
-                    docSet.add(new Summary(lid, doc));
+                    table.add(new Summary(lid, doc));
                 }
             } finally {
                 docs.close();
             }
         }
-        return docSet;
+        return table;
     }
 
     final String top() {

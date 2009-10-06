@@ -1,9 +1,10 @@
 package org.doogal.core.table;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-final class PairTable implements Table {
+public final class PairTable implements Table {
     private static class Pair {
         private final String first;
         private final String second;
@@ -16,12 +17,14 @@ final class PairTable implements Table {
     private final String secondName;
     private final List<Pair> list;
 
-    PairTable(String firstName, String secondName) {
+    public PairTable(String firstName, String secondName) {
         this.firstName = firstName;
         this.secondName = secondName;
         this.list = new ArrayList<Pair>();
     }
-
+    public void close() throws IOException {
+        
+    }
     public final int getRowCount() {
         return list.size();
     }
@@ -61,7 +64,7 @@ final class PairTable implements Table {
         return value;
     }
 
-    final void add(String first, String second) {
+    public final void add(String first, String second) {
         list.add(new Pair(first, second));
     }
 }

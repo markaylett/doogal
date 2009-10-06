@@ -45,16 +45,16 @@ import javax.swing.text.Keymap;
 import org.apache.commons.logging.Log;
 import org.doogal.core.AsyncDoogal;
 import org.doogal.core.Controller;
-import org.doogal.core.DataSet;
-import org.doogal.core.DocumentSet;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
-import org.doogal.core.Summary;
 import org.doogal.core.SyncDoogal;
+import org.doogal.core.table.DocumentTable;
+import org.doogal.core.table.SummaryTable;
+import org.doogal.core.table.Table;
 import org.doogal.core.view.AbstractView;
 import org.doogal.core.view.View;
 
@@ -84,23 +84,18 @@ public final class Scratch extends JPanel implements Doogal {
         return scrollPane;
     }
 
-    private static TableModel newTableModel(DataSet dataSet) throws IOException {
-        TableModel model;
-        if (null == dataSet)
-            model = new DefaultTableModel();
-        else if (dataSet instanceof DocumentSet) {
-            final DocumentSet docSet = (DocumentSet) dataSet;
-            final Summary[] ls = new Summary[docSet.size()];
-            for (int i = 0; i < ls.length; ++i)
-                ls[i] = docSet.getSummary(i);
-            model = new DocumentModel(ls);
-        } else {
-            final String[] ls = new String[dataSet.size()];
-            for (int i = 0; i < ls.length; ++i)
-                ls[i] = dataSet.get(i);
-            model = new DataModel(ls);
+    private static TableModel newTableModel(Table table) throws IOException {
+        if (null == table)
+            return new DefaultTableModel();
+
+        if (table instanceof DocumentTable) {
+            final DocumentTable from = (DocumentTable) table;
+            final SummaryTable to = new SummaryTable();
+            for (int i = 0; i < from.getRowCount(); ++i)
+                to.add(from.getSummary(i));
+            table = to;
         }
-        return model;
+        return new TableAdapter(table);
     }
 
     private static void postWindowClosingEvent(Frame frame) {
@@ -195,7 +190,7 @@ public final class Scratch extends JPanel implements Doogal {
 
         history = new History();
 
-        final JTable table = new JTable();
+        final JTable jtable = new JTable();
 
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
@@ -213,7 +208,7 @@ public final class Scratch extends JPanel implements Doogal {
         setEmacs();
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                newScrollPane(console), newScrollPane(table));
+                newScrollPane(jtable), newScrollPane(console));
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
 
@@ -225,6 +220,18 @@ public final class Scratch extends JPanel implements Doogal {
                 true);
         final Log log = new StandardLog(out, out);
         final View view = new AbstractView(out, log) {
+
+            public final void setTable(final Table table)
+                    throws IOException {
+                super.setTable(table);
+                final TableModel model = newTableModel(table);
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        jtable.setModel(model);
+                    }
+                });
+            }
+
             public final void setPage(String n) throws EvalException,
                     IOException {
             }
@@ -236,18 +243,6 @@ public final class Scratch extends JPanel implements Doogal {
             }
 
             public final void prevPage() throws EvalException, IOException {
-            }
-
-            @Override
-            public final void setDataSet(final DataSet dataSet)
-                    throws IOException {
-                super.setDataSet(dataSet);
-                final TableModel model = newTableModel(dataSet);
-                EventQueue.invokeLater(new Runnable() {
-                    public final void run() {
-                        table.setModel(model);
-                    }
-                });
             }
         };
         final Controller controller = new Controller() {
@@ -349,6 +344,7 @@ public final class Scratch extends JPanel implements Doogal {
 
     public static void main(String[] args) {
 
+        System.setProperty("line.separator", "\n");
         EventQueue.invokeLater(new Runnable() {
 
             public final void run() {

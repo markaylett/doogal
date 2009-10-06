@@ -1,6 +1,9 @@
 package org.doogal.core.table;
 
-public interface Table {
+import java.io.Closeable;
+import java.io.IOException;
+
+public interface Table extends Closeable {
     int getRowCount();
 
     int getColumnCount();
@@ -9,5 +12,5 @@ public interface Table {
 
     Class<?> getColumnClass(int columnIndex);
 
-    Object getValueAt(int rowIndex, int columnIndex);
+    Object getValueAt(int rowIndex, int columnIndex) throws IOException;
 }

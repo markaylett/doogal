@@ -91,4 +91,9 @@ final class Tidy {
         }
         state.addRecent(id);
     }
+    
+    public static void main(String[] args) throws Exception {
+        System.setProperty("line.separator", "\n");
+        tidy(new File("C:\\tmp\\in.txt"), new File("C:\\tmp\\out.txt"));
+    }
 }

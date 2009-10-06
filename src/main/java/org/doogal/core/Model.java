@@ -23,6 +23,10 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
+import org.doogal.core.table.ArrayTable;
+import org.doogal.core.table.DocumentTable;
+import org.doogal.core.table.SummaryTable;
+import org.doogal.core.table.Table;
 import org.doogal.core.view.View;
 
 final class Model implements Closeable {
@@ -56,35 +60,39 @@ final class Model implements Closeable {
         return new Term("id", id);
     }
 
-    private final DocumentSet browse() throws IOException {
+    private final DocumentTable browse() throws IOException {
 
         final int max = state.maxDoc();
         final int n = Math.min(state.numDocs(), Constants.MAX_RESULTS);
-        final SummarySet docSet = new SummarySet();
 
+        final SummaryTable table = new SummaryTable();
         int i = Math.abs(RAND.nextInt(max));
-        while (docSet.size() < n) {
+        while (table.getRowCount() < n) {
             final int j = i++ % max;
             if (!state.isDeleted(j)) {
                 final Document doc = state.doc(j);
                 final String id = doc.get("id");
                 final int lid = state.getLocal(id);
-                docSet.add(new Summary(lid, doc));
+                table.add(new Summary(lid, doc));
             }
         }
-        return docSet;
+        return table;
     }
 
     @SuppressWarnings("unchecked")
-    private final DataSet keys() throws IOException, ParseException {
-        final Collection<String> col = state.getIndexReader().getFieldNames(
+    private final Table keys() throws IOException, ParseException {
+        final Collection<String> keys = state.getIndexReader().getFieldNames(
                 FieldOption.ALL);
-        final String[] arr = col.toArray(new String[col.size()]);
-        Arrays.sort(arr);
-        return new ArraySet(arr);
+        final String[] ls = new String[keys.size()];
+        int i = 0;
+        for (final String key : keys)
+            ls[i++] = key;
+        Arrays.sort(ls);
+        return new ArrayTable("Key", ls);
     }
 
-    private final DocumentSet more(Term term) throws EvalException, IOException {
+    private final DocumentTable more(Term term) throws EvalException,
+            IOException {
         final TermDocs docs = state.getIndexReader().termDocs(term);
         if (!docs.next())
             throw new EvalException("no such document");
@@ -93,19 +101,19 @@ final class Model implements Closeable {
         mlt.setMinDocFreq(1);
         mlt.setMinTermFreq(1);
         final Query query = mlt.like(docs.doc());
-        return new SearchSet(view, state, query);
+        return new SearchTable(view, state, query);
     }
 
-    private final DocumentSet search(String s) throws IOException,
+    private final DocumentTable search(String s) throws IOException,
             ParseException {
         final QueryParser parser = new MultiFieldQueryParser(FIELDS,
                 new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
         final Query query = parser.parse(s);
-        return new SearchSet(view, state, query);
+        return new SearchTable(view, state, query);
     }
 
-    private final DataSet values(final String s) throws IOException,
+    private final Table values(final String s) throws IOException,
             ParseException {
         final QueryParser parser = new QueryParser(s, new StandardAnalyzer());
         parser.setAllowLeadingWildcard(true);
@@ -128,8 +136,8 @@ final class Model implements Closeable {
         } catch (final WrapException e) {
             throw (IOException) e.getCause();
         }
-        final String[] arr = values.toArray(new String[values.size()]);
-        return new ArraySet(arr);
+        return new ArrayTable("Value", values
+                .toArray(new String[values.size()]));
     }
 
     Model(Environment env, View view, Repo repo) throws EvalException,
@@ -197,7 +205,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("browse")
             public final void exec() throws Exception {
-                view.setDataSet(browse());
+                view.setTable(browse());
                 view.showPage();
             }
         };
@@ -309,7 +317,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("keys")
             public final void exec() throws Exception {
-                view.setDataSet(keys());
+                view.setTable(keys());
                 view.showPage();
             }
         };
@@ -340,14 +348,14 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
-                view.setDataSet(more(getTerm()));
+                view.setTable(more(getTerm()));
                 view.showPage();
             }
 
             @SuppressWarnings("unused")
             @Synopsis("more [doc]")
             public final void exec(String s) throws EvalException, IOException {
-                view.setDataSet(more(getTerm(s)));
+                view.setTable(more(getTerm(s)));
                 view.showPage();
             }
         };
@@ -540,7 +548,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
-                view.setDataSet(recent.asDataSet(state));
+                view.setTable(recent.asTable(state));
                 view.showPage();
             }
         };
@@ -560,13 +568,13 @@ final class Model implements Closeable {
                     ParseException {
                 view.getLog().info(
                         String.format("searching for '%s'...\n", last));
-                view.setDataSet(search(last));
+                view.setTable(search(last));
                 view.showPage();
             }
 
             public final void exec(String s) throws EvalException, IOException,
                     ParseException {
-                view.setDataSet(search(s));
+                view.setTable(search(s));
                 view.showPage();
                 last = s;
             }
@@ -590,8 +598,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("set")
             public final void exec() throws EvalException, IOException {
-                final String[] arr = env.toArray();
-                view.setDataSet(new ArraySet(arr));
+                view.setTable(env.asTable());
                 view.showPage();
             }
 
@@ -674,7 +681,7 @@ final class Model implements Closeable {
             @Synopsis("values name")
             public final void exec(String s) throws EvalException, IOException,
                     ParseException {
-                view.setDataSet(values(s));
+                view.setTable(values(s));
                 view.showPage();
             }
         };

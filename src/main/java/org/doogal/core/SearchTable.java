@@ -22,9 +22,11 @@ import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
+import org.doogal.core.table.AbstractTable;
+import org.doogal.core.table.DocumentTable;
 import org.doogal.core.view.View;
 
-final class SearchSet implements DocumentSet {
+final class SearchTable extends AbstractTable implements DocumentTable {
 
     private final View view;
     private final SharedState state;
@@ -48,7 +50,7 @@ final class SearchSet implements DocumentSet {
         return null;
     }
 
-    SearchSet(View view, SharedState state, Query query) throws IOException {
+    SearchTable(View view, SharedState state, Query query) throws IOException {
         this.view = view;
         this.state = state;
         this.query = query.rewrite(state.getIndexReader());
@@ -64,17 +66,21 @@ final class SearchSet implements DocumentSet {
     public final void close() throws IOException {
         state.release();
     }
+    
+    public final int getRowCount() {
+        return totalHits;
+    }
 
-    public final String get(int i) throws IOException {
+    public final Object getValueAt(int rowIndex, int columnIndex) throws IOException {
 
-        if (hits.length <= i) {
+        if (hits.length <= rowIndex) {
             view.getLog().info("fetching documents...");
             fetch(totalHits);
         }
 
-        final Document doc = state.doc(hits[i].doc);
+        final Document doc = state.doc(hits[rowIndex].doc);
         final int id = state.getLocal(doc.get("id"));
-        return new Summary(id, doc).toString();
+        return getValueAt(new Summary(id, doc), columnIndex);
     }
 
     public final int size() {

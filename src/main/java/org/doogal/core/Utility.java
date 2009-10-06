@@ -267,7 +267,7 @@ public final class Utility {
         return sb.toString();
     }
 
-    static void printTable(Table table, int start, int end, PrintWriter out) {
+    public static void printTable(Table table, int start, int end, PrintWriter out) throws IOException {
         final int rowCount = end - start;
         final int[] max = new int[table.getColumnCount()];
         final String[] head = new String[table.getColumnCount()];

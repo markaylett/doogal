@@ -6,14 +6,14 @@ import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
-import org.doogal.core.DataSet;
 import org.doogal.core.EvalException;
 import org.doogal.core.Predicate;
 import org.doogal.core.Summary;
+import org.doogal.core.table.Table;
 
 public interface View extends Closeable {
 
-    void setDataSet(DataSet dataSet) throws IOException;
+    void setTable(Table table) throws IOException;
 
     String peek(Term term) throws IOException;
 

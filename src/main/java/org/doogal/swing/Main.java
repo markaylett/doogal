@@ -301,6 +301,7 @@ public final class Main extends JPanel implements Doogal {
 
     public static void main(String[] args) {
 
+        System.setProperty("line.separator", "\n");
         EventQueue.invokeLater(new Runnable() {
 
             public final void run() {

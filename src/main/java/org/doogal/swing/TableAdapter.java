@@ -1,15 +1,18 @@
 package org.doogal.swing;
 
+import java.io.IOException;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-final class DataModel implements TableModel {
-    private final String[] dataSet;
+import org.doogal.core.table.Table;
+
+final class TableAdapter implements TableModel {
+    private final Table table;
     private final EventListenerList listeners;
 
-    DataModel(String[] dataSet) {
-        this.dataSet = dataSet;
+    TableAdapter(Table table) {
+        this.table = table;
         this.listeners = new EventListenerList();
     }
 
@@ -18,23 +21,28 @@ final class DataModel implements TableModel {
     }
 
     public final Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        return table.getColumnClass(columnIndex);
     }
 
     public final int getColumnCount() {
-        return 1;
+        return table.getColumnCount();
     }
 
     public final String getColumnName(int columnIndex) {
-        return "Value";
+        return table.getColumnName(columnIndex);
     }
 
     public final int getRowCount() {
-        return dataSet.length;
+        return table.getRowCount();
     }
 
     public final Object getValueAt(int rowIndex, int columnIndex) {
-        return dataSet[rowIndex];
+        Object value = null;
+        try {
+            value = table.getValueAt(rowIndex, columnIndex);
+        } catch (IOException e) {
+        }
+        return value;
     }
 
     public final boolean isCellEditable(int rowIndex, int columnIndex) {

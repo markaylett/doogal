@@ -5,46 +5,46 @@ import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
-import org.doogal.core.DataSet;
-import org.doogal.core.DocumentSet;
 import org.doogal.core.Predicate;
 import org.doogal.core.Summary;
+import org.doogal.core.table.DocumentTable;
+import org.doogal.core.table.Table;
 
 public abstract class AbstractView implements View {
     protected final PrintWriter out;
     protected final Log log;
-    protected DataSet dataSet;
+    protected Table table;
 
     protected AbstractView(PrintWriter out, Log log) {
         this.out = out;
         this.log = log;
-        this.dataSet = null;
+        this.table = null;
     }
 
     public final void close() throws IOException {
-        setDataSet(null);
+        setTable(null);
     }
 
-    public void setDataSet(DataSet dataSet) throws IOException {
-        if (null != this.dataSet)
-            this.dataSet.close();
-        this.dataSet = dataSet;
+    public void setTable(Table table) throws IOException {
+        if (null != this.table)
+            this.table.close();
+        this.table = table;
     }
 
     public final String peek(Term term) throws IOException {
-        if (null == dataSet || !(dataSet instanceof DocumentSet))
+        if (null == table || !(table instanceof DocumentTable))
             return null;
-        final DocumentSet docSet = (DocumentSet) dataSet;
-        return docSet.peek(term, out);
+        final DocumentTable docTable = (DocumentTable) table;
+        return docTable.peek(term, out);
     }
 
     public final void whileSummary(Predicate<Summary> pred) throws Exception {
-        if (null == dataSet || !(dataSet instanceof DocumentSet))
+        if (null == table || !(table instanceof DocumentTable))
             return;
-        final DocumentSet docSet = (DocumentSet) dataSet;
-        final int n = docSet.size();
+        final DocumentTable docTable = (DocumentTable) table;
+        final int n = docTable.getRowCount();
         for (int i = 0; i < n; ++i) {
-            final Summary s = docSet.getSummary(i);
+            final Summary s = docTable.getSummary(i);
             if (!pred.call(s))
                 break;
         }

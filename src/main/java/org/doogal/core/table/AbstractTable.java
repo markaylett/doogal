@@ -3,7 +3,7 @@ package org.doogal.core.table;
 import java.util.Date;
 import org.doogal.core.Summary;
 
-abstract class AbstractTable implements Table {
+public abstract class AbstractTable implements Table {
     protected static Object getValueAt(Summary summary, int columnIndex) {
         Object value = null;
         switch (columnIndex) {
