@@ -9,6 +9,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.doogal.core.view.View;
 
 final class Open {
 
@@ -32,9 +33,10 @@ final class Open {
                     new StandardAnalyzer(), false,
                     IndexWriter.MaxFieldLength.LIMITED);
             try {
-                if (file.exists())
+                if (file.exists()) {
+                    Tidy.exec(state.getTmp(), file);
                     Rfc822.updateDocument(writer, state.getData(), file);
-                else
+                } else
                     writer.deleteDocuments(new Term("id", id));
             } finally {
                 writer.optimize();

@@ -23,6 +23,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
+import org.doogal.core.view.View;
 
 final class Model implements Closeable {
     private static final class WrapException extends RuntimeException {

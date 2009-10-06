@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.doogal.core.view.View;
 
 final class Peek {
     static void exec(View view, SharedState state, Term term) throws Exception {

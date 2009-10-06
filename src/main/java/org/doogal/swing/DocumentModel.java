@@ -1,6 +1,7 @@
 package org.doogal.swing;
 
 import java.util.Date;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;

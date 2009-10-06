@@ -1,8 +1,8 @@
 package org.doogal.core;
 
+import static org.doogal.core.Utility.copyFile;
 import static org.doogal.core.Utility.firstFile;
 import static org.doogal.core.Utility.getId;
-import static org.doogal.core.Utility.renameFile;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +15,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.doogal.core.view.View;
 
 final class Tidy {
     private static final String tidy(String s) {
@@ -39,7 +40,7 @@ final class Tidy {
         }
     }
 
-    private static void tidy(File from, File to) throws IOException {
+    static void tidy(File from, File to) throws IOException {
         final BufferedReader in = new BufferedReader(new InputStreamReader(
                 new FileInputStream(from), "UTF-8"));
         try {
@@ -54,6 +55,16 @@ final class Tidy {
         }
     }
 
+    static void exec(File dir, File file) throws IOException {
+        final File tmp = File.createTempFile(getId(file) + "-", ".txt", dir);
+        try {
+            copyFile(file, tmp);
+            tidy(tmp, file);
+        } finally {
+            tmp.delete();
+        }
+    }
+
     static void exec(View view, final SharedState state, Term term)
             throws Exception {
 
@@ -62,10 +73,7 @@ final class Tidy {
         if (null == file)
             throw new EvalException("no such document");
 
-        final File trash = new File(state.getTrash(), file.getName());
-        trash.delete();
-        renameFile(file, trash);
-        tidy(trash, file);
+        exec(state.getTmp(), file);
 
         final String id = getId(file);
         view.getLog().info("indexing document...");

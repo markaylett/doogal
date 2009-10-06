@@ -61,6 +61,10 @@ final class SharedState {
         return repo.getIndex();
     }
 
+    final File getTmp() {
+        return repo.getTmp();
+    }
+
     final File getTrash() {
         return repo.getTrash();
     }

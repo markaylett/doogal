@@ -3,7 +3,6 @@ package org.doogal.swing;
 import static org.doogal.core.Utility.printResource;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -31,7 +30,7 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -52,12 +51,12 @@ import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
-import org.doogal.core.PrintView;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.Summary;
 import org.doogal.core.SyncDoogal;
-import org.doogal.core.View;
+import org.doogal.core.view.AbstractView;
+import org.doogal.core.view.View;
 
 public final class Scratch extends JPanel implements Doogal {
 
@@ -112,11 +111,8 @@ public final class Scratch extends JPanel implements Doogal {
 
     private final void setPrompt(boolean b) {
         prompt.setEnabled(b);
-        if (b) {
+        if (b)
             prompt.requestFocus();
-            prompt.setBackground(Color.black);
-        } else
-            prompt.setBackground(Color.darkGray);
     }
 
     private final void setEmacs() {
@@ -204,8 +200,6 @@ public final class Scratch extends JPanel implements Doogal {
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
-        console.setForeground(Color.green);
-        console.setBackground(Color.black);
 
         console.setEditable(false);
         console.setFocusable(false);
@@ -214,27 +208,39 @@ public final class Scratch extends JPanel implements Doogal {
         prompt = new JTextField();
         prompt.setMargin(new Insets(5, 5, 5, 5));
         prompt.setFont(new Font("Monospaced", Font.PLAIN, BIG_FONT));
-        prompt.setForeground(Color.green);
-        prompt.setCaretColor(Color.green);
 
         setPrompt(false);
         setEmacs();
 
-        final JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Documents", newScrollPane(table));
-        tabbedPane.addTab("Console", newScrollPane(console));
-        tabbedPane.setSelectedIndex(1);
+        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                newScrollPane(console), newScrollPane(table));
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
 
-        add(tabbedPane, BorderLayout.CENTER);
+        add(splitPane, BorderLayout.CENTER);
         add(prompt, BorderLayout.SOUTH);
 
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(console),
                 true);
         final Log log = new StandardLog(out, out);
-        final View view = new PrintView(out, log) {
+        final View view = new AbstractView(out, log) {
+            public final void setPage(String n) throws EvalException,
+                    IOException {
+            }
+
+            public final void showPage() throws EvalException, IOException {
+            }
+
+            public final void nextPage() throws EvalException, IOException {
+            }
+
+            public final void prevPage() throws EvalException, IOException {
+            }
+
             @Override
-            public void setDataSet(final DataSet dataSet) throws IOException {
+            public final void setDataSet(final DataSet dataSet)
+                    throws IOException {
                 super.setDataSet(dataSet);
                 final TableModel model = newTableModel(dataSet);
                 EventQueue.invokeLater(new Runnable() {

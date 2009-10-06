@@ -25,6 +25,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.doogal.core.table.Table;
 
 public final class Utility {
     private static final class FirstPredicate<T> implements Predicate<T> {
@@ -264,5 +265,39 @@ public final class Utility {
                 }
         }
         return sb.toString();
+    }
+
+    static void printTable(Table table, int start, int end, PrintWriter out) {
+        final int rowCount = end - start;
+        final int[] max = new int[table.getColumnCount()];
+        final String[] head = new String[table.getColumnCount()];
+        final String[][] body = new String[rowCount][table.getColumnCount()];
+        for (int i = 0; i < rowCount; ++i)
+            for (int j = 0; j < table.getColumnCount(); ++j) {
+                final String value = table.getValueAt(start + i, j).toString();
+                max[j] = Math.max(max[j], value.length());
+                body[i][j] = value;
+            }
+        final StringBuilder hf = new StringBuilder();
+        final StringBuilder bf = new StringBuilder();
+        for (int j = 0; j < table.getColumnCount(); ++j) {
+            head[j] = table.getColumnName(j);
+            max[j] = Math.max(max[j], head[j].length());
+            if (0 < hf.length())
+                hf.append(' ');
+            hf.append('%');
+            hf.append(max[j]);
+            hf.append('s');
+            if (0 < bf.length())
+                bf.append(' ');
+            bf.append('%');
+            bf.append(max[j]);
+            bf.append('s');
+        }
+        hf.append('\n');
+        bf.append('\n');
+        out.printf(hf.toString(), (Object[]) head);
+        for (int i = 0; i < end; ++i)
+            out.printf(bf.toString(), (Object[]) body[i]);
     }
 }

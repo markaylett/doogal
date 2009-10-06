@@ -20,6 +20,8 @@ import java.util.Map.Entry;
 
 import javax.mail.internet.ParseException;
 
+import org.doogal.core.view.View;
+
 public final class SyncDoogal implements Doogal {
     private final View view;
     private final Controller controller;
@@ -51,6 +53,7 @@ public final class SyncDoogal implements Doogal {
             }
 
         });
+        out.println();
     }
 
     private final void put(String name, Command value) {
@@ -264,9 +267,7 @@ public final class SyncDoogal implements Doogal {
     }
 
     public static Doogal newInstance(Environment env, View view,
-            Controller controller) throws EvalException,
-            IllegalAccessException, InvocationTargetException, IOException,
-            ParseException {
+            Controller controller) throws Exception {
         final Repo repo = new Repo(env.getRepo());
         repo.init();
         return newInstance(env, view, controller, repo);

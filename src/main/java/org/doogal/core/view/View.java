@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.view;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -6,6 +6,10 @@ import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
+import org.doogal.core.DataSet;
+import org.doogal.core.EvalException;
+import org.doogal.core.Predicate;
+import org.doogal.core.Summary;
 
 public interface View extends Closeable {
 

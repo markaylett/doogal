@@ -22,6 +22,7 @@ import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
+import org.doogal.core.view.View;
 
 final class SearchSet implements DocumentSet {
 

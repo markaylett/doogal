@@ -10,11 +10,11 @@ import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.ExitException;
-import org.doogal.core.PrintView;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
-import org.doogal.core.View;
+import org.doogal.core.view.PrintView;
+import org.doogal.core.view.View;
 
 public final class Main {
 

@@ -1,10 +1,14 @@
-package org.doogal.core;
+package org.doogal.core.view;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
+import org.doogal.core.DataSet;
+import org.doogal.core.DocumentSet;
+import org.doogal.core.Predicate;
+import org.doogal.core.Summary;
 
 public abstract class AbstractView implements View {
     protected final PrintWriter out;
@@ -16,8 +20,8 @@ public abstract class AbstractView implements View {
         this.log = log;
         this.dataSet = null;
     }
-    
-    public void close() throws IOException {
+
+    public final void close() throws IOException {
         setDataSet(null);
     }
 
@@ -26,7 +30,7 @@ public abstract class AbstractView implements View {
             this.dataSet.close();
         this.dataSet = dataSet;
     }
-    
+
     public final String peek(Term term) throws IOException {
         if (null == dataSet || !(dataSet instanceof DocumentSet))
             return null;

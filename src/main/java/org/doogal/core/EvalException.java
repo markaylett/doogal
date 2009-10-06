@@ -6,7 +6,7 @@ public class EvalException extends Exception {
     EvalException() {
     }
 
-    EvalException(String s) {
+    public EvalException(String s) {
         super(s);
     }
 }

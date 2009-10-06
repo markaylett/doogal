@@ -10,6 +10,7 @@ for f in $(find . -name "*.txt"); do
     dt=$(dirname $f | sed -e 's|[.]/||g' -e 's|/||g')
     ft=$(file -b $f)
     dos2unix $f
+    sed 's/\s*$//g' <$f >tmp.$$ && mv tmp.$$ $f
     echo "$dt $bn $ft"
     touch -m -d $dt $f
 done

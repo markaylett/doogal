@@ -8,6 +8,7 @@ import java.io.File;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
+import org.doogal.core.view.View;
 
 final class New {
 

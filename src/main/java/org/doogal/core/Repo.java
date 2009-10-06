@@ -2,13 +2,20 @@ package org.doogal.core;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.store.LockObtainFailedException;
 
 final class Repo {
     private final File root;
     private final File data;
     private final File etc;
     private final File index;
+    private final File tmp;
     private final File trash;
 
     private void initConfig() throws FileNotFoundException {
@@ -62,15 +69,20 @@ final class Repo {
         data = new File(root, "data");
         etc = new File(root, "etc");
         index = new File(root, "index");
+        tmp = new File(root, "tmp");
         trash = new File(root, "trash");
     }
 
-    final void init() throws FileNotFoundException {
+    final void init() throws CorruptIndexException, IOException,
+            LockObtainFailedException {
+
+        final boolean create = !index.exists();
 
         root.mkdir();
         data.mkdir();
         etc.mkdir();
         index.mkdir();
+        tmp.mkdir();
         trash.mkdir();
 
         initConfig();
@@ -82,6 +94,13 @@ final class Repo {
         dir.mkdir();
         initType(dir, "plain");
         initMail(dir);
+
+        if (create) {
+            final IndexWriter writer = new IndexWriter(index,
+                    new StandardAnalyzer(), true,
+                    IndexWriter.MaxFieldLength.LIMITED);
+            writer.close();
+        }
     }
 
     final File getData() {
@@ -94,6 +113,10 @@ final class Repo {
 
     final File getIndex() {
         return index;
+    }
+
+    final File getTmp() {
+        return tmp;
     }
 
     final File getTrash() {

@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.view;
 
 import static org.doogal.core.Constants.PAGE_SIZE;
 
@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
+import org.doogal.core.DataSet;
+import org.doogal.core.EvalException;
 
-public class PrintView extends AbstractView {
+public final class PrintView extends AbstractView {
 
     private int start;
     private int end;
@@ -65,7 +67,8 @@ public class PrintView extends AbstractView {
             start = Math.max(0, start - PAGE_SIZE);
     }
 
-    public void setDataSet(DataSet dataSet) throws IOException {
+    @Override
+    public final void setDataSet(DataSet dataSet) throws IOException {
         super.setDataSet(dataSet);
         start = 0;
         end = null == dataSet ? 0 : Math.min(dataSet.size(), start + PAGE_SIZE);

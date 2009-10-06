@@ -47,11 +47,11 @@ import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
-import org.doogal.core.PrintView;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
-import org.doogal.core.View;
+import org.doogal.core.view.PrintView;
+import org.doogal.core.view.View;
 
 public final class Main extends JPanel implements Doogal {
 
@@ -173,7 +173,7 @@ public final class Main extends JPanel implements Doogal {
         super(new BorderLayout());
 
         history = new History();
-        
+
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
@@ -306,8 +306,9 @@ public final class Main extends JPanel implements Doogal {
             public final void run() {
                 try {
                     try {
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    } catch (Exception e) {
+                        UIManager.setLookAndFeel(UIManager
+                                .getSystemLookAndFeelClassName());
+                    } catch (final Exception e) {
                     }
                     Main.run();
                 } catch (final Exception e) {
