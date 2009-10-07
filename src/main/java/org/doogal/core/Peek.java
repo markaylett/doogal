@@ -2,6 +2,7 @@ package org.doogal.core;
 
 import static org.doogal.core.Utility.firstDocument;
 import static org.doogal.core.Utility.openContents;
+import static org.doogal.core.Utility.printTable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.io.InputStreamReader;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.doogal.core.table.SummaryTable;
 import org.doogal.core.view.View;
 
 final class Peek {
@@ -34,8 +36,9 @@ final class Peek {
             final BufferedReader in = new BufferedReader(new InputStreamReader(
                     is, "UTF-8"));
             view.getOut().println("head of document:");
-            view.getOut().println(
-                    new Summary(state.getLocal(id), doc).toString());
+            final SummaryTable table = new SummaryTable();
+            table.add(new Summary(state.getLocal(id), doc));
+            printTable(table, 0, 1, view.getOut());
             view.getOut().println();
             int i = 0;
             while (i < 10) {

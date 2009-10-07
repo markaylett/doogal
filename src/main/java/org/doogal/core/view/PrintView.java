@@ -35,26 +35,26 @@ public final class PrintView extends AbstractView {
     public final void showPage() throws EvalException, IOException {
 
         if (null == table) {
-            out.println("no data");
+            out.println("no table");
             return;
         }
 
         end = Math.min(table.getRowCount(), start + PAGE_SIZE);
 
-        String prompt = null;
+        printTable(table, start, end, out);
+
         if (0 < table.getRowCount()) {
             final int page = 1 + start / PAGE_SIZE;
             final int total = 1 + (table.getRowCount() - 1) / PAGE_SIZE;
-            out.println("page " + page + " of " + total + ":");
+            out.printf("page %d of %d", page, total);
             if (page < total)
-                prompt = "more...";
+                out.println(" more...");
+            else
+                out.println(" end");
         } else
-            out.println("no data");
+            out.println("no results");
 
-        printTable(table, start, end, out);
-
-        if (null != prompt)
-            out.println(prompt);
+        out.println();
     }
 
     public final void nextPage() throws EvalException, IOException {

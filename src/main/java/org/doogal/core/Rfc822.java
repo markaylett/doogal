@@ -89,10 +89,14 @@ final class Rfc822 {
     static final void addDocument(IndexWriter writer, File dir, File file)
             throws IOException {
         final Document doc = new Document();
-        final InputStream is = new FileInputStream(file);
+        final FileInputStream is = new FileInputStream(file);
         try {
             addStandard(doc, dir, file);
             addFields(doc, is);
+            final long l = is.getChannel().size() - is.getChannel().position();
+            doc.removeFields("content-length");
+            doc.add(new Field("content-length", String.valueOf(l),
+                    Field.Store.YES, Field.Index.NOT_ANALYZED));
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.addDocument(doc);
         } catch (final MessagingException e) {
@@ -105,10 +109,14 @@ final class Rfc822 {
     static final void updateDocument(IndexWriter writer, File dir, File file)
             throws IOException {
         final Document doc = new Document();
-        final InputStream is = new FileInputStream(file);
+        final FileInputStream is = new FileInputStream(file);
         try {
             final String id = addStandard(doc, dir, file);
             addFields(doc, is);
+            final long l = is.getChannel().size() - is.getChannel().position();
+            doc.removeFields("content-length");
+            doc.add(new Field("content-length", String.valueOf(l),
+                    Field.Store.YES, Field.Index.NOT_ANALYZED));
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.updateDocument(new Term("id", id), doc);
         } catch (final MessagingException e) {

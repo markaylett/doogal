@@ -47,7 +47,7 @@ public final class Summary {
 
     @Override
     public final String toString() {
-        return String.format("%5d %s %s", id, DATE_FORMAT.format(modified), display);
+        return String.format("%d %s %s", id, DATE_FORMAT.format(modified), display);
     }
 
     public final int getId() {

@@ -292,16 +292,16 @@ public final class Utility {
                 max[j] = Math.max(max[j], value.length());
                 body[i][j] = value;
             }
-        final StringBuilder hf = new StringBuilder();
-        final StringBuilder bf = new StringBuilder();
-        int len = 0;
+        final StringBuilder hf = new StringBuilder(" ");
+        final StringBuilder bf = new StringBuilder(" ");
+        int width = 0;
         for (int j = 0; j < table.getColumnCount(); ++j) {
             head[j] = table.getColumnName(j);
             max[j] = Math.max(max[j], head[j].length());
-            len += max[j];
+            width += max[j];
 
             if (0 < hf.length()) {
-                ++len;
+                ++width;
                 hf.append(' ');
             }
             hf.append("%-");
@@ -326,11 +326,11 @@ public final class Utility {
         bf.append('\n');
 
         out.printf(hf.toString(), (Object[]) head);
-        for (int i = 0; i < len; ++i)
+        out.print(' ');
+        for (int i = 0; i < width; ++i)
             out.print('-');
         out.println();
-        for (int i = 0; i < end; ++i)
+        for (int i = 0; i < rowCount; ++i)
             out.printf(bf.toString(), (Object[]) body[i]);
-        out.println();
     }
 }

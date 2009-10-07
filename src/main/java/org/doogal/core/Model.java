@@ -79,18 +79,6 @@ final class Model implements Closeable {
         return table;
     }
 
-    @SuppressWarnings("unchecked")
-    private final Table keys() throws IOException, ParseException {
-        final Collection<String> keys = state.getIndexReader().getFieldNames(
-                FieldOption.ALL);
-        final String[] ls = new String[keys.size()];
-        int i = 0;
-        for (final String key : keys)
-            ls[i++] = key;
-        Arrays.sort(ls);
-        return new ArrayTable("Key", ls);
-    }
-
     private final DocumentTable more(Term term) throws EvalException,
             IOException {
         final TermDocs docs = state.getIndexReader().termDocs(term);
@@ -102,6 +90,18 @@ final class Model implements Closeable {
         mlt.setMinTermFreq(1);
         final Query query = mlt.like(docs.doc());
         return new SearchTable(view, state, query);
+    }
+
+    @SuppressWarnings("unchecked")
+    private final Table names() throws IOException, ParseException {
+        final Collection<String> names = state.getIndexReader().getFieldNames(
+                FieldOption.ALL);
+        final String[] ls = new String[names.size()];
+        int i = 0;
+        for (final String name : names)
+            ls[i++] = name;
+        Arrays.sort(ls);
+        return new ArrayTable("name", ls);
     }
 
     private final DocumentTable search(String s) throws IOException,
@@ -136,7 +136,7 @@ final class Model implements Closeable {
         } catch (final WrapException e) {
             throw (IOException) e.getCause();
         }
-        return new ArrayTable("Value", values
+        return new ArrayTable("value", values
                 .toArray(new String[values.size()]));
     }
 
@@ -307,22 +307,6 @@ final class Model implements Closeable {
         };
     }
 
-    @Builtin("keys")
-    public final Command newKeys() {
-        return new AbstractBuiltin() {
-            public final String getDescription() {
-                return "field keys";
-            }
-
-            @SuppressWarnings("unused")
-            @Synopsis("keys")
-            public final void exec() throws Exception {
-                view.setTable(keys());
-                view.showPage();
-            }
-        };
-    }
-
     @Builtin("list")
     public final Command newList() {
         return new AbstractBuiltin() {
@@ -356,6 +340,22 @@ final class Model implements Closeable {
             @Synopsis("more [doc]")
             public final void exec(String s) throws EvalException, IOException {
                 view.setTable(more(getTerm(s)));
+                view.showPage();
+            }
+        };
+    }
+
+    @Builtin("names")
+    public final Command newNames() {
+        return new AbstractBuiltin() {
+            public final String getDescription() {
+                return "field names";
+            }
+
+            @SuppressWarnings("unused")
+            @Synopsis("names")
+            public final void exec() throws Exception {
+                view.setTable(names());
                 view.showPage();
             }
         };

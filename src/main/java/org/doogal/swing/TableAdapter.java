@@ -5,14 +5,20 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 
 final class TableAdapter implements TableModel {
     private final Table table;
     private final EventListenerList listeners;
 
+    TableAdapter() {
+        this.table = new SummaryTable();
+        this.listeners = new EventListenerList();
+    }
+    
     TableAdapter(Table table) {
-        this.table = table;
+        this.table = null == table ? new SummaryTable() : table;
         this.listeners = new EventListenerList();
     }
 

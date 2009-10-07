@@ -28,13 +28,13 @@ public abstract class AbstractTable implements Table {
         String name = null;
         switch (columnIndex) {
         case 0:
-            name = "Id";
+            name = "id";
             break;
         case 1:
-            name = "Modified";
+            name = "modified";
             break;
         case 2:
-            name = "Display";
+            name = "display";
             break;
         }
         return name;

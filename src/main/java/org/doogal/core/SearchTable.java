@@ -1,5 +1,6 @@
 package org.doogal.core;
 
+import static org.doogal.core.Utility.printTable;
 import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.openContents;
 
@@ -24,6 +25,7 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
 import org.doogal.core.table.AbstractTable;
 import org.doogal.core.table.DocumentTable;
+import org.doogal.core.table.SummaryTable;
 import org.doogal.core.view.View;
 
 final class SearchTable extends AbstractTable implements DocumentTable {
@@ -124,11 +126,16 @@ final class SearchTable extends AbstractTable implements DocumentTable {
                 new StringReader(sb.toString()));
         final String[] ls = hl.getBestFragments(ts, sb.toString(), 3);
         out.println("best of document:");
-        out.println(new Summary(state.getLocal(id), doc).toString());
+        final SummaryTable table = new SummaryTable();
+        table.add(new Summary(state.getLocal(id), doc));
+        printTable(table, 0, 1, out);
         out.println();
         if (0 < ls.length) {
-            for (int j = 0; j < ls.length; ++j)
-                out.println(ls[j]);
+            for (int j = 0; j < ls.length; ++j) {
+                final String line = ls[j].trim();
+                if (0 < line.length())
+                    out.println(line);
+            }
             out.println();
         }
         return id;

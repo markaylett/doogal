@@ -28,7 +28,6 @@ public final class SyncDoogal implements Doogal {
     private final Controller controller;
     private final Model model;
     private final Map<String, Command> commands;
-    private final int[] maxNames;
     private boolean interact;
 
     private static void printHelp(String cmd, Command value,
@@ -57,24 +56,6 @@ public final class SyncDoogal implements Doogal {
         out.println();
     }
 
-    private final void put(String name, Command value) {
-        commands.put(name, value);
-        maxNames[value.getType().ordinal()] = Math.max(maxNames[value.getType()
-                .ordinal()], name.length());
-    }
-
-    @Deprecated
-    private final void setMaxName() {
-        for (final Type type : Type.values())
-            maxNames[type.ordinal()] = 0;
-        for (final Entry<String, Command> entry : commands.entrySet()) {
-            final String name = entry.getKey();
-            final Command value = entry.getValue();
-            maxNames[value.getType().ordinal()] = Math.max(maxNames[value
-                    .getType().ordinal()], name.length());
-        }
-    }
-
     private SyncDoogal(final View view, final Controller controller,
             final Model model) throws IllegalAccessException,
             InvocationTargetException {
@@ -82,7 +63,6 @@ public final class SyncDoogal implements Doogal {
         this.controller = controller;
         this.model = model;
         this.commands = new TreeMap<String, Command>();
-        this.maxNames = new int[Type.values().length];
         this.interact = true;
 
         final Method[] methods = Model.class.getMethods();
@@ -90,7 +70,7 @@ public final class SyncDoogal implements Doogal {
             final Method method = methods[i];
             final Builtin builtin = method.getAnnotation(Builtin.class);
             if (null != builtin)
-                put(builtin.value(), (Command) method.invoke(model));
+                commands.put(builtin.value(), (Command) method.invoke(model));
         }
         commands.put("alias", new AbstractBuiltin() {
             public final String getDescription() {
@@ -100,7 +80,7 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
-                final PairTable table = new PairTable("Alias", "Description");
+                final PairTable table = new PairTable("alias", "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType())
                         table.add(entry.getKey(), entry.getValue().getDescription());
@@ -116,7 +96,7 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final PairTable table = new PairTable("Alias", "Description");
+                final PairTable table = new PairTable("alias", "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType()
                             && entry.getKey().startsWith(hint))
@@ -134,9 +114,9 @@ public final class SyncDoogal implements Doogal {
                         value));
                 final String name = toks.get(0).toString();
                 toks.remove(0);
-                put(alias, new AbstractAlias() {
+                commands.put(alias, new AbstractAlias() {
                     public final String getDescription() {
-                        return String.format("alias for '%s'", value);
+                        return value;
                     }
 
                     public final void exec() throws EvalException {
@@ -169,7 +149,7 @@ public final class SyncDoogal implements Doogal {
                 });
             }
         });
-        put("unalias", new AbstractBuiltin() {
+        commands.put("unalias", new AbstractBuiltin() {
             public final String getDescription() {
                 return "remove an alias";
             }
@@ -182,10 +162,9 @@ public final class SyncDoogal implements Doogal {
                     throw new EvalException("unknown alias");
 
                 commands.remove(name);
-                setMaxName();
             }
         });
-        put("help", new AbstractBuiltin() {
+        commands.put("help", new AbstractBuiltin() {
             public final String getDescription() {
                 return "list commands with help";
             }
@@ -193,7 +172,7 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
-                final PairTable table = new PairTable("Command", "Description");
+                final PairTable table = new PairTable("command", "description");
                 final List<String> ls = new ArrayList<String>();
 
                 for (final Entry<String, Command> entry : commands.entrySet())
@@ -210,7 +189,7 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final PairTable table = new PairTable("Command", "Description");
+                final PairTable table = new PairTable("command", "description");
 
                 String last = null;
                 for (final Entry<String, Command> entry : commands.entrySet())
@@ -230,7 +209,7 @@ public final class SyncDoogal implements Doogal {
             }
         });
 
-        put("quit", new AbstractBuiltin() {
+        commands.put("quit", new AbstractBuiltin() {
             public final String getDescription() {
                 return "exit application";
             }

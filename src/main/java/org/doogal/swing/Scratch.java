@@ -28,6 +28,9 @@ import javax.mail.internet.ParseException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -36,7 +39,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
@@ -85,10 +87,7 @@ public final class Scratch extends JPanel implements Doogal {
     }
 
     private static TableModel newTableModel(Table table) throws IOException {
-        if (null == table)
-            return new DefaultTableModel();
-
-        if (table instanceof DocumentTable) {
+        if (null != table && table instanceof DocumentTable) {
             final DocumentTable from = (DocumentTable) table;
             final SummaryTable to = new SummaryTable();
             for (int i = 0; i < from.getRowCount(); ++i)
@@ -106,6 +105,7 @@ public final class Scratch extends JPanel implements Doogal {
 
     private final void setPrompt(boolean b) {
         prompt.setEnabled(b);
+        prompt.setEditable(b);
         if (b)
             prompt.requestFocus();
     }
@@ -190,7 +190,7 @@ public final class Scratch extends JPanel implements Doogal {
 
         history = new History();
 
-        final JTable jtable = new JTable();
+        final JTable jtable = new JTable(new TableAdapter());
 
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
@@ -221,8 +221,7 @@ public final class Scratch extends JPanel implements Doogal {
         final Log log = new StandardLog(out, out);
         final View view = new AbstractView(out, log) {
 
-            public final void setTable(final Table table)
-                    throws IOException {
+            public final void setTable(final Table table) throws IOException {
                 super.setTable(table);
                 final TableModel model = newTableModel(table);
                 EventQueue.invokeLater(new Runnable() {
@@ -332,6 +331,44 @@ public final class Scratch extends JPanel implements Doogal {
         });
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
+        JMenu file = new JMenu("File");
+        file.setMnemonic(KeyEvent.VK_F);
+        file.add(new JMenuItem(new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.NAME, "Browse");
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_B));
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                try {
+                    m.eval("browse");
+                } catch (EvalException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }));
+        file.add(new JMenuItem(new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.NAME, "Exit");
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                        KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                postWindowClosingEvent(f);
+            }
+        }));
+        
+        JMenuBar mb = new JMenuBar();
+        mb.add(file);
+
+        f.setJMenuBar(mb);
+        
         f.setLayout(new BorderLayout());
         f.add(m, BorderLayout.CENTER);
         f.pack();

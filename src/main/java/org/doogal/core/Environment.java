@@ -175,7 +175,7 @@ public final class Environment {
     }
 
     final Table asTable() {
-        final PairTable table = new PairTable("Name", "Value");
+        final PairTable table = new PairTable("name", "value");
         for (final Entry<String, Accessor> entry : env.entrySet())
             table.add(entry.getKey(), entry.getValue().get().toString());
         return table;
