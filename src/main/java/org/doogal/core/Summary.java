@@ -11,11 +11,13 @@ import org.apache.lucene.document.Document;
 
 public final class Summary {
     private final int id;
+    private final long size;
     private final Date modified;
     private final String display;
 
-    Summary(int id, Date modified, String display) {
+    Summary(int id, long size, Date modified, String display) {
         this.id = id;
+        this.size = size;
         this.modified = modified;
         this.display = display;
     }
@@ -23,6 +25,7 @@ public final class Summary {
     Summary(int id, Document doc) throws IOException {
 
         this.id = id;
+        this.size = Long.parseLong(doc.get("content-length"));
         try {
             this.modified = DateTools.stringToDate(doc.get("modified"));
         } catch (final ParseException e) {
@@ -54,6 +57,10 @@ public final class Summary {
         return id;
     }
 
+    public final long getSize() {
+        return size;
+    }
+    
     public final Date getModified() {
         return modified;
     }

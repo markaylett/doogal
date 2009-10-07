@@ -11,9 +11,12 @@ public abstract class AbstractTable implements Table {
             value = Integer.valueOf(summary.getId());
             break;
         case 1:
-            value = summary.getModified();
+            value = Long.valueOf(summary.getSize());
             break;
         case 2:
+            value = summary.getModified();
+            break;
+        case 3:
             value = summary.getDisplay();
             break;
         }
@@ -21,7 +24,7 @@ public abstract class AbstractTable implements Table {
     }
     
     public final int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     public final String getColumnName(int columnIndex) {
@@ -31,9 +34,12 @@ public abstract class AbstractTable implements Table {
             name = "id";
             break;
         case 1:
-            name = "modified";
+            name = "size";
             break;
         case 2:
+            name = "modified";
+            break;
+        case 3:
             name = "display";
             break;
         }
@@ -47,9 +53,12 @@ public abstract class AbstractTable implements Table {
             clazz = Integer.class;
             break;
         case 1:
-            clazz = Date.class;
+            clazz = Long.class;
             break;
         case 2:
+            clazz = Date.class;
+            break;
+        case 3:
             clazz = String.class;
             break;
         }

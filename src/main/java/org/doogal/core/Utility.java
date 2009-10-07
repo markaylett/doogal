@@ -317,7 +317,7 @@ public final class Utility {
                 bf.append("%-");
                 bf.append(max[j]);
             } else
-                // No padding if last column and left-aligned.
+                // No padding if last column and left-justified.
                 bf.append("%");
             bf.append('s');
         }
