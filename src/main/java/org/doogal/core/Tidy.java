@@ -1,6 +1,6 @@
 package org.doogal.core;
 
-import static org.doogal.core.Utility.copyFile;
+import static org.doogal.core.Utility.copyTempFile;
 import static org.doogal.core.Utility.firstFile;
 import static org.doogal.core.Utility.getId;
 
@@ -55,10 +55,9 @@ final class Tidy {
         }
     }
 
-    static void exec(File dir, File file) throws IOException {
-        final File tmp = File.createTempFile(getId(file) + "-", ".txt", dir);
+    static void exec(File file, File dir) throws IOException {
+        final File tmp = copyTempFile(file, dir);
         try {
-            copyFile(file, tmp);
             tidy(tmp, file);
         } finally {
             tmp.delete();
@@ -73,7 +72,7 @@ final class Tidy {
         if (null == file)
             throw new EvalException("no such document");
 
-        exec(state.getTmp(), file);
+        exec(file, state.getTmp());
 
         final String id = getId(file);
         view.getLog().info("indexing document...");

@@ -1,7 +1,6 @@
 package org.doogal.core;
 
 import static org.doogal.core.Constants.DATE_FORMAT;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -93,6 +92,19 @@ public final class Utility {
         } finally {
             is.close();
         }
+    }
+
+    static File copyTempFile(File from, File dir) throws IOException {
+        final File tmp = File.createTempFile(getId(from) + "-", ".txt", dir);
+        boolean done = false;
+        try {
+            copyFile(from, tmp);
+            done = true;
+        } finally {
+            if (!done)
+                tmp.delete();
+        }
+        return tmp;
     }
 
     static void renameFile(File from, File to) throws IOException {

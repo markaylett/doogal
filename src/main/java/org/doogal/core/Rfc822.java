@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,6 +87,14 @@ final class Rfc822 {
         }
     }
 
+    private static void addContentLength(Document doc, FileInputStream is) throws IOException {
+        final FileChannel channel = is.getChannel();
+        final long l = channel.size() - channel.position();
+        doc.removeFields("content-length");
+        doc.add(new Field("content-length", String.valueOf(l),
+                Field.Store.YES, Field.Index.NOT_ANALYZED));
+    }
+    
     static final void addDocument(IndexWriter writer, File dir, File file)
             throws IOException {
         final Document doc = new Document();
@@ -93,10 +102,7 @@ final class Rfc822 {
         try {
             addStandard(doc, dir, file);
             addFields(doc, is);
-            final long l = is.getChannel().size() - is.getChannel().position();
-            doc.removeFields("content-length");
-            doc.add(new Field("content-length", String.valueOf(l),
-                    Field.Store.YES, Field.Index.NOT_ANALYZED));
+            addContentLength(doc, is);
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.addDocument(doc);
         } catch (final MessagingException e) {
@@ -113,10 +119,7 @@ final class Rfc822 {
         try {
             final String id = addStandard(doc, dir, file);
             addFields(doc, is);
-            final long l = is.getChannel().size() - is.getChannel().position();
-            doc.removeFields("content-length");
-            doc.add(new Field("content-length", String.valueOf(l),
-                    Field.Store.YES, Field.Index.NOT_ANALYZED));
+            addContentLength(doc, is);
             doc.add(new Field("contents", new InputStreamReader(is)));
             writer.updateDocument(new Term("id", id), doc);
         } catch (final MessagingException e) {
