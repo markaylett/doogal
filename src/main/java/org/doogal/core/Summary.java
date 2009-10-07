@@ -1,16 +1,15 @@
 package org.doogal.core;
 
+import static org.doogal.core.Constants.DATE_FORMAT;
+
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 
 public final class Summary {
-    private static final DateFormat df = new SimpleDateFormat("dd-MMM-yy");
     private final int id;
     private final Date modified;
     private final String display;
@@ -48,7 +47,7 @@ public final class Summary {
 
     @Override
     public final String toString() {
-        return String.format("%5d %s %s", id, df.format(modified), display);
+        return String.format("%5d %s %s", id, DATE_FORMAT.format(modified), display);
     }
 
     public final int getId() {

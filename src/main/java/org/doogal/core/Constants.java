@@ -1,5 +1,8 @@
 package org.doogal.core;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 public final class Constants {
     private Constants() {
     }
@@ -10,4 +13,5 @@ public final class Constants {
     public static final int MAX_RESULTS = 200;
     public static final int PAGE_SIZE = 15;
     public static final String PROMPT = "doogal> ";
+    static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yy");
 }

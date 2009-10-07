@@ -1,5 +1,7 @@
 package org.doogal.core;
 
+import static org.doogal.core.Constants.DATE_FORMAT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ import org.apache.lucene.index.TermDocs;
 import org.doogal.core.table.Table;
 
 public final class Utility {
+
     private static final class FirstPredicate<T> implements Predicate<T> {
         T first = null;
 
@@ -267,37 +271,66 @@ public final class Utility {
         return sb.toString();
     }
 
-    public static void printTable(Table table, int start, int end, PrintWriter out) throws IOException {
+    private static String getStringAt(Table table, int rowIndex, int columnIndex)
+            throws IOException {
+        final Object value = table.getValueAt(rowIndex, columnIndex);
+        if (Date.class.isAssignableFrom(table.getColumnClass(columnIndex)))
+            return DATE_FORMAT.format(value);
+
+        return value.toString();
+    }
+
+    public static void printTable(Table table, int start, int end,
+            PrintWriter out) throws IOException {
         final int rowCount = end - start;
         final int[] max = new int[table.getColumnCount()];
         final String[] head = new String[table.getColumnCount()];
         final String[][] body = new String[rowCount][table.getColumnCount()];
         for (int i = 0; i < rowCount; ++i)
             for (int j = 0; j < table.getColumnCount(); ++j) {
-                final String value = table.getValueAt(start + i, j).toString();
+                final String value = getStringAt(table, start + i, j);
                 max[j] = Math.max(max[j], value.length());
                 body[i][j] = value;
             }
         final StringBuilder hf = new StringBuilder();
         final StringBuilder bf = new StringBuilder();
+        int len = 0;
         for (int j = 0; j < table.getColumnCount(); ++j) {
             head[j] = table.getColumnName(j);
             max[j] = Math.max(max[j], head[j].length());
-            if (0 < hf.length())
+            len += max[j];
+
+            if (0 < hf.length()) {
+                ++len;
                 hf.append(' ');
-            hf.append('%');
+            }
+            hf.append("%-");
             hf.append(max[j]);
             hf.append('s');
+
             if (0 < bf.length())
                 bf.append(' ');
-            bf.append('%');
-            bf.append(max[j]);
+            if (Number.class.isAssignableFrom(table.getColumnClass(j))) {
+                bf.append('%');
+                bf.append(max[j]);
+            } else if (j < table.getColumnCount() - 1) {
+                bf.append("%-");
+                bf.append(max[j]);
+            } else
+                // No padding if last column and left-aligned.
+                bf.append("%");
             bf.append('s');
         }
+
         hf.append('\n');
         bf.append('\n');
+
         out.printf(hf.toString(), (Object[]) head);
+        for (int i = 0; i < len; ++i)
+            out.print('-');
+        out.println();
         for (int i = 0; i < end; ++i)
             out.printf(bf.toString(), (Object[]) body[i]);
+        out.println();
     }
 }
