@@ -1,8 +1,6 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Utility.printResource;
-import static org.doogal.core.Utility.toSize;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -60,6 +58,7 @@ import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
 import org.doogal.core.Shellwords;
+import org.doogal.core.Size;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
 import org.doogal.core.table.DocumentTable;
@@ -206,7 +205,7 @@ public final class Scratch extends JPanel implements Doogal {
         history = new History();
 
         final JTable jtable = new JTable(new TableAdapter());
-        jtable.setDefaultRenderer(Long.class, new DefaultTableCellRenderer() {
+        jtable.setDefaultRenderer(Size.class, new DefaultTableCellRenderer() {
 
             private static final long serialVersionUID = 1L;
 
@@ -216,7 +215,7 @@ public final class Scratch extends JPanel implements Doogal {
 
             @Override
             protected final void setValue(Object value) {
-                super.setValue(toSize(value));
+                super.setValue(value.toString());
             }
         });
 

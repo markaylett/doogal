@@ -1,11 +1,9 @@
 package org.doogal.core;
 
 import static org.doogal.core.Utility.copyTempFile;
+import static org.doogal.core.Utility.edit;
 import static org.doogal.core.Utility.firstFile;
 import static org.doogal.core.Utility.getId;
-import static org.doogal.core.Utility.newBufferedReader;
-
-import java.io.BufferedReader;
 import java.io.File;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -27,22 +25,7 @@ final class Open {
         final File tmp = copyTempFile(file, state.getTmp());
         try {
 
-            final FileStats stats = new FileStats(tmp);
-            final Process p = new ProcessBuilder(state.getEditor(), tmp
-                    .getAbsolutePath()).start();
-            if (0 != p.waitFor()) {
-                // Dump error stream to output.
-                final BufferedReader err = newBufferedReader(p.getErrorStream());
-                for (;;) {
-                    final String line = err.readLine();
-                    if (null == line)
-                        break;
-                    view.getOut().println(line);
-                }
-                throw new EvalException("editor failed");
-            }
-
-            if (!stats.hasFileChanged()) {
+            if (!edit(state.getEditor(), tmp, view.getOut())) {
                 view.getLog().info("no change...");
                 return;
             }

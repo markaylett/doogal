@@ -20,7 +20,7 @@ public abstract class AbstractView implements View {
         this.log = log;
         this.table = null;
     }
-
+    
     public final void close() throws IOException {
         setTable(null);
     }

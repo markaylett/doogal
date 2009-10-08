@@ -51,6 +51,25 @@ public final class Utility {
     private Utility() {
     }
 
+    static boolean edit(String editor, File path, PrintWriter err)
+            throws InterruptedException, IOException {
+        final FileStats stats = new FileStats(path);
+        final Process p = new ProcessBuilder(editor, path.getAbsolutePath())
+                .start();
+        if (0 != p.waitFor()) {
+            // Dump error stream to output.
+            final BufferedReader reader = newBufferedReader(p.getErrorStream());
+            for (;;) {
+                final String line = reader.readLine();
+                if (null == line)
+                    break;
+                err.println(line);
+            }
+            throw new IOException("editor failed");
+        }
+        return stats.hasFileChanged();
+    }
+
     static boolean whileLine(String name, Predicate<String> pred)
             throws Exception {
         final InputStream is = Utility.class.getClassLoader()
@@ -290,17 +309,6 @@ public final class Utility {
         return sb.toString();
     }
 
-    public static Object toSize(Object value) {
-        final long l = ((Number) value).longValue();
-        if (1e9 < l)
-            value = String.format("%.1fG", l / 1e9);
-        else if (1e6 < l)
-            value = String.format("%.1fM", l / 1e6);
-        else if (1e3 < l)
-            value = String.format("%.1fK", l / 1e3);
-        return value;
-    }
-
     private static String getStringAt(Table table, int rowIndex, int columnIndex)
             throws IOException {
 
@@ -309,8 +317,6 @@ public final class Utility {
         final Class<?> clazz = table.getColumnClass(columnIndex);
         if (Date.class.isAssignableFrom(clazz))
             value = DATE_FORMAT.format(value);
-        else if (Long.class.isAssignableFrom(clazz))
-            value = toSize(value);
 
         return value.toString();
     }

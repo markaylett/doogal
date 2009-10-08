@@ -2,6 +2,7 @@ package org.doogal.core.table;
 
 import java.util.Date;
 
+import org.doogal.core.Size;
 import org.doogal.core.Summary;
 
 public abstract class AbstractTable implements Table {
@@ -12,7 +13,7 @@ public abstract class AbstractTable implements Table {
             value = Integer.valueOf(summary.getId());
             break;
         case 1:
-            value = Long.valueOf(summary.getSize());
+            value = new Size(summary.getSize());
             break;
         case 2:
             value = summary.getModified();
@@ -54,7 +55,7 @@ public abstract class AbstractTable implements Table {
             clazz = Integer.class;
             break;
         case 1:
-            clazz = Long.class;
+            clazz = Size.class;
             break;
         case 2:
             clazz = Date.class;
