@@ -6,10 +6,12 @@ public final class Size extends Number {
     private static final long GIGA = 1073741824L;
     private static final long serialVersionUID = 1L;
     final Long value;
+
     public Size(long l) {
-        this.value = Long.valueOf(l);
+        value = Long.valueOf(l);
     }
 
+    @Override
     public final String toString() {
         final long l = value.longValue();
         String s;
@@ -24,18 +26,22 @@ public final class Size extends Number {
         return s;
     }
 
+    @Override
     public final int intValue() {
         return value.intValue();
     }
 
+    @Override
     public final long longValue() {
         return value.longValue();
     }
 
+    @Override
     public final float floatValue() {
         return value.floatValue();
     }
 
+    @Override
     public final double doubleValue() {
         return value.doubleValue();
     }

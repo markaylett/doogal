@@ -12,7 +12,7 @@ public final class SummaryTable extends AbstractTable implements DocumentTable {
     private final List<Summary> list;
 
     public SummaryTable() {
-        this.list = new ArrayList<Summary>();
+        list = new ArrayList<Summary>();
     }
 
     public void close() throws IOException {

@@ -4,6 +4,7 @@ import static org.doogal.core.Utility.copyTempFile;
 import static org.doogal.core.Utility.edit;
 import static org.doogal.core.Utility.firstFile;
 import static org.doogal.core.Utility.getId;
+
 import java.io.File;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;

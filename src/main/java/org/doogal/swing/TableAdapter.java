@@ -14,13 +14,13 @@ final class TableAdapter implements TableModel {
     private final EventListenerList listeners;
 
     TableAdapter() {
-        this.table = new SummaryTable();
-        this.listeners = new EventListenerList();
+        table = new SummaryTable();
+        listeners = new EventListenerList();
     }
 
     TableAdapter(Table table) {
         this.table = null == table ? new SummaryTable() : table;
-        this.listeners = new EventListenerList();
+        listeners = new EventListenerList();
     }
 
     public final void addTableModelListener(TableModelListener l) {

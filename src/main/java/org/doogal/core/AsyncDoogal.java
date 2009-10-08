@@ -19,7 +19,7 @@ public final class AsyncDoogal implements Doogal {
     public AsyncDoogal(Log log, Doogal doogal) {
         this.log = log;
         this.doogal = doogal;
-        this.executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor();
     }
 
     public final void close() {

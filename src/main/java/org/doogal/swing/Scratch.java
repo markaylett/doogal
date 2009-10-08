@@ -1,6 +1,7 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Utility.printResource;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -79,9 +80,12 @@ public final class Scratch extends JPanel implements Doogal {
     private final Doogal doogal;
 
     private final Action browseAction;
-    private final Action exitAction;
+    private final Action deleteAction;
+    private final Action moreAction;
     private final Action openAction;
     private final Action peekAction;
+    private final Action publishAction;
+    private final Action exitAction;
 
     private boolean closed = false;
 
@@ -258,18 +262,35 @@ public final class Scratch extends JPanel implements Doogal {
                 }
             }
         };
-        exitAction = new AbstractAction() {
+        deleteAction = new AbstractAction() {
             private static final long serialVersionUID = 1L;
 
             {
-                putValue(Action.NAME, "Exit");
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
-                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
-                        KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+                putValue(Action.NAME, "Delete");
             }
 
             public final void actionPerformed(ActionEvent e) {
-                postWindowClosingEvent(getFrame(Scratch.this));
+                try {
+                    eval("delete");
+                } catch (final EvalException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        moreAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_M));
+                putValue(Action.NAME, "More");
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                try {
+                    eval("more");
+                } catch (final EvalException e1) {
+                    e1.printStackTrace();
+                }
             }
         };
         openAction = new AbstractAction() {
@@ -302,6 +323,35 @@ public final class Scratch extends JPanel implements Doogal {
                 } catch (final EvalException e1) {
                     e1.printStackTrace();
                 }
+            }
+        };
+        publishAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.NAME, "Publish");
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                try {
+                    eval("publish");
+                } catch (final EvalException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        exitAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.NAME, "Exit");
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                        KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                postWindowClosingEvent(getFrame(Scratch.this));
             }
         };
         jtable.addMouseListener(new MouseAdapter() {
@@ -450,8 +500,12 @@ public final class Scratch extends JPanel implements Doogal {
         return browseAction;
     }
 
-    final Action getExitAction() {
-        return exitAction;
+    final Action getDeleteAction() {
+        return deleteAction;
+    }
+
+    final Action getMoreAction() {
+        return moreAction;
     }
 
     final Action getOpenAction() {
@@ -460,6 +514,14 @@ public final class Scratch extends JPanel implements Doogal {
 
     final Action getPeekAction() {
         return peekAction;
+    }
+
+    final Action getPublishAction() {
+        return publishAction;
+    }
+
+    final Action getExitAction() {
+        return exitAction;
     }
 
     private static void run() throws Exception {
@@ -481,7 +543,9 @@ public final class Scratch extends JPanel implements Doogal {
         file.setMnemonic(KeyEvent.VK_F);
         file.add(new JMenuItem(m.getOpenAction()));
         file.add(new JMenuItem(m.getBrowseAction()));
+        file.add(new JMenuItem(m.getDeleteAction()));
         file.add(new JMenuItem(m.getPeekAction()));
+        file.add(new JMenuItem(m.getPublishAction()));
         file.add(new JMenuItem(m.getExitAction()));
 
         final JMenuBar mb = new JMenuBar();

@@ -18,9 +18,9 @@ public abstract class AbstractView implements View {
     protected AbstractView(PrintWriter out, Log log) {
         this.out = out;
         this.log = log;
-        this.table = null;
+        table = null;
     }
-    
+
     public final void close() throws IOException {
         setTable(null);
     }

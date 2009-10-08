@@ -62,8 +62,8 @@ public final class SyncDoogal implements Doogal {
         this.view = view;
         this.controller = controller;
         this.model = model;
-        this.commands = new TreeMap<String, Command>();
-        this.interact = true;
+        commands = new TreeMap<String, Command>();
+        interact = true;
 
         final Method[] methods = Model.class.getMethods();
         for (int i = 0; i < methods.length; ++i) {

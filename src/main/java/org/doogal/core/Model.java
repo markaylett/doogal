@@ -148,10 +148,10 @@ final class Model implements Closeable {
         this.env = env;
         this.view = view;
         this.repo = repo;
-        this.identityMap = new IdentityMap();
-        this.recent = new Recent();
-        this.state = null;
-        this.args = null;
+        identityMap = new IdentityMap();
+        recent = new Recent();
+        state = null;
+        args = null;
     }
 
     public final void close() {
@@ -227,6 +227,16 @@ final class Model implements Closeable {
             }
 
             @SuppressWarnings("unused")
+            public final void exec() throws Exception {
+                if (null != args && 0 < args.length) {
+                    exec(args);
+                    return;
+                }
+                // Only when context arguments are set.
+                throw new EvalException("unknown command");
+            }
+
+            @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 view.getLog().info("deleting...");
                 if ("*".equals(s))
@@ -242,7 +252,6 @@ final class Model implements Closeable {
                     Delete.exec(state, getTerm(s));
             }
 
-            @SuppressWarnings("unused")
             @Synopsis("delete doc...")
             public final void exec(Object... args) throws Exception {
                 view.getLog().info("deleting...");
@@ -340,11 +349,14 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
+                if (null != args && 0 < args.length) {
+                    exec(args[0].toString());
+                    return;
+                }
                 view.setTable(more(getTerm()));
                 view.showPage();
             }
 
-            @SuppressWarnings("unused")
             @Synopsis("more [doc]")
             public final void exec(String s) throws EvalException, IOException {
                 view.setTable(more(getTerm(s)));
@@ -509,6 +521,10 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
+                if (null != args && 0 < args.length) {
+                    exec(args);
+                    return;
+                }
                 view.getLog().info("publishing...");
                 Publish.exec(state, getTerm());
             }
@@ -528,7 +544,6 @@ final class Model implements Closeable {
                     Publish.exec(state, getTerm(s));
             }
 
-            @SuppressWarnings("unused")
             @Synopsis("publish [doc...]")
             public final void exec(Object... args) throws Exception {
                 view.getLog().info("publishing...");
@@ -641,6 +656,10 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
+                if (null != args && 0 < args.length) {
+                    exec(args);
+                    return;
+                }
                 view.getLog().info("tidying...");
                 Tidy.exec(view, state, getTerm());
             }
@@ -660,7 +679,6 @@ final class Model implements Closeable {
                     Tidy.exec(view, state, getTerm(s));
             }
 
-            @SuppressWarnings("unused")
             @Synopsis("tidy [doc...]")
             public final void exec(Object... args) throws Exception {
                 view.getLog().info("tidying...");

@@ -25,9 +25,9 @@ public final class Summary {
     Summary(int id, Document doc) throws IOException {
 
         this.id = id;
-        this.size = Long.parseLong(doc.get("content-length"));
+        size = Long.parseLong(doc.get("content-length"));
         try {
-            this.modified = DateTools.stringToDate(doc.get("modified"));
+            modified = DateTools.stringToDate(doc.get("modified"));
         } catch (final ParseException e) {
             throw new IOException(e.getLocalizedMessage());
         }

@@ -35,7 +35,7 @@ final class TextAreaStream extends OutputStream {
 
     TextAreaStream(final JTextArea textArea) {
         this.textArea = textArea;
-        this.sb = new StringBuilder();
+        sb = new StringBuilder();
     }
 
     @Override

@@ -22,7 +22,7 @@ public final class PairTable implements Table {
     public PairTable(String firstName, String secondName) {
         this.firstName = firstName;
         this.secondName = secondName;
-        this.list = new ArrayList<Pair>();
+        list = new ArrayList<Pair>();
     }
 
     public void close() throws IOException {
