@@ -209,13 +209,13 @@ public final class SyncDoogal implements Doogal {
             }
         });
 
-        commands.put("quit", new AbstractBuiltin() {
+        commands.put("exit", new AbstractBuiltin() {
             public final String getDescription() {
                 return "exit application";
             }
 
             @SuppressWarnings("unused")
-            @Synopsis("quit")
+            @Synopsis("exit")
             public final void exec() throws ExitException {
                 controller.exit(interact);
             }

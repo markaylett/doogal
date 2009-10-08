@@ -39,6 +39,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
@@ -70,6 +72,9 @@ public final class Scratch extends JPanel implements Doogal {
     private final JTextArea console;
     private final JTextField prompt;
     private final Doogal doogal;
+
+    private final Action browseAction;
+    private final Action exitAction;
 
     private static Frame getFrame(Container c) {
         while (c != null) {
@@ -215,12 +220,51 @@ public final class Scratch extends JPanel implements Doogal {
         add(splitPane, BorderLayout.CENTER);
         add(prompt, BorderLayout.SOUTH);
 
+        browseAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.NAME, "Browse");
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_B));
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                try {
+                    eval("browse");
+                } catch (final EvalException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        exitAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.NAME, "Exit");
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                        KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                postWindowClosingEvent(getFrame(Scratch.this));
+            }
+        };
+        jtable.getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
+                    public final void valueChanged(ListSelectionEvent e) {
+                        final JTable table = (JTable) e.getSource();
+                        table.getSelectionModel().isSelectionEmpty();
+                    }
+                });
+
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(console),
                 true);
         final Log log = new StandardLog(out, out);
         final View view = new AbstractView(out, log) {
 
+            @Override
             public final void setTable(final Table table) throws IOException {
                 super.setTable(table);
                 final TableModel model = newTableModel(table);
@@ -316,6 +360,14 @@ public final class Scratch extends JPanel implements Doogal {
         doogal.config();
     }
 
+    final Action getBrowseAction() {
+        return browseAction;
+    }
+
+    final Action getExitAction() {
+        return exitAction;
+    }
+
     private static void run() throws Exception {
         final JFrame f = new JFrame("Doogal");
         final Scratch m = new Scratch();
@@ -331,44 +383,16 @@ public final class Scratch extends JPanel implements Doogal {
         });
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        JMenu file = new JMenu("File");
+        final JMenu file = new JMenu("File");
         file.setMnemonic(KeyEvent.VK_F);
-        file.add(new JMenuItem(new AbstractAction() {
-            private static final long serialVersionUID = 1L;
+        file.add(new JMenuItem(m.getBrowseAction()));
+        file.add(new JMenuItem(m.getExitAction()));
 
-            {
-                putValue(Action.NAME, "Browse");
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_B));
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    m.eval("browse");
-                } catch (EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }));
-        file.add(new JMenuItem(new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.NAME, "Exit");
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
-                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
-                        KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                postWindowClosingEvent(f);
-            }
-        }));
-        
-        JMenuBar mb = new JMenuBar();
+        final JMenuBar mb = new JMenuBar();
         mb.add(file);
 
         f.setJMenuBar(mb);
-        
+
         f.setLayout(new BorderLayout());
         f.add(m, BorderLayout.CENTER);
         f.pack();
