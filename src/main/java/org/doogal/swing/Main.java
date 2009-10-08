@@ -274,6 +274,10 @@ public final class Main extends JPanel implements Doogal {
         doogal.config();
     }
 
+    public final void setArgs(Object... args) {
+        doogal.setArgs(args);
+    }
+
     private static void run() throws Exception {
         final JFrame f = new JFrame("Doogal");
         final Main m = new Main();

@@ -35,30 +35,34 @@ final class Open {
                 final BufferedReader err = newBufferedReader(p.getErrorStream());
                 for (;;) {
                     final String line = err.readLine();
-                    if (null == line )
+                    if (null == line)
                         break;
                     view.getOut().println(line);
                 }
                 throw new EvalException("editor failed");
             }
 
-            if (stats.hasFileChanged()) {
-                view.getLog().info("indexing document...");
-                final IndexWriter writer = new IndexWriter(state.getIndex(),
-                        new StandardAnalyzer(), false,
-                        IndexWriter.MaxFieldLength.LIMITED);
-                try {
-                    if (file.exists()) {
-                        Tidy.tidy(tmp, file);
-                        Rfc822.updateDocument(writer, state.getData(), file);
-                    } else
-                        writer.deleteDocuments(new Term("id", id));
-                } finally {
-                    writer.optimize();
-                    writer.close();
-                }
-            } else
+            if (!stats.hasFileChanged()) {
                 view.getLog().info("no change...");
+                return;
+            }
+
+            view.getLog().info(
+                    String.format("indexing document %d...\n", state
+                            .getLocal(id)));
+            final IndexWriter writer = new IndexWriter(state.getIndex(),
+                    new StandardAnalyzer(), false,
+                    IndexWriter.MaxFieldLength.LIMITED);
+            try {
+                if (file.exists()) {
+                    Tidy.tidy(tmp, file);
+                    Rfc822.updateDocument(writer, state.getData(), file);
+                } else
+                    writer.deleteDocuments(new Term("id", id));
+            } finally {
+                writer.optimize();
+                writer.close();
+            }
 
         } finally {
             tmp.delete();

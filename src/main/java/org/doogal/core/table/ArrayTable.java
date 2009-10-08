@@ -5,12 +5,14 @@ import java.io.IOException;
 public final class ArrayTable implements Table {
     private final String columnName;
     private final String[] list;
+
     public ArrayTable(String columnName, String[] list) {
         this.columnName = columnName;
         this.list = list;
     }
+
     public void close() throws IOException {
-        
+
     }
 
     public final int getRowCount() {

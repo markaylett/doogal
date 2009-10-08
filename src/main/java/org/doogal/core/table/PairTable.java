@@ -8,11 +8,13 @@ public final class PairTable implements Table {
     private static class Pair {
         private final String first;
         private final String second;
+
         Pair(String first, String second) {
             this.first = first;
             this.second = second;
         }
     }
+
     private final String firstName;
     private final String secondName;
     private final List<Pair> list;
@@ -22,9 +24,11 @@ public final class PairTable implements Table {
         this.secondName = secondName;
         this.list = new ArrayList<Pair>();
     }
+
     public void close() throws IOException {
-        
+
     }
+
     public final int getRowCount() {
         return list.size();
     }

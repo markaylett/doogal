@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import org.apache.lucene.index.Term;
 import org.doogal.core.Summary;
 
-
 public interface DocumentTable extends Table {
 
     String peek(Term term, PrintWriter out) throws IOException;

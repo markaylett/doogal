@@ -1,6 +1,7 @@
 package org.doogal.swing;
 
 import java.io.IOException;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -16,7 +17,7 @@ final class TableAdapter implements TableModel {
         this.table = new SummaryTable();
         this.listeners = new EventListenerList();
     }
-    
+
     TableAdapter(Table table) {
         this.table = null == table ? new SummaryTable() : table;
         this.listeners = new EventListenerList();
@@ -46,7 +47,7 @@ final class TableAdapter implements TableModel {
         Object value = null;
         try {
             value = table.getValueAt(rowIndex, columnIndex);
-        } catch (IOException e) {
+        } catch (final IOException e) {
         }
         return value;
     }

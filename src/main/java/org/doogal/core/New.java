@@ -1,9 +1,11 @@
 package org.doogal.core;
 
-import static org.doogal.core.Utility.copyFile;
+import static org.doogal.core.Utility.copyTempFile;
+import static org.doogal.core.Utility.newBufferedReader;
 import static org.doogal.core.Utility.newId;
 import static org.doogal.core.Utility.subdir;
 
+import java.io.BufferedReader;
 import java.io.File;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -14,44 +16,50 @@ final class New {
 
     static void exec(View view, SharedState state, String template)
             throws Exception {
-        File file = subdir(state.getData());
+
         final String id = newId();
-        file = new File(file, id + ".txt");
-
-        final File templ = new File(state.getTemplate(), template + ".txt");
-        if (templ.canRead()) {
-            boolean done = false;
-            try {
-                copyFile(templ, file);
-                done = true;
-            } finally {
-                if (!done)
-                    file.delete();
-            }
-        }
-
-        final FileStats stats = new FileStats(file);
-
-        final Process p = new ProcessBuilder(state.getEditor(), file
-                .getAbsolutePath()).start();
-        p.waitFor();
-
-        if (!stats.hasFileChanged()) {
-            view.getLog().info("discarding...");
-            file.delete();
-            return;
-        }
-
-        final IndexWriter writer = new IndexWriter(state.getIndex(),
-                new StandardAnalyzer(), false,
-                IndexWriter.MaxFieldLength.LIMITED);
-        final int lid = state.getLocal(id);
+        final File from = new File(state.getTemplate(), template + ".txt");
+        final File tmp = copyTempFile(from, state.getTmp(), id);
         try {
-            view.getLog().info(String.format("indexing document %d...\n", lid));
-            Rfc822.addDocument(writer, state.getData(), file);
+
+            final FileStats stats = new FileStats(tmp);
+            final Process p = new ProcessBuilder(state.getEditor(), tmp
+                    .getAbsolutePath()).start();
+            if (0 != p.waitFor()) {
+                // Dump error stream to output.
+                final BufferedReader err = newBufferedReader(p.getErrorStream());
+                for (;;) {
+                    final String line = err.readLine();
+                    if (null == line)
+                        break;
+                    view.getOut().println(line);
+                }
+                throw new EvalException("editor failed");
+            }
+
+            if (!stats.hasFileChanged()) {
+                view.getLog().info("discarding...");
+                return;
+            }
+
+            view.getLog().info(
+                    String.format("indexing document %d...\n", state
+                            .getLocal(id)));
+            final IndexWriter writer = new IndexWriter(state.getIndex(),
+                    new StandardAnalyzer(), false,
+                    IndexWriter.MaxFieldLength.LIMITED);
+            try {
+                final File dir = subdir(state.getData());
+                final File file = new File(dir, id + ".txt");
+                Tidy.tidy(tmp, file);
+                Rfc822.addDocument(writer, state.getData(), file);
+            } finally {
+                writer.optimize();
+                writer.close();
+            }
+
         } finally {
-            writer.optimize();
-            writer.close();
+            tmp.delete();
         }
         state.addRecent(id);
     }

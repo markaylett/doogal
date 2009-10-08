@@ -47,6 +47,7 @@ final class Model implements Closeable {
     private final IdentityMap identityMap;
     private final Recent recent;
     private SharedState state;
+    private Object[] args;
 
     private final Term getTerm(String value) throws IOException {
         return Character.isDigit(value.charAt(0)) ? identityMap.getTerm(value)
@@ -73,6 +74,8 @@ final class Model implements Closeable {
                 final Document doc = state.doc(j);
                 final String id = doc.get("id");
                 final int lid = state.getLocal(id);
+                if (0 == table.getRowCount())
+                    state.addRecent(id);
                 table.add(new Summary(lid, doc));
             }
         }
@@ -145,9 +148,10 @@ final class Model implements Closeable {
         this.env = env;
         this.view = view;
         this.repo = repo;
-        identityMap = new IdentityMap();
-        recent = new Recent();
-        state = null;
+        this.identityMap = new IdentityMap();
+        this.recent = new Recent();
+        this.state = null;
+        this.args = null;
     }
 
     public final void close() {
@@ -173,6 +177,10 @@ final class Model implements Closeable {
         }
         if (null == state)
             state = new SharedState(env, repo, identityMap, recent);
+    }
+
+    final void setArgs(Object... args) {
+        this.args = args;
     }
 
     final File getConfig() {
@@ -408,11 +416,14 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
+                if (null != args && 0 < args.length) {
+                    exec(args[0].toString());
+                    return;
+                }
                 view.getLog().info("opening...");
                 Open.exec(view, state, getTerm());
             }
 
-            @SuppressWarnings("unused")
             @Synopsis("open [doc]")
             public final void exec(String s) throws Exception {
                 view.getLog().info("opening...");
@@ -430,6 +441,10 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
+                if (null != args && 0 < args.length) {
+                    exec(args);
+                    return;
+                }
                 Peek.exec(view, state, getTerm());
             }
 
@@ -447,7 +462,6 @@ final class Model implements Closeable {
                     Peek.exec(view, state, getTerm(s));
             }
 
-            @SuppressWarnings("unused")
             @Synopsis("peek [doc...]")
             public final void exec(Object... args) throws Exception {
                 boolean glob = false;

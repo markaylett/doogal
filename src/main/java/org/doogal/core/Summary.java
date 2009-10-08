@@ -50,7 +50,8 @@ public final class Summary {
 
     @Override
     public final String toString() {
-        return String.format("%d %s %s", id, DATE_FORMAT.format(modified), display);
+        return String.format("%d %s %s", id, DATE_FORMAT.format(modified),
+                display);
     }
 
     public final int getId() {
@@ -60,7 +61,7 @@ public final class Summary {
     public final long getSize() {
         return size;
     }
-    
+
     public final Date getModified() {
         return modified;
     }

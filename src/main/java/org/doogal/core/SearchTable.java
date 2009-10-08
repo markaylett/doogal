@@ -1,8 +1,8 @@
 package org.doogal.core;
 
-import static org.doogal.core.Utility.printTable;
 import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.openContents;
+import static org.doogal.core.Utility.printTable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -68,12 +68,13 @@ final class SearchTable extends AbstractTable implements DocumentTable {
     public final void close() throws IOException {
         state.release();
     }
-    
+
     public final int getRowCount() {
         return totalHits;
     }
 
-    public final Object getValueAt(int rowIndex, int columnIndex) throws IOException {
+    public final Object getValueAt(int rowIndex, int columnIndex)
+            throws IOException {
 
         if (hits.length <= rowIndex) {
             view.getLog().info("fetching documents...");

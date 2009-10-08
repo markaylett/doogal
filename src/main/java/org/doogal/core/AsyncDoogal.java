@@ -120,4 +120,12 @@ public final class AsyncDoogal implements Doogal {
             }
         });
     }
+
+    public final void setArgs(final Object... args) {
+        executor.execute(new Runnable() {
+            public final void run() {
+                doogal.setArgs(args);
+            }
+        });
+    }
 }

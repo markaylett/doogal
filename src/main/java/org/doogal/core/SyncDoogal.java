@@ -83,7 +83,8 @@ public final class SyncDoogal implements Doogal {
                 final PairTable table = new PairTable("alias", "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType())
-                        table.add(entry.getKey(), entry.getValue().getDescription());
+                        table.add(entry.getKey(), entry.getValue()
+                                .getDescription());
 
                 view.setTable(table);
                 view.showPage();
@@ -100,7 +101,8 @@ public final class SyncDoogal implements Doogal {
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType()
                             && entry.getKey().startsWith(hint))
-                        table.add(entry.getKey(), entry.getValue().getDescription());
+                        table.add(entry.getKey(), entry.getValue()
+                                .getDescription());
 
                 view.setTable(table);
                 view.showPage();
@@ -177,7 +179,8 @@ public final class SyncDoogal implements Doogal {
 
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.BUILTIN == entry.getValue().getType())
-                        table.add(entry.getKey(), entry.getValue().getDescription());
+                        table.add(entry.getKey(), entry.getValue()
+                                .getDescription());
 
                 view.setTable(table);
                 view.showPage();
@@ -195,7 +198,8 @@ public final class SyncDoogal implements Doogal {
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.BUILTIN == entry.getValue().getType()
                             && entry.getKey().startsWith(hint)) {
-                        table.add(entry.getKey(), entry.getValue().getDescription());
+                        table.add(entry.getKey(), entry.getValue()
+                                .getDescription());
                         last = entry.getKey();
                     }
 
@@ -347,5 +351,9 @@ public final class SyncDoogal implements Doogal {
     public final void config() throws EvalException, IOException,
             ParseException {
         batch(model.getConfig());
+    }
+
+    public final void setArgs(Object... args) {
+        model.setArgs(args);
     }
 }

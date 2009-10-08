@@ -1,6 +1,7 @@
 package org.doogal.core;
 
 import static org.doogal.core.Constants.DATE_FORMAT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -94,19 +95,25 @@ public final class Utility {
         }
     }
 
-    static File copyTempFile(File from, File dir) throws IOException {
-        final File tmp = File.createTempFile(getId(from) + "-", ".txt", dir);
-        boolean done = false;
-        try {
-            copyFile(from, tmp);
-            done = true;
-        } finally {
-            if (!done)
-                tmp.delete();
+    static File copyTempFile(File from, File dir, String id) throws IOException {
+        final File tmp = File.createTempFile(id + "-", ".txt", dir);
+        if (from.canRead()) {
+            boolean done = false;
+            try {
+                copyFile(from, tmp);
+                done = true;
+            } finally {
+                if (!done)
+                    tmp.delete();
+            }
         }
         return tmp;
     }
-    
+
+    static File copyTempFile(File from, File dir) throws IOException {
+        return copyTempFile(from, dir, getId(from));
+    }
+
     static void renameFile(File from, File to) throws IOException {
         if (!from.renameTo(to)) {
             boolean done = false;
@@ -283,11 +290,27 @@ public final class Utility {
         return sb.toString();
     }
 
+    public static Object toSize(Object value) {
+        final long l = ((Number) value).longValue();
+        if (1e9 < l)
+            value = String.format("%.1fG", l / 1e9);
+        else if (1e6 < l)
+            value = String.format("%.1fM", l / 1e6);
+        else if (1e3 < l)
+            value = String.format("%.1fK", l / 1e3);
+        return value;
+    }
+
     private static String getStringAt(Table table, int rowIndex, int columnIndex)
             throws IOException {
-        final Object value = table.getValueAt(rowIndex, columnIndex);
-        if (Date.class.isAssignableFrom(table.getColumnClass(columnIndex)))
-            return DATE_FORMAT.format(value);
+
+        Object value = table.getValueAt(rowIndex, columnIndex);
+
+        final Class<?> clazz = table.getColumnClass(columnIndex);
+        if (Date.class.isAssignableFrom(clazz))
+            value = DATE_FORMAT.format(value);
+        else if (Long.class.isAssignableFrom(clazz))
+            value = toSize(value);
 
         return value.toString();
     }

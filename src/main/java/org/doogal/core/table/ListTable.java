@@ -6,12 +6,14 @@ import java.util.List;
 public final class ListTable implements Table {
     private final String columnName;
     private final List<String> list;
+
     public ListTable(String columnName, List<String> list) {
         this.columnName = columnName;
         this.list = list;
     }
+
     public void close() throws IOException {
-        
+
     }
 
     public final int getRowCount() {

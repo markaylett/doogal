@@ -1,6 +1,7 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Utility.printResource;
+import static org.doogal.core.Utility.toSize;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -14,6 +15,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -38,9 +41,12 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
@@ -75,6 +81,10 @@ public final class Scratch extends JPanel implements Doogal {
 
     private final Action browseAction;
     private final Action exitAction;
+    private final Action openAction;
+    private final Action peekAction;
+
+    private boolean closed = false;
 
     private static Frame getFrame(Container c) {
         while (c != null) {
@@ -196,6 +206,19 @@ public final class Scratch extends JPanel implements Doogal {
         history = new History();
 
         final JTable jtable = new JTable(new TableAdapter());
+        jtable.setDefaultRenderer(Long.class, new DefaultTableCellRenderer() {
+
+            private static final long serialVersionUID = 1L;
+
+            {
+                setHorizontalAlignment(SwingConstants.RIGHT);
+            }
+
+            @Override
+            protected final void setValue(Object value) {
+                super.setValue(toSize(value));
+            }
+        });
 
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
@@ -250,11 +273,67 @@ public final class Scratch extends JPanel implements Doogal {
                 postWindowClosingEvent(getFrame(Scratch.this));
             }
         };
+        openAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_O));
+                putValue(Action.NAME, "Open");
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                try {
+                    eval("open");
+                } catch (final EvalException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        peekAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_P));
+                putValue(Action.NAME, "Peek");
+            }
+
+            public final void actionPerformed(ActionEvent e) {
+                try {
+                    eval("peek");
+                } catch (final EvalException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        jtable.addMouseListener(new MouseAdapter() {
+            @Override
+            public final void mouseClicked(MouseEvent ev) {
+                super.mouseClicked(ev);
+                if (MouseEvent.BUTTON1 == ev.getButton()
+                        && 2 == ev.getClickCount())
+                    try {
+                        eval("open");
+                    } catch (final EvalException e) {
+                        e.printStackTrace();
+                    }
+            }
+        });
         jtable.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
                     public final void valueChanged(ListSelectionEvent e) {
-                        final JTable table = (JTable) e.getSource();
-                        table.getSelectionModel().isSelectionEmpty();
+                        if (closed)
+                            return;
+                        final ListSelectionModel model = (ListSelectionModel) e
+                                .getSource();
+                        if (model.isSelectionEmpty())
+                            setArgs();
+                        else {
+                            final int[] rows = jtable.getSelectedRows();
+                            final Object[] args = new Object[rows.length];
+                            for (int i = 0; i < rows.length; ++i)
+                                args[i] = jtable.getValueAt(rows[i], 0);
+                            setArgs(args);
+                        }
                     }
                 });
 
@@ -334,7 +413,11 @@ public final class Scratch extends JPanel implements Doogal {
     }
 
     public final void close() throws IOException {
-        doogal.close();
+        // Avoid multiple close from multiple clicks.
+        if (!closed) {
+            closed = true;
+            doogal.close();
+        }
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {
@@ -360,12 +443,24 @@ public final class Scratch extends JPanel implements Doogal {
         doogal.config();
     }
 
+    public final void setArgs(Object... args) {
+        doogal.setArgs(args);
+    }
+
     final Action getBrowseAction() {
         return browseAction;
     }
 
     final Action getExitAction() {
         return exitAction;
+    }
+
+    final Action getOpenAction() {
+        return openAction;
+    }
+
+    final Action getPeekAction() {
+        return peekAction;
     }
 
     private static void run() throws Exception {
@@ -385,7 +480,9 @@ public final class Scratch extends JPanel implements Doogal {
 
         final JMenu file = new JMenu("File");
         file.setMnemonic(KeyEvent.VK_F);
+        file.add(new JMenuItem(m.getOpenAction()));
         file.add(new JMenuItem(m.getBrowseAction()));
+        file.add(new JMenuItem(m.getPeekAction()));
         file.add(new JMenuItem(m.getExitAction()));
 
         final JMenuBar mb = new JMenuBar();

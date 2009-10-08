@@ -87,14 +87,15 @@ final class Rfc822 {
         }
     }
 
-    private static void addContentLength(Document doc, FileInputStream is) throws IOException {
+    private static void addContentLength(Document doc, FileInputStream is)
+            throws IOException {
         final FileChannel channel = is.getChannel();
         final long l = channel.size() - channel.position();
         doc.removeFields("content-length");
-        doc.add(new Field("content-length", String.valueOf(l),
-                Field.Store.YES, Field.Index.NOT_ANALYZED));
+        doc.add(new Field("content-length", String.valueOf(l), Field.Store.YES,
+                Field.Index.NOT_ANALYZED));
     }
-    
+
     static final void addDocument(IndexWriter writer, File dir, File file)
             throws IOException {
         final Document doc = new Document();

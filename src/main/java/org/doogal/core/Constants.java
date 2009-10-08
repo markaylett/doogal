@@ -11,7 +11,7 @@ public final class Constants {
     // 'server-kill-buffer-query-function)
     public static final String DEFAULT_EDITOR = "emacsclient.exe";
     public static final int MAX_RESULTS = 200;
-    public static final int PAGE_SIZE = 15;
+    public static final int PAGE_SIZE = 12;
     public static final String PROMPT = "doogal> ";
     static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yy");
 }

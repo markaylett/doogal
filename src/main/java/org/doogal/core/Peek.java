@@ -1,5 +1,6 @@
 package org.doogal.core;
 
+import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.firstDocument;
 import static org.doogal.core.Utility.openContents;
 import static org.doogal.core.Utility.printTable;
@@ -41,7 +42,7 @@ final class Peek {
             printTable(table, 0, 1, view.getOut());
             view.getOut().println();
             int i = 0;
-            while (i < 10) {
+            while (i < PAGE_SIZE) {
                 String line = in.readLine();
                 if (null == line)
                     break;

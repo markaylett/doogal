@@ -1,7 +1,7 @@
 package org.doogal.core.view;
 
 import static org.doogal.core.Constants.PAGE_SIZE;
-import static org.doogal.core.Utility.*;
+import static org.doogal.core.Utility.printTable;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,12 +19,14 @@ public final class PrintView extends AbstractView {
         super(out, log);
     }
 
+    @Override
     public final void setTable(Table table) throws IOException {
         super.setTable(table);
         start = 0;
-        end = null == table ? 0 : Math.min(table.getRowCount(), start + PAGE_SIZE);
+        end = null == table ? 0 : Math.min(table.getRowCount(), start
+                + PAGE_SIZE);
     }
-    
+
     public final void setPage(String n) throws EvalException, IOException {
         final int i = Math.max(Integer.valueOf(n) - 1, 0) * PAGE_SIZE;
         if (null == table || table.getRowCount() <= i)

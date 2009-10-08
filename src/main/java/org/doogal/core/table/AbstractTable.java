@@ -1,6 +1,7 @@
 package org.doogal.core.table;
 
 import java.util.Date;
+
 import org.doogal.core.Summary;
 
 public abstract class AbstractTable implements Table {
@@ -22,7 +23,7 @@ public abstract class AbstractTable implements Table {
         }
         return value;
     }
-    
+
     public final int getColumnCount() {
         return 4;
     }
