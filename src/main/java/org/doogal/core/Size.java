@@ -1,6 +1,6 @@
 package org.doogal.core;
 
-public final class Size extends Number {
+public final class Size extends Number implements Comparable<Size> {
     private static final long KILO = 1024L;
     private static final long MEGA = 1048576L;
     private static final long GIGA = 1073741824L;
@@ -44,5 +44,9 @@ public final class Size extends Number {
     @Override
     public final double doubleValue() {
         return value.doubleValue();
+    }
+    
+    public final int compareTo(Size rhs) {
+        return value.compareTo(rhs.value);
     }
 }

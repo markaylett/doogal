@@ -35,4 +35,8 @@ public final class ListTable implements Table {
     public final Object getValueAt(int rowIndex, int columnIndex) {
         return list.get(rowIndex);
     }
+
+    public final String[] getActions() {
+        return new String[] { "open" };
+    }
 }

@@ -81,7 +81,7 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
-                final PairTable table = new PairTable("alias", "description");
+                final PairTable table = new PairTable("alias", "description", new String[] { "unalias" });
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType())
                         table.add(entry.getKey(), entry.getValue()
@@ -98,7 +98,7 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final PairTable table = new PairTable("alias", "description");
+                final PairTable table = new PairTable("alias", "description", new String[] { "unalias" });
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType()
                             && entry.getKey().startsWith(hint))
@@ -175,7 +175,7 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
-                final PairTable table = new PairTable("command", "description");
+                final PairTable table = new PairTable("command", "description", new String[] { "help" });
                 final List<String> ls = new ArrayList<String>();
 
                 for (final Entry<String, Command> entry : commands.entrySet())
@@ -193,7 +193,7 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final PairTable table = new PairTable("command", "description");
+                final PairTable table = new PairTable("command", "description", new String[] { "help" });
 
                 String last = null;
                 for (final Entry<String, Command> entry : commands.entrySet())

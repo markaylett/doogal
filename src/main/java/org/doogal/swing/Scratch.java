@@ -11,6 +11,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -35,6 +36,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -43,11 +45,13 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
@@ -218,6 +222,81 @@ public final class Scratch extends JPanel implements Doogal {
             }
         });
 
+        jtable.getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
+                    public final void valueChanged(ListSelectionEvent e) {
+                        if (closed)
+                            return;
+                        final ListSelectionModel model = (ListSelectionModel) e
+                                .getSource();
+                        if (model.isSelectionEmpty())
+                            setArgs();
+                        else {
+                            final int[] rows = jtable.getSelectedRows();
+                            final Object[] args = new Object[rows.length];
+                            for (int i = 0; i < rows.length; ++i)
+                                args[i] = jtable.getValueAt(rows[i], 0);
+                            setArgs(args);
+                        }
+                    }
+                });
+
+        jtable.addMouseListener(new MouseAdapter() {
+            private final void setSelection(int index) {
+                final ListSelectionModel selectionModel = jtable
+                        .getSelectionModel();
+                if (!selectionModel.isSelectedIndex(index))
+                    selectionModel.setSelectionInterval(index, index);
+            }
+
+            private final JPopupMenu newMenu() {
+                final TableAdapter model = (TableAdapter) jtable.getModel();
+                final String[] names = model.getActions();
+                if (null == names)
+                    return null;
+                final JPopupMenu menu = new JPopupMenu();
+                for (int i = 0; i < names.length; ++i)
+                    menu.add(new JMenuItem(actions.get(names[i])));
+                return menu;
+            }
+
+            private final void showPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    final Point p = e.getPoint();
+                    final int index = jtable.rowAtPoint(p);
+                    if (-1 != index) {
+                        setSelection(index);
+                        final JPopupMenu menu = newMenu();
+                        if (null != menu)
+                            menu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+
+            public final void mouseClicked(MouseEvent ev) {
+                if (SwingUtilities.isLeftMouseButton(ev)
+                        && 2 == ev.getClickCount()) {
+                    final Point p = ev.getPoint();
+                    final int index = jtable.rowAtPoint(p);
+                    if (-1 != index) {
+                        try {
+                            eval("peek");
+                        } catch (final EvalException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            public final void mousePressed(MouseEvent e) {
+                showPopup(e);
+            }
+
+            public final void mouseReleased(MouseEvent e) {
+                showPopup(e);
+            }
+        });
+
         console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
@@ -238,40 +317,8 @@ public final class Scratch extends JPanel implements Doogal {
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
 
+        add(prompt, BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
-        add(prompt, BorderLayout.SOUTH);
-
-        jtable.addMouseListener(new MouseAdapter() {
-            @Override
-            public final void mouseClicked(MouseEvent ev) {
-                super.mouseClicked(ev);
-                if (MouseEvent.BUTTON1 == ev.getButton()
-                        && 2 == ev.getClickCount())
-                    try {
-                        eval("open");
-                    } catch (final EvalException e) {
-                        e.printStackTrace();
-                    }
-            }
-        });
-        jtable.getSelectionModel().addListSelectionListener(
-                new ListSelectionListener() {
-                    public final void valueChanged(ListSelectionEvent e) {
-                        if (closed)
-                            return;
-                        final ListSelectionModel model = (ListSelectionModel) e
-                                .getSource();
-                        if (model.isSelectionEmpty())
-                            setArgs();
-                        else {
-                            final int[] rows = jtable.getSelectedRows();
-                            final Object[] args = new Object[rows.length];
-                            for (int i = 0; i < rows.length; ++i)
-                                args[i] = jtable.getValueAt(rows[i], 0);
-                            setArgs(args);
-                        }
-                    }
-                });
 
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(console),
@@ -285,6 +332,7 @@ public final class Scratch extends JPanel implements Doogal {
                 final TableModel model = newTableModel(table);
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
+                        jtable.setRowSorter(new TableRowSorter<TableModel>(model));
                         jtable.setModel(model);
                     }
                 });
@@ -354,7 +402,11 @@ public final class Scratch extends JPanel implements Doogal {
                 private static final long serialVersionUID = 1L;
 
                 {
-                    putValue(Action.NAME, entry.getKey());
+                    final String key = entry.getKey();
+                    final String name = ""
+                            + Character.toUpperCase(key.charAt(0))
+                            + key.substring(1);
+                    putValue(Action.NAME, name);
                 }
 
                 public final void actionPerformed(ActionEvent ev) {
@@ -425,31 +477,47 @@ public final class Scratch extends JPanel implements Doogal {
         });
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
+        final Map<String, Action> actions = m.getActions();
+
         final JMenu file = new JMenu("File");
         file.setMnemonic(KeyEvent.VK_F);
-        final Map<String, Action> actions = m.getActions();
         file.add(new JMenuItem(actions.get("new")));
         file.add(new JMenuItem(actions.get("open")));
-        file.add(new JMenuItem(actions.get("archive")));
-        file.add(new JMenuItem(actions.get("browse")));
-        file.add(new JMenuItem(actions.get("delete")));
-        file.add(new JMenuItem(actions.get("help")));
         file.add(new JMenuItem(actions.get("import")));
-        file.add(new JMenuItem(actions.get("index")));
-        file.add(new JMenuItem(actions.get("list")));
-        file.add(new JMenuItem(actions.get("more")));
-        file.add(new JMenuItem(actions.get("names")));
-        file.add(new JMenuItem(actions.get("peek")));
-        file.add(new JMenuItem(actions.get("publish")));
-        file.add(new JMenuItem(actions.get("recent")));
-        file.add(new JMenuItem(actions.get("search")));
-        file.add(new JMenuItem(actions.get("set")));
-        file.add(new JMenuItem(actions.get("tidy")));
-        file.add(new JMenuItem(actions.get("unalias")));
         file.add(new JMenuItem(actions.get("exit")));
 
+        final JMenu edit = new JMenu("Edit");
+        edit.setMnemonic(KeyEvent.VK_E);
+        edit.add(new JMenuItem(actions.get("delete")));
+        edit.add(new JMenuItem(actions.get("peek")));
+        edit.add(new JMenuItem(actions.get("publish")));
+        edit.add(new JMenuItem(actions.get("tidy")));
+
+        final JMenu search = new JMenu("Search");
+        search.setMnemonic(KeyEvent.VK_S);
+        search.add(new JMenuItem(actions.get("browse")));
+        search.add(new JMenuItem(actions.get("recent")));
+        search.add(new JMenuItem(actions.get("more")));
+        search.add(new JMenuItem(actions.get("names")));
+        search.add(new JMenuItem(actions.get("search")));
+
+        final JMenu tools = new JMenu("Tools");
+        tools.setMnemonic(KeyEvent.VK_T);
+        tools.add(new JMenuItem(actions.get("alias")));
+        tools.add(new JMenuItem(actions.get("archive")));
+        tools.add(new JMenuItem(actions.get("index")));
+        tools.add(new JMenuItem(actions.get("set")));
+
+        final JMenu help = new JMenu("Help");
+        help.setMnemonic(KeyEvent.VK_H);
+        help.add(new JMenuItem(actions.get("help")));
+        
         final JMenuBar mb = new JMenuBar();
         mb.add(file);
+        mb.add(edit);
+        mb.add(search);
+        mb.add(tools);
+        mb.add(help);
 
         f.setJMenuBar(mb);
 

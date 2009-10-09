@@ -34,4 +34,8 @@ public final class ArrayTable implements Table {
     public final Object getValueAt(int rowIndex, int columnIndex) {
         return list[rowIndex];
     }
+
+    public final String[] getActions() {
+        return new String[] { "open" };
+    }
 }
