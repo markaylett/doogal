@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -355,5 +356,15 @@ public final class SyncDoogal implements Doogal {
 
     public final void setArgs(Object... args) {
         model.setArgs(args);
+    }
+
+    public final Map<String, String> getBuiltins() {
+        final Map<String, String> map = new HashMap<String, String>();
+
+        for (final Entry<String, Command> entry : commands.entrySet())
+            if (Type.BUILTIN == entry.getValue().getType())
+                map.put(entry.getKey(), entry.getValue().getDescription());
+
+        return map;
     }
 }

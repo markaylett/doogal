@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.mail.internet.ParseException;
 import javax.swing.AbstractAction;
@@ -79,13 +80,7 @@ public final class Scratch extends JPanel implements Doogal {
     private final JTextField prompt;
     private final Doogal doogal;
 
-    private final Action browseAction;
-    private final Action deleteAction;
-    private final Action moreAction;
-    private final Action openAction;
-    private final Action peekAction;
-    private final Action publishAction;
-    private final Action exitAction;
+    private final Map<String, Action> actions;
 
     private boolean closed = false;
 
@@ -246,114 +241,6 @@ public final class Scratch extends JPanel implements Doogal {
         add(splitPane, BorderLayout.CENTER);
         add(prompt, BorderLayout.SOUTH);
 
-        browseAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.NAME, "Browse");
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_B));
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    eval("browse");
-                } catch (final EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        deleteAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.NAME, "Delete");
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    eval("delete");
-                } catch (final EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        moreAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_M));
-                putValue(Action.NAME, "More");
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    eval("more");
-                } catch (final EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        openAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_O));
-                putValue(Action.NAME, "Open");
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    eval("open");
-                } catch (final EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        peekAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_P));
-                putValue(Action.NAME, "Peek");
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    eval("peek");
-                } catch (final EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        publishAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.NAME, "Publish");
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                try {
-                    eval("publish");
-                } catch (final EvalException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        exitAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                putValue(Action.NAME, "Exit");
-                putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
-                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
-                        KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-            }
-
-            public final void actionPerformed(ActionEvent e) {
-                postWindowClosingEvent(getFrame(Scratch.this));
-            }
-        };
         jtable.addMouseListener(new MouseAdapter() {
             @Override
             public final void mouseClicked(MouseEvent ev) {
@@ -459,6 +346,25 @@ public final class Scratch extends JPanel implements Doogal {
         });
 
         printResource("motd.txt", out);
+
+        actions = new HashMap<String, Action>();
+        final Map<String, String> builtins = doogal.getBuiltins();
+        for (final Entry<String, String> entry : builtins.entrySet())
+            actions.put(entry.getKey(), new AbstractAction() {
+                private static final long serialVersionUID = 1L;
+
+                {
+                    putValue(Action.NAME, entry.getKey());
+                }
+
+                public final void actionPerformed(ActionEvent ev) {
+                    try {
+                        doogal.eval(entry.getKey());
+                    } catch (final EvalException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
     }
 
     public final void close() throws IOException {
@@ -496,32 +402,12 @@ public final class Scratch extends JPanel implements Doogal {
         doogal.setArgs(args);
     }
 
-    final Action getBrowseAction() {
-        return browseAction;
+    public final Map<String, String> getBuiltins() {
+        return doogal.getBuiltins();
     }
 
-    final Action getDeleteAction() {
-        return deleteAction;
-    }
-
-    final Action getMoreAction() {
-        return moreAction;
-    }
-
-    final Action getOpenAction() {
-        return openAction;
-    }
-
-    final Action getPeekAction() {
-        return peekAction;
-    }
-
-    final Action getPublishAction() {
-        return publishAction;
-    }
-
-    final Action getExitAction() {
-        return exitAction;
+    final Map<String, Action> getActions() {
+        return actions;
     }
 
     private static void run() throws Exception {
@@ -541,12 +427,26 @@ public final class Scratch extends JPanel implements Doogal {
 
         final JMenu file = new JMenu("File");
         file.setMnemonic(KeyEvent.VK_F);
-        file.add(new JMenuItem(m.getOpenAction()));
-        file.add(new JMenuItem(m.getBrowseAction()));
-        file.add(new JMenuItem(m.getDeleteAction()));
-        file.add(new JMenuItem(m.getPeekAction()));
-        file.add(new JMenuItem(m.getPublishAction()));
-        file.add(new JMenuItem(m.getExitAction()));
+        final Map<String, Action> actions = m.getActions();
+        file.add(new JMenuItem(actions.get("new")));
+        file.add(new JMenuItem(actions.get("open")));
+        file.add(new JMenuItem(actions.get("archive")));
+        file.add(new JMenuItem(actions.get("browse")));
+        file.add(new JMenuItem(actions.get("delete")));
+        file.add(new JMenuItem(actions.get("help")));
+        file.add(new JMenuItem(actions.get("import")));
+        file.add(new JMenuItem(actions.get("index")));
+        file.add(new JMenuItem(actions.get("list")));
+        file.add(new JMenuItem(actions.get("more")));
+        file.add(new JMenuItem(actions.get("names")));
+        file.add(new JMenuItem(actions.get("peek")));
+        file.add(new JMenuItem(actions.get("publish")));
+        file.add(new JMenuItem(actions.get("recent")));
+        file.add(new JMenuItem(actions.get("search")));
+        file.add(new JMenuItem(actions.get("set")));
+        file.add(new JMenuItem(actions.get("tidy")));
+        file.add(new JMenuItem(actions.get("unalias")));
+        file.add(new JMenuItem(actions.get("exit")));
 
         final JMenuBar mb = new JMenuBar();
         mb.add(file);

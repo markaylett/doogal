@@ -3,6 +3,9 @@ package org.doogal.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -127,5 +130,17 @@ public final class AsyncDoogal implements Doogal {
                 doogal.setArgs(args);
             }
         });
+    }
+
+    public final Map<String, String> getBuiltins() {
+        try {
+            return executor.submit(new Callable<Map<String, String>>() {
+                public final Map<String, String> call() throws Exception {
+                    return doogal.getBuiltins();
+                }
+            }).get();
+        } catch (final Exception e) {
+            return Collections.<String, String> emptyMap();
+        }
     }
 }
