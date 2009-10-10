@@ -158,7 +158,7 @@ public final class Environment {
         return editor;
     }
 
-    final String getRepo() {
+    public final String getRepo() {
         return repo;
     }
 
@@ -175,7 +175,7 @@ public final class Environment {
     }
 
     final Table asTable() {
-        final PairTable table = new PairTable("name", "value", null);
+        final PairTable table = new PairTable("name", "value", null, null);
         for (final Entry<String, Accessor> entry : env.entrySet())
             table.add(entry.getKey(), entry.getValue().get().toString());
         return table;

@@ -10,7 +10,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.LockObtainFailedException;
 
-final class Repo {
+public final class Repo {
     private final File root;
     private final File data;
     private final File etc;
@@ -64,7 +64,7 @@ final class Repo {
         }
     }
 
-    Repo(String path) {
+    public Repo(String path) {
         root = new File(path);
         data = new File(root, "data");
         etc = new File(root, "etc");
@@ -73,7 +73,7 @@ final class Repo {
         trash = new File(root, "trash");
     }
 
-    final void init() throws CorruptIndexException, IOException,
+    public final void init() throws CorruptIndexException, IOException,
             LockObtainFailedException {
 
         final boolean create = !index.exists();

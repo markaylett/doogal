@@ -66,7 +66,9 @@ public abstract class AbstractTable implements Table {
         }
         return clazz;
     }
-
+    public final String getAction() {
+        return "peek";
+    }
     public final String[] getActions() {
         return new String[] { "open", "delete", "more", "peek", "publish",
                 "tidy" };

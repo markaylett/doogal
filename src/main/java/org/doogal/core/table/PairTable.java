@@ -17,12 +17,14 @@ public final class PairTable implements Table {
 
     private final String firstName;
     private final String secondName;
+    private final String action;
     private final String[] actions;
     private final List<Pair> list;
 
-    public PairTable(String firstName, String secondName, String[] actions) {
+    public PairTable(String firstName, String secondName, String action, String[] actions) {
         this.firstName = firstName;
         this.secondName = secondName;
+        this.action = action;
         this.actions = actions;
         list = new ArrayList<Pair>();
     }
@@ -68,6 +70,9 @@ public final class PairTable implements Table {
             break;
         }
         return value;
+    }
+    public final String getAction() {
+        return action;
     }
     public final String[] getActions() {
         return actions;

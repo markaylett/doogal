@@ -63,6 +63,7 @@ import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
+import org.doogal.core.Repo;
 import org.doogal.core.Shellwords;
 import org.doogal.core.Size;
 import org.doogal.core.StandardLog;
@@ -252,7 +253,7 @@ public final class Scratch extends JPanel implements Doogal {
             private final JPopupMenu newMenu() {
                 final TableAdapter model = (TableAdapter) jtable.getModel();
                 final String[] names = model.getActions();
-                if (null == names)
+                if (null == names || 0 == names.length)
                     return null;
                 final JPopupMenu menu = new JPopupMenu();
                 for (int i = 0; i < names.length; ++i)
@@ -279,10 +280,14 @@ public final class Scratch extends JPanel implements Doogal {
                     final Point p = ev.getPoint();
                     final int index = jtable.rowAtPoint(p);
                     if (-1 != index) {
-                        try {
-                            eval("peek");
-                        } catch (final EvalException e) {
-                            e.printStackTrace();
+                        final TableAdapter model = (TableAdapter) jtable.getModel();
+                        final String name = model.getAction();
+                        if (null != name) {
+                            try {
+                                eval(name);
+                            } catch (final EvalException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -332,7 +337,8 @@ public final class Scratch extends JPanel implements Doogal {
                 final TableModel model = newTableModel(table);
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        jtable.setRowSorter(new TableRowSorter<TableModel>(model));
+                        jtable.setRowSorter(new TableRowSorter<TableModel>(
+                                model));
                         jtable.setModel(model);
                     }
                 });
@@ -371,8 +377,11 @@ public final class Scratch extends JPanel implements Doogal {
                 });
             }
         };
-        doogal = new AsyncDoogal(log, SyncDoogal.newInstance(env, view,
-                controller));
+
+        final Repo repo = new Repo(env.getRepo());
+        repo.init();
+        doogal = new AsyncDoogal(log, new SyncDoogal(env, view, controller,
+                repo));
 
         prompt.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
@@ -382,7 +391,7 @@ public final class Scratch extends JPanel implements Doogal {
                 prompt.setText("");
                 setPrompt(false);
                 try {
-                    Shellwords.parse(reader, doogal);
+                    Shellwords.parse(reader, Scratch.this);
                 } catch (final EvalException e) {
                     log.error(e.getLocalizedMessage());
                 } catch (final IOException e) {
@@ -407,11 +416,12 @@ public final class Scratch extends JPanel implements Doogal {
                             + Character.toUpperCase(key.charAt(0))
                             + key.substring(1);
                     putValue(Action.NAME, name);
+                    putValue(Action.SHORT_DESCRIPTION, entry.getValue());
                 }
 
                 public final void actionPerformed(ActionEvent ev) {
                     try {
-                        doogal.eval(entry.getKey());
+                        eval(entry.getKey());
                     } catch (final EvalException e) {
                         e.printStackTrace();
                     }
@@ -428,25 +438,30 @@ public final class Scratch extends JPanel implements Doogal {
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {
+        console.setText("");
         doogal.eval(cmd, args);
     }
 
     public final void eval() throws EvalException {
+        console.setText("");
         doogal.eval();
     }
 
     public final void batch(Reader reader) throws EvalException, IOException,
             ParseException {
+        console.setText("");
         doogal.batch(reader);
     }
 
     public final void batch(File file) throws EvalException, IOException,
             ParseException {
+        console.setText("");
         doogal.batch(file);
     }
 
     public final void config() throws EvalException, IOException,
             ParseException {
+        console.setText("");
         doogal.config();
     }
 
@@ -503,15 +518,15 @@ public final class Scratch extends JPanel implements Doogal {
 
         final JMenu tools = new JMenu("Tools");
         tools.setMnemonic(KeyEvent.VK_T);
-        tools.add(new JMenuItem(actions.get("alias")));
         tools.add(new JMenuItem(actions.get("archive")));
         tools.add(new JMenuItem(actions.get("index")));
         tools.add(new JMenuItem(actions.get("set")));
 
         final JMenu help = new JMenu("Help");
         help.setMnemonic(KeyEvent.VK_H);
+        help.add(new JMenuItem(actions.get("alias")));
         help.add(new JMenuItem(actions.get("help")));
-        
+
         final JMenuBar mb = new JMenuBar();
         mb.add(file);
         mb.add(edit);

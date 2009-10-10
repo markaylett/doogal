@@ -10,6 +10,7 @@ import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.ExitException;
+import org.doogal.core.Repo;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
@@ -49,7 +50,10 @@ public final class Main {
         final Log log = new StandardLog(out, err);
         final View view = new PrintView(out, log);
         final Controller controller = new PrintController(out, log);
-        final Doogal doogal = SyncDoogal.newInstance(env, view, controller);
+        
+        final Repo repo = new Repo(env.getRepo());
+        repo.init();
+        final Doogal doogal = new SyncDoogal(env, view, controller, repo);
         try {
             printResource("motd.txt", out);
             try {

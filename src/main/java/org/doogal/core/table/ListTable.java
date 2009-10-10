@@ -5,10 +5,14 @@ import java.util.List;
 
 public final class ListTable implements Table {
     private final String columnName;
+    private final String action;
+    private final String[] actions;
     private final List<String> list;
 
-    public ListTable(String columnName, List<String> list) {
+    public ListTable(String columnName, String action, String[] actions, List<String> list) {
         this.columnName = columnName;
+        this.action = action;
+        this.actions = actions;
         this.list = list;
     }
 
@@ -36,7 +40,11 @@ public final class ListTable implements Table {
         return list.get(rowIndex);
     }
 
+    public final String getAction() {
+        return action;
+    }
+    
     public final String[] getActions() {
-        return new String[] { "open" };
+        return actions;
     }
 }

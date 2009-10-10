@@ -27,7 +27,7 @@ import org.doogal.core.table.ArrayTable;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
-import org.doogal.core.view.View;
+import org.doogal.core.view.RefreshView;
 
 final class Model implements Closeable {
     private static final class WrapException extends RuntimeException {
@@ -42,7 +42,7 @@ final class Model implements Closeable {
     private static final Random RAND = new Random();
 
     private final Environment env;
-    private final View view;
+    private final RefreshView view;
     private final Repo repo;
     private final IdentityMap identityMap;
     private final Recent recent;
@@ -104,7 +104,7 @@ final class Model implements Closeable {
         for (final String name : names)
             ls[i++] = name;
         Arrays.sort(ls);
-        return new ArrayTable("name", ls);
+        return new ArrayTable("name", null, null, ls);
     }
 
     private final DocumentTable search(String s) throws IOException,
@@ -139,11 +139,11 @@ final class Model implements Closeable {
         } catch (final WrapException e) {
             throw (IOException) e.getCause();
         }
-        return new ArrayTable("value", values
+        return new ArrayTable("value", null, null, values
                 .toArray(new String[values.size()]));
     }
 
-    Model(Environment env, View view, Repo repo) throws EvalException,
+    Model(Environment env, RefreshView view, Repo repo) throws EvalException,
             IOException {
         this.env = env;
         this.view = view;
@@ -181,6 +181,10 @@ final class Model implements Closeable {
 
     final void setArgs(Object... args) {
         this.args = args;
+    }
+    
+    final Object[] getArgs() {
+        return this.args;
     }
 
     final File getConfig() {
@@ -250,6 +254,7 @@ final class Model implements Closeable {
                     });
                 else
                     Delete.exec(state, getTerm(s));
+                view.refresh();
             }
 
             @Synopsis("delete doc...")
@@ -272,6 +277,7 @@ final class Model implements Closeable {
                             return true;
                         }
                     });
+                view.refresh();
             }
         };
     }
@@ -434,12 +440,14 @@ final class Model implements Closeable {
                 }
                 view.getLog().info("opening...");
                 Open.exec(view, state, getTerm());
+                view.refresh();
             }
 
             @Synopsis("open [doc]")
             public final void exec(String s) throws Exception {
                 view.getLog().info("opening...");
                 Open.exec(view, state, getTerm(s));
+                view.refresh();
             }
         };
     }

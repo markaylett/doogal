@@ -14,5 +14,7 @@ public interface Table extends Closeable {
 
     Object getValueAt(int rowIndex, int columnIndex) throws IOException;
 
+    String getAction();
+    
     String[] getActions();
 }

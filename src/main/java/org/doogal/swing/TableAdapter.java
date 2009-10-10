@@ -62,7 +62,9 @@ final class TableAdapter implements TableModel {
 
     public final void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     }
-    
+    public final String getAction() {
+        return table.getAction();
+    }
     public final String[] getActions() {
         return table.getActions();
     }

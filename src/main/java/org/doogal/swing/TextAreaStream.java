@@ -3,7 +3,6 @@ package org.doogal.swing;
 import static org.doogal.core.Constants.MAX_RESULTS;
 
 import java.awt.EventQueue;
-import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -26,8 +25,8 @@ final class TextAreaStream extends OutputStream {
                         - MAX_LINES - 1));
                 lc = MAX_LINES;
             }
-            textArea.scrollRectToVisible(new Rectangle(0, textArea
-                    .getLineEndOffset(lc - 1), 1, 1));
+            // Scroll to top.
+            textArea.setCaretPosition(0);
         } catch (final BadLocationException e) {
             e.printStackTrace();
         }

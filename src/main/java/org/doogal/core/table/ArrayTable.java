@@ -4,10 +4,14 @@ import java.io.IOException;
 
 public final class ArrayTable implements Table {
     private final String columnName;
+    private final String action;
+    private final String[] actions;
     private final String[] list;
 
-    public ArrayTable(String columnName, String[] list) {
+    public ArrayTable(String columnName, String action, String[] actions, String[] list) {
         this.columnName = columnName;
+        this.action = action;
+        this.actions = actions;
         this.list = list;
     }
 
@@ -35,7 +39,11 @@ public final class ArrayTable implements Table {
         return list[rowIndex];
     }
 
+    public final String getAction() {
+        return action;
+    }
+    
     public final String[] getActions() {
-        return new String[] { "open" };
+        return actions;
     }
 }

@@ -24,8 +24,8 @@
         <configuration>
           <executable>${env.JAVA15_HOME}/bin/javac</executable>
           <optimize/>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
       <plugin>
