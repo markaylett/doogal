@@ -1,7 +1,11 @@
 package org.doogal.core;
 
-interface Command {
+public interface Command {
     String getDescription();
+
+    String getLargeIcon();
+
+    String getSmallIcon();
 
     Type getType();
 }

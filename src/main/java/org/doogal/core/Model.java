@@ -213,7 +213,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "browse random selection";
             }
+            public final String getLargeIcon() {
+                return "/WebComponent24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/WebComponent16.gif";                
+            }
             @SuppressWarnings("unused")
             @Synopsis("browse")
             public final void exec() throws Exception {
@@ -229,7 +235,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "delete a document";
             }
+            public final String getLargeIcon() {
+                return "/Delete24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/Delete16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (null != args && 0 < args.length) {
@@ -304,7 +316,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "import from inbox";
             }
+            public final String getLargeIcon() {
+                return "/Import24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/Import16.gif";                
+            }
             @SuppressWarnings("unused")
             @Synopsis("import")
             public final void exec() throws Exception {
@@ -352,7 +370,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "more like this";
             }
+            public final String getLargeIcon() {
+                return "/FindAgain24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/FindAgain16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
                 if (null != args && 0 < args.length) {
@@ -393,7 +417,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "create a new document";
             }
+            public final String getLargeIcon() {
+                return "/New24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/New16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 view.getLog().info("new document...");
@@ -431,6 +461,14 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "open existing document";
             }
+            
+            public final String getLargeIcon() {
+                return "/Open24.gif";
+            }
+
+            public final String getSmallIcon() {
+                return "/Open16.gif";                
+            }
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
@@ -458,7 +496,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "peek inside document";
             }
+            public final String getLargeIcon() {
+                return "/Zoom24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/Zoom16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (null != args && 0 < args.length) {
@@ -527,6 +571,13 @@ final class Model implements Closeable {
                 return "publish to html";
             }
 
+            public final String getLargeIcon() {
+                return "/Export24.gif";
+            }
+
+            public final String getSmallIcon() {
+                return "/Export16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (null != args && 0 < args.length) {
@@ -581,7 +632,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "recently visited";
             }
+            public final String getLargeIcon() {
+                return "/History24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/History16.gif";                
+            }
             @SuppressWarnings("unused")
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
@@ -599,7 +656,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "search repository";
             }
+            public final String getLargeIcon() {
+                return "/Find24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/Find16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException,
                     ParseException {
@@ -631,7 +694,13 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "update configuration";
             }
+            public final String getLargeIcon() {
+                return "/Preferences24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/Preferences16.gif";                
+            }
             @SuppressWarnings("unused")
             @Synopsis("set")
             public final void exec() throws EvalException, IOException {

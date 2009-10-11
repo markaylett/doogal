@@ -1,16 +1,13 @@
 package org.doogal.swing;
 
+import static org.doogal.swing.SwingUtil.*;
 import static org.doogal.core.Constants.PROMPT;
 import static org.doogal.core.Utility.printResource;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -25,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,6 +31,7 @@ import javax.mail.internet.ParseException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -40,12 +39,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -55,12 +53,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Keymap;
-
 import org.apache.commons.logging.Log;
 import org.doogal.core.AsyncDoogal;
+import org.doogal.core.Command;
 import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
@@ -93,21 +88,6 @@ public final class Main extends JPanel implements Doogal {
 
     private boolean closed = false;
 
-    private static Frame getFrame(Container c) {
-        while (c != null) {
-            if (c instanceof Frame)
-                return (Frame) c;
-            c = c.getParent();
-        }
-        return null;
-    }
-
-    private static Component newScrollPane(Component view) {
-        final JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(view);
-        return scrollPane;
-    }
-
     private static TableModel newTableModel(Table table) throws IOException {
         if (null != table && table instanceof DocumentTable) {
             final DocumentTable from = (DocumentTable) table;
@@ -119,92 +99,11 @@ public final class Main extends JPanel implements Doogal {
         return new TableAdapter(table);
     }
 
-    private static void postWindowClosingEvent(Frame frame) {
-        final WindowEvent windowClosingEvent = new WindowEvent(frame,
-                WindowEvent.WINDOW_CLOSING);
-        frame.getToolkit().getSystemEventQueue().postEvent(windowClosingEvent);
-    }
-
     private final void setPrompt(boolean b) {
         prompt.setEnabled(b);
         prompt.setEditable(b);
         if (b)
             prompt.requestFocus();
-    }
-
-    private final void setEmacs() {
-
-        final Map<String, Action> actions = new HashMap<String, Action>();
-        final Action[] actionsArray = prompt.getActions();
-        for (final Action a : actionsArray)
-            actions.put(a.getValue(Action.NAME).toString(), a);
-
-        final Keymap keymap = JTextComponent.addKeymap("emacs", prompt
-                .getKeymap());
-
-        Action action;
-        KeyStroke key;
-
-        action = actions.get(DefaultEditorKit.beginLineAction);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, action);
-
-        action = actions.get(DefaultEditorKit.previousWordAction);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.ALT_MASK);
-        keymap.addActionForKeyStroke(key, action);
-
-        action = actions.get(DefaultEditorKit.backwardAction);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, action);
-
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            public final void actionPerformed(ActionEvent e) {
-                prompt.setText("");
-            }
-        });
-
-        action = actions.get(DefaultEditorKit.endLineAction);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, action);
-
-        action = actions.get(DefaultEditorKit.nextWordAction);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.ALT_MASK);
-        keymap.addActionForKeyStroke(key, action);
-
-        action = actions.get(DefaultEditorKit.forwardAction);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, action);
-
-        action = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            public final void actionPerformed(ActionEvent e) {
-                prompt.setText(history.next());
-            }
-        };
-
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, action);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0);
-        keymap.addActionForKeyStroke(key, action);
-
-        action = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            public final void actionPerformed(ActionEvent e) {
-                prompt.setText(history.prev());
-            }
-        };
-
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
-        keymap.addActionForKeyStroke(key, action);
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0);
-        keymap.addActionForKeyStroke(key, action);
-
-        prompt.setKeymap(keymap);
     }
 
     Main() throws Exception {
@@ -213,6 +112,7 @@ public final class Main extends JPanel implements Doogal {
         history = new History();
 
         final JTable jtable = new JTable(new TableAdapter());
+        jtable.setFocusable(false);
         jtable.setDefaultRenderer(Size.class, new DefaultTableCellRenderer() {
 
             private static final long serialVersionUID = 1L;
@@ -330,7 +230,7 @@ public final class Main extends JPanel implements Doogal {
         promptPanel.add(prompt, BorderLayout.CENTER);
 
         setPrompt(false);
-        setEmacs();
+        setEmacsKeyMap(prompt, history);
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 newScrollPane(jtable), newScrollPane(console));
@@ -381,7 +281,7 @@ public final class Main extends JPanel implements Doogal {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         log.info("exiting...");
-                        postWindowClosingEvent(getFrame(Main.this));
+                        postWindowClosingEvent(parentFrame(Main.this));
                     }
                 });
             }
@@ -422,8 +322,9 @@ public final class Main extends JPanel implements Doogal {
         printResource("motd.txt", out);
 
         actions = new HashMap<String, Action>();
-        final Map<String, String> builtins = doogal.getBuiltins();
-        for (final Entry<String, String> entry : builtins.entrySet())
+        final Map<String, Command> builtins = doogal.getBuiltins();
+        for (final Entry<String, Command> entry : builtins.entrySet()) {
+            final Command command = entry.getValue();
             actions.put(entry.getKey(), new AbstractAction() {
                 private static final long serialVersionUID = 1L;
 
@@ -433,7 +334,21 @@ public final class Main extends JPanel implements Doogal {
                             + Character.toUpperCase(key.charAt(0))
                             + key.substring(1);
                     putValue(Action.NAME, name);
-                    putValue(Action.SHORT_DESCRIPTION, entry.getValue());
+                    putValue(Action.SHORT_DESCRIPTION, command.getDescription());
+
+                    final String largePath = command.getLargeIcon();
+                    if (null != largePath) {
+                        final URL largeUrl = getClass().getResource(largePath);
+                        if (largeUrl != null)
+                            putValue(Action.LARGE_ICON_KEY, new ImageIcon(largeUrl));
+                    }
+
+                    final String smallPath = command.getSmallIcon();
+                    if (null != smallPath) {
+                        final URL smallUrl = getClass().getResource(smallPath);
+                        if (smallUrl != null)
+                            putValue(Action.SMALL_ICON, new ImageIcon(smallUrl));
+                    }
                 }
 
                 public final void actionPerformed(ActionEvent ev) {
@@ -444,6 +359,7 @@ public final class Main extends JPanel implements Doogal {
                     }
                 }
             });
+        }
     }
 
     public final void close() throws IOException {
@@ -486,7 +402,7 @@ public final class Main extends JPanel implements Doogal {
         doogal.setArgs(args);
     }
 
-    public final Map<String, String> getBuiltins() {
+    public final Map<String, Command> getBuiltins() {
         return doogal.getBuiltins();
     }
 
@@ -516,22 +432,22 @@ public final class Main extends JPanel implements Doogal {
         file.add(new JMenuItem(actions.get("new")));
         file.add(new JMenuItem(actions.get("open")));
         file.add(new JMenuItem(actions.get("import")));
+        file.add(new JMenuItem(actions.get("publish")));
         file.add(new JMenuItem(actions.get("exit")));
 
         final JMenu edit = new JMenu("Edit");
         edit.setMnemonic(KeyEvent.VK_E);
         edit.add(new JMenuItem(actions.get("delete")));
         edit.add(new JMenuItem(actions.get("peek")));
-        edit.add(new JMenuItem(actions.get("publish")));
         edit.add(new JMenuItem(actions.get("tidy")));
 
         final JMenu search = new JMenu("Search");
         search.setMnemonic(KeyEvent.VK_S);
         search.add(new JMenuItem(actions.get("browse")));
-        search.add(new JMenuItem(actions.get("recent")));
-        search.add(new JMenuItem(actions.get("more")));
-        search.add(new JMenuItem(actions.get("names")));
         search.add(new JMenuItem(actions.get("search")));
+        search.add(new JMenuItem(actions.get("more")));
+        search.add(new JMenuItem(actions.get("recent")));
+        search.add(new JMenuItem(actions.get("names")));
 
         final JMenu tools = new JMenu("Tools");
         tools.setMnemonic(KeyEvent.VK_T);
@@ -553,7 +469,22 @@ public final class Main extends JPanel implements Doogal {
 
         f.setJMenuBar(mb);
 
+        final JToolBar toolBar = new JToolBar();
+        toolBar.add(actions.get("new"));
+        toolBar.add(actions.get("open"));
+        toolBar.add(actions.get("import"));
+        toolBar.add(actions.get("publish"));
+        toolBar.add(actions.get("delete"));
+        toolBar.add(actions.get("peek"));
+        toolBar.add(actions.get("browse"));
+        toolBar.add(actions.get("search"));
+        toolBar.add(actions.get("more"));
+        toolBar.add(actions.get("recent"));
+        toolBar.add(actions.get("set"));
+        toolBar.add(actions.get("help"));
+        
         f.setLayout(new BorderLayout());
+        f.add(toolBar, BorderLayout.PAGE_START);
         f.add(m, BorderLayout.CENTER);
         f.pack();
 

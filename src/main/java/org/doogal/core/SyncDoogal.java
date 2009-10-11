@@ -178,7 +178,13 @@ public final class SyncDoogal implements Doogal {
             public final String getDescription() {
                 return "list commands with help";
             }
+            public final String getLargeIcon() {
+                return "/Help24.gif";
+            }
 
+            public final String getSmallIcon() {
+                return "/Help16.gif";                
+            }
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
 
@@ -361,12 +367,12 @@ public final class SyncDoogal implements Doogal {
         model.setArgs(args);
     }
 
-    public final Map<String, String> getBuiltins() {
-        final Map<String, String> map = new HashMap<String, String>();
+    public final Map<String, Command> getBuiltins() {
+        final Map<String, Command> map = new HashMap<String, Command>();
 
         for (final Entry<String, Command> entry : commands.entrySet())
             if (Type.BUILTIN == entry.getValue().getType())
-                map.put(entry.getKey(), entry.getValue().getDescription());
+                map.put(entry.getKey(), entry.getValue());
 
         return map;
     }

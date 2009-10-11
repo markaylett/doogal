@@ -132,15 +132,15 @@ public final class AsyncDoogal implements Doogal {
         });
     }
 
-    public final Map<String, String> getBuiltins() {
+    public final Map<String, Command> getBuiltins() {
         try {
-            return executor.submit(new Callable<Map<String, String>>() {
-                public final Map<String, String> call() throws Exception {
+            return executor.submit(new Callable<Map<String, Command>>() {
+                public final Map<String, Command> call() throws Exception {
                     return doogal.getBuiltins();
                 }
             }).get();
         } catch (final Exception e) {
-            return Collections.<String, String> emptyMap();
+            return Collections.<String, Command> emptyMap();
         }
     }
 }

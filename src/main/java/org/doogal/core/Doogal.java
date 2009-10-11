@@ -19,5 +19,5 @@ public interface Doogal extends Closeable, Interpreter {
 
     void setArgs(Object... args);
 
-    Map<String, String> getBuiltins();
+    Map<String, Command> getBuiltins();
 }
