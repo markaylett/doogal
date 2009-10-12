@@ -3,20 +3,22 @@ package org.doogal.core.table;
 import java.io.IOException;
 
 public final class ArrayTable implements Table {
+    private final TableType type;
     private final String columnName;
-    private final String action;
-    private final String[] actions;
     private final String[] list;
 
-    public ArrayTable(String columnName, String action, String[] actions, String[] list) {
+    public ArrayTable(TableType type, String columnName, String[] list) {
+        this.type = type;
         this.columnName = columnName;
-        this.action = action;
-        this.actions = actions;
         this.list = list;
     }
 
-    public void close() throws IOException {
+    public final void close() throws IOException {
 
+    }
+
+    public final TableType getType() {
+        return type;
     }
 
     public final int getRowCount() {
@@ -37,13 +39,5 @@ public final class ArrayTable implements Table {
 
     public final Object getValueAt(int rowIndex, int columnIndex) {
         return list[rowIndex];
-    }
-
-    public final String getAction() {
-        return action;
-    }
-    
-    public final String[] getActions() {
-        return actions;
     }
 }

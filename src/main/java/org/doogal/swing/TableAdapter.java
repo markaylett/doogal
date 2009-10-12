@@ -8,6 +8,7 @@ import javax.swing.table.TableModel;
 
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
+import org.doogal.core.table.TableType;
 
 final class TableAdapter implements TableModel {
     private final Table table;
@@ -62,10 +63,8 @@ final class TableAdapter implements TableModel {
 
     public final void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     }
-    public final String getAction() {
-        return table.getAction();
-    }
-    public final String[] getActions() {
-        return table.getActions();
+
+    public final TableType getType() {
+        return table.getType();
     }
 }

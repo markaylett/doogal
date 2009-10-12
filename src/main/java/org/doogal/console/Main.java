@@ -50,7 +50,7 @@ public final class Main {
         final Log log = new StandardLog(out, err);
         final View view = new PrintView(out, log);
         final Controller controller = new PrintController(out, log);
-        
+
         final Repo repo = new Repo(env.getRepo());
         repo.init();
         final Doogal doogal = new SyncDoogal(env, view, controller, repo);

@@ -45,7 +45,7 @@ public final class Size extends Number implements Comparable<Size> {
     public final double doubleValue() {
         return value.doubleValue();
     }
-    
+
     public final int compareTo(Size rhs) {
         return value.compareTo(rhs.value);
     }

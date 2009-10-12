@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import javax.mail.internet.ParseException;
 
 import org.doogal.core.table.PairTable;
+import org.doogal.core.table.TableType;
 import org.doogal.core.view.LastRefreshView;
 import org.doogal.core.view.View;
 
@@ -75,8 +76,8 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
 
-                final PairTable table = new PairTable("alias", "description",
-                        null, new String[] { "unalias" });
+                final PairTable table = new PairTable(TableType.ALIAS, "alias",
+                        "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType())
                         table.add(entry.getKey(), entry.getValue()
@@ -93,8 +94,8 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final PairTable table = new PairTable("alias", "description",
-                        null, new String[] { "unalias" });
+                final PairTable table = new PairTable(TableType.ALIAS, "alias",
+                        "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
                     if (Type.ALIAS == entry.getValue().getType()
                             && entry.getKey().startsWith(hint))
@@ -155,10 +156,12 @@ public final class SyncDoogal implements Doogal {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                final Object[] args = model.getArgs();
-                if (null != args && 0 < args.length) {
-                    exec(args[0].toString());
-                    return;
+                if (TableType.ALIAS == view.getType()) {
+                    final Object[] args = model.getArgs();
+                    if (null != args && 0 < args.length) {
+                        exec(args[0].toString());
+                        return;
+                    }
                 }
                 // Only when context arguments are set.
                 throw new EvalException("unknown command");
@@ -171,31 +174,37 @@ public final class SyncDoogal implements Doogal {
                     throw new EvalException("unknown alias");
 
                 commands.remove(name);
-                view.refresh();
+                view.refresh(TableType.ALIAS);
             }
         });
         commands.put("help", new AbstractBuiltin() {
             public final String getDescription() {
                 return "list commands with help";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/Help24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Help16.gif";                
+                return "/Help16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
 
-                final Object[] args = model.getArgs();
-                if (null != args && 0 < args.length) {
-                    exec(args[0].toString());
-                    return;
+                if (TableType.BUILTIN == view.getType()) {
+                    final Object[] args = model.getArgs();
+                    if (null != args && 0 < args.length) {
+                        exec(args[0].toString());
+                        return;
+                    }
                 }
-                
-                final PairTable table = new PairTable("command", "description",
-                        "help", new String[] { "help" });
+
+                final PairTable table = new PairTable(TableType.BUILTIN,
+                        "command", "description");
                 final List<String> ls = new ArrayList<String>();
 
                 for (final Entry<String, Command> entry : commands.entrySet())
@@ -212,8 +221,8 @@ public final class SyncDoogal implements Doogal {
 
                 hint = hint.toLowerCase();
 
-                final PairTable table = new PairTable("command", "description",
-                        "help", new String[] { "help" });
+                final PairTable table = new PairTable(TableType.BUILTIN,
+                        "command", "description");
 
                 String last = null;
                 for (final Entry<String, Command> entry : commands.entrySet())
@@ -251,7 +260,7 @@ public final class SyncDoogal implements Doogal {
             InvocationTargetException, IOException {
         this.view = new LastRefreshView(view, this);
         this.controller = controller;
-        this.model = new Model(env, this.view, repo);
+        model = new Model(env, this.view, repo);
         commands = new TreeMap<String, Command>();
         interact = true;
         addCommands();

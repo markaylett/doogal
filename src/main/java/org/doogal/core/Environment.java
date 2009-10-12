@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import org.doogal.core.table.PairTable;
 import org.doogal.core.table.Table;
+import org.doogal.core.table.TableType;
 
 public final class Environment {
     private static interface Accessor {
@@ -175,7 +176,8 @@ public final class Environment {
     }
 
     final Table asTable() {
-        final PairTable table = new PairTable("name", "value", null, null);
+        final PairTable table = new PairTable(TableType.ENVIRONMENT, "name",
+                "value");
         for (final Entry<String, Accessor> entry : env.entrySet())
             table.add(entry.getKey(), entry.getValue().get().toString());
         return table;

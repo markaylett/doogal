@@ -4,20 +4,22 @@ import java.io.IOException;
 import java.util.List;
 
 public final class ListTable implements Table {
+    private final TableType type;
     private final String columnName;
-    private final String action;
-    private final String[] actions;
     private final List<String> list;
 
-    public ListTable(String columnName, String action, String[] actions, List<String> list) {
+    public ListTable(TableType type, String columnName, List<String> list) {
+        this.type = type;
         this.columnName = columnName;
-        this.action = action;
-        this.actions = actions;
         this.list = list;
     }
 
-    public void close() throws IOException {
+    public final void close() throws IOException {
 
+    }
+
+    public final TableType getType() {
+        return type;
     }
 
     public final int getRowCount() {
@@ -38,13 +40,5 @@ public final class ListTable implements Table {
 
     public final Object getValueAt(int rowIndex, int columnIndex) {
         return list.get(rowIndex);
-    }
-
-    public final String getAction() {
-        return action;
-    }
-    
-    public final String[] getActions() {
-        return actions;
     }
 }

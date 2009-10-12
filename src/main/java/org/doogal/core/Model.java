@@ -27,6 +27,7 @@ import org.doogal.core.table.ArrayTable;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
+import org.doogal.core.table.TableType;
 import org.doogal.core.view.RefreshView;
 
 final class Model implements Closeable {
@@ -104,7 +105,7 @@ final class Model implements Closeable {
         for (final String name : names)
             ls[i++] = name;
         Arrays.sort(ls);
-        return new ArrayTable("name", null, null, ls);
+        return new ArrayTable(TableType.FIELD_NAME, "name", ls);
     }
 
     private final DocumentTable search(String s) throws IOException,
@@ -139,7 +140,7 @@ final class Model implements Closeable {
         } catch (final WrapException e) {
             throw (IOException) e.getCause();
         }
-        return new ArrayTable("value", null, null, values
+        return new ArrayTable(TableType.FIELD_VALUE, "value", values
                 .toArray(new String[values.size()]));
     }
 
@@ -182,9 +183,9 @@ final class Model implements Closeable {
     final void setArgs(Object... args) {
         this.args = args;
     }
-    
+
     final Object[] getArgs() {
-        return this.args;
+        return args;
     }
 
     final File getConfig() {
@@ -213,13 +214,17 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "browse random selection";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/WebComponent24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/WebComponent16.gif";                
+                return "/WebComponent16.gif";
             }
+
             @SuppressWarnings("unused")
             @Synopsis("browse")
             public final void exec() throws Exception {
@@ -235,19 +240,24 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "delete a document";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/Delete24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Delete16.gif";                
+                return "/Delete16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                if (null != args && 0 < args.length) {
-                    exec(args);
-                    return;
-                }
+                if (TableType.DOCUMENT == view.getType())
+                    if (null != args && 0 < args.length) {
+                        exec(args);
+                        return;
+                    }
                 // Only when context arguments are set.
                 throw new EvalException("unknown command");
             }
@@ -266,7 +276,7 @@ final class Model implements Closeable {
                     });
                 else
                     Delete.exec(state, getTerm(s));
-                view.refresh();
+                view.refresh(TableType.DOCUMENT);
             }
 
             @Synopsis("delete doc...")
@@ -289,7 +299,7 @@ final class Model implements Closeable {
                             return true;
                         }
                     });
-                view.refresh();
+                view.refresh(TableType.DOCUMENT);
             }
         };
     }
@@ -316,13 +326,17 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "import from inbox";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/Import24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Import16.gif";                
+                return "/Import16.gif";
             }
+
             @SuppressWarnings("unused")
             @Synopsis("import")
             public final void exec() throws Exception {
@@ -370,19 +384,24 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "more like this";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/FindAgain24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/FindAgain16.gif";                
+                return "/FindAgain16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
-                if (null != args && 0 < args.length) {
-                    exec(args[0].toString());
-                    return;
-                }
+                if (TableType.DOCUMENT == view.getType())
+                    if (null != args && 0 < args.length) {
+                        exec(args[0].toString());
+                        return;
+                    }
                 view.setTable(more(getTerm()));
                 view.showPage();
             }
@@ -417,13 +436,17 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "create a new document";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/New24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/New16.gif";                
+                return "/New16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 view.getLog().info("new document...");
@@ -461,54 +484,62 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "open existing document";
             }
-            
+
+            @Override
             public final String getLargeIcon() {
                 return "/Open24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Open16.gif";                
+                return "/Open16.gif";
             }
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                if (null != args && 0 < args.length) {
-                    exec(args[0].toString());
-                    return;
-                }
+                if (TableType.DOCUMENT == view.getType())
+                    if (null != args && 0 < args.length) {
+                        exec(args[0].toString());
+                        return;
+                    }
                 view.getLog().info("opening...");
                 Open.exec(view, state, getTerm());
-                view.refresh();
+                view.refresh(TableType.DOCUMENT);
             }
 
             @Synopsis("open [doc]")
             public final void exec(String s) throws Exception {
                 view.getLog().info("opening...");
                 Open.exec(view, state, getTerm(s));
-                view.refresh();
+                view.refresh(TableType.DOCUMENT);
             }
         };
     }
 
     @Builtin("peek")
-    public final Command newWhat() {
+    public final Command newPeek() {
         return new AbstractBuiltin() {
             public final String getDescription() {
                 return "peek inside document";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/Zoom24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Zoom16.gif";                
+                return "/Zoom16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                if (null != args && 0 < args.length) {
-                    exec(args);
-                    return;
-                }
+                if (TableType.DOCUMENT == view.getType())
+                    if (null != args && 0 < args.length) {
+                        exec(args);
+                        return;
+                    }
                 Peek.exec(view, state, getTerm());
             }
 
@@ -571,19 +602,23 @@ final class Model implements Closeable {
                 return "publish to html";
             }
 
+            @Override
             public final String getLargeIcon() {
                 return "/Export24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Export16.gif";                
+                return "/Export16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                if (null != args && 0 < args.length) {
-                    exec(args);
-                    return;
-                }
+                if (TableType.DOCUMENT == view.getType())
+                    if (null != args && 0 < args.length) {
+                        exec(args);
+                        return;
+                    }
                 view.getLog().info("publishing...");
                 Publish.exec(state, getTerm());
             }
@@ -632,13 +667,17 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "recently visited";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/History24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/History16.gif";                
+                return "/History16.gif";
             }
+
             @SuppressWarnings("unused")
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
@@ -656,13 +695,17 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "search repository";
             }
+
+            @Override
             public final String getLargeIcon() {
                 return "/Find24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
-                return "/Find16.gif";                
+                return "/Find16.gif";
             }
+
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException,
                     ParseException {
@@ -694,13 +737,15 @@ final class Model implements Closeable {
             public final String getDescription() {
                 return "update configuration";
             }
+
             public final String getLargeIcon() {
                 return "/Preferences24.gif";
             }
 
             public final String getSmallIcon() {
-                return "/Preferences16.gif";                
+                return "/Preferences16.gif";
             }
+
             @SuppressWarnings("unused")
             @Synopsis("set")
             public final void exec() throws EvalException, IOException {
@@ -733,10 +778,11 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
-                if (null != args && 0 < args.length) {
-                    exec(args);
-                    return;
-                }
+                if (TableType.DOCUMENT == view.getType())
+                    if (null != args && 0 < args.length) {
+                        exec(args);
+                        return;
+                    }
                 view.getLog().info("tidying...");
                 Tidy.exec(view, state, getTerm());
             }

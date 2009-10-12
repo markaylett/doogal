@@ -10,30 +10,34 @@ import org.doogal.core.Interpreter;
 import org.doogal.core.Predicate;
 import org.doogal.core.Summary;
 import org.doogal.core.table.Table;
+import org.doogal.core.table.TableType;
 
 public final class LastRefreshView implements RefreshView {
 
     private final View view;
     private final Interpreter interp;
     private boolean changed;
+    private TableType type;
     private String cmd;
     private Object[] args;
 
     public LastRefreshView(View view, Interpreter interp) {
         this.view = view;
         this.interp = interp;
-        this.changed = false;
-        this.cmd = null;
-        this.args = null;
+        changed = false;
+        type = null;
+        cmd = null;
+        args = null;
     }
-    
+
     public final void close() throws IOException {
         view.close();
     }
 
     public final void setTable(Table table) throws IOException {
-        changed = true;
         view.setTable(table);
+        changed = true;
+        type = table.getType();
     }
 
     public final String peek(Term term) throws IOException {
@@ -68,16 +72,20 @@ public final class LastRefreshView implements RefreshView {
         view.prevPage();
     }
 
-    public final void refresh() throws EvalException {
-        if (null != cmd)
+    public final void refresh(TableType type) throws EvalException {
+        if (type == this.type)
             interp.eval(cmd, args);
     }
-    
+
     public final void setLast(String cmd, Object... args) {
         if (changed) {
-            this.changed = false;
+            changed = false;
             this.cmd = cmd;
             this.args = args;
         }
+    }
+
+    public final TableType getType() {
+        return null;
     }
 }

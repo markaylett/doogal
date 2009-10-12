@@ -37,7 +37,7 @@ final class SwingUtil {
         }
         return null;
     }
-    
+
     static void postWindowClosingEvent(Frame frame) {
         final WindowEvent windowClosingEvent = new WindowEvent(frame,
                 WindowEvent.WINDOW_CLOSING);

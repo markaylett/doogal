@@ -1,7 +1,9 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Utility.printResource;
-import static org.doogal.swing.SwingUtil.*;
+import static org.doogal.swing.SwingUtil.newScrollPane;
+import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
+import static org.doogal.swing.SwingUtil.setEmacsKeyMap;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,6 +31,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+
 import org.apache.commons.logging.Log;
 import org.doogal.core.AsyncDoogal;
 import org.doogal.core.Command;
@@ -63,7 +66,6 @@ public final class Console extends JPanel implements Doogal {
         }
         return null;
     }
-
 
     private final void setPrompt(boolean b) {
         prompt.setEnabled(b);
@@ -130,8 +132,8 @@ public final class Console extends JPanel implements Doogal {
 
         final Repo repo = new Repo(env.getRepo());
         repo.init();
-        doogal = new AsyncDoogal(log, new SyncDoogal(env, view,
-                controller, repo));
+        doogal = new AsyncDoogal(log, new SyncDoogal(env, view, controller,
+                repo));
 
         prompt.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {

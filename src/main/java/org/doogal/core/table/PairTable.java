@@ -15,22 +15,24 @@ public final class PairTable implements Table {
         }
     }
 
+    private final TableType type;
     private final String firstName;
     private final String secondName;
-    private final String action;
-    private final String[] actions;
     private final List<Pair> list;
 
-    public PairTable(String firstName, String secondName, String action, String[] actions) {
+    public PairTable(TableType type, String firstName, String secondName) {
+        this.type = type;
         this.firstName = firstName;
         this.secondName = secondName;
-        this.action = action;
-        this.actions = actions;
         list = new ArrayList<Pair>();
     }
 
-    public void close() throws IOException {
+    public final void close() throws IOException {
 
+    }
+
+    public final TableType getType() {
+        return type;
     }
 
     public final int getRowCount() {
@@ -71,12 +73,7 @@ public final class PairTable implements Table {
         }
         return value;
     }
-    public final String getAction() {
-        return action;
-    }
-    public final String[] getActions() {
-        return actions;
-    }
+
     public final void add(String first, String second) {
         list.add(new Pair(first, second));
     }

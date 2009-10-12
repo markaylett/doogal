@@ -4,6 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 
 public interface Table extends Closeable {
+    TableType getType();
+
     int getRowCount();
 
     int getColumnCount();
@@ -13,8 +15,4 @@ public interface Table extends Closeable {
     Class<?> getColumnClass(int columnIndex);
 
     Object getValueAt(int rowIndex, int columnIndex) throws IOException;
-
-    String getAction();
-    
-    String[] getActions();
 }

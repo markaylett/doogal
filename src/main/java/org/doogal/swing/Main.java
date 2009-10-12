@@ -1,8 +1,11 @@
 package org.doogal.swing;
 
-import static org.doogal.swing.SwingUtil.*;
 import static org.doogal.core.Constants.PROMPT;
 import static org.doogal.core.Utility.printResource;
+import static org.doogal.swing.SwingUtil.newScrollPane;
+import static org.doogal.swing.SwingUtil.parentFrame;
+import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
+import static org.doogal.swing.SwingUtil.setEmacsKeyMap;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -24,7 +27,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.mail.internet.ParseException;
@@ -53,6 +58,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
 import org.apache.commons.logging.Log;
 import org.doogal.core.AsyncDoogal;
 import org.doogal.core.Command;
@@ -69,6 +75,7 @@ import org.doogal.core.SyncDoogal;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
+import org.doogal.core.table.TableType;
 import org.doogal.core.view.AbstractView;
 import org.doogal.core.view.View;
 
@@ -85,6 +92,7 @@ public final class Main extends JPanel implements Doogal {
     private final Doogal doogal;
 
     private final Map<String, Action> actions;
+    private final Set<Action> context;
 
     private boolean closed = false;
 
@@ -134,9 +142,17 @@ public final class Main extends JPanel implements Doogal {
                             return;
                         final ListSelectionModel model = (ListSelectionModel) e
                                 .getSource();
-                        if (model.isSelectionEmpty())
+                        if (model.isSelectionEmpty()) {
                             setArgs();
-                        else {
+                            for (final Action action : context)
+                                action.setEnabled(false);
+                        } else {
+                            final TableAdapter tableModel = (TableAdapter) jtable
+                                    .getModel();
+                            final String[] names = tableModel.getType()
+                                    .getActions();
+                            for (int i = 0; i < names.length; ++i)
+                                actions.get(names[i]).setEnabled(true);
                             final int[] rows = jtable.getSelectedRows();
                             final Object[] args = new Object[rows.length];
                             for (int i = 0; i < rows.length; ++i)
@@ -156,13 +172,16 @@ public final class Main extends JPanel implements Doogal {
 
             private final JPopupMenu newMenu() {
                 final TableAdapter model = (TableAdapter) jtable.getModel();
-                final String[] names = model.getActions();
-                if (null == names || 0 == names.length)
-                    return null;
-                final JPopupMenu menu = new JPopupMenu();
-                for (int i = 0; i < names.length; ++i)
-                    menu.add(new JMenuItem(actions.get(names[i])));
-                return menu;
+                final String[] names = model.getType().getActions();
+                if (0 < names.length) {
+                    final JPopupMenu menu = new JPopupMenu();
+                    for (int i = 0; i < names.length; ++i) {
+                        final Action action = actions.get(names[i]);
+                        menu.add(new JMenuItem(action));
+                    }
+                    return menu;
+                }
+                return null;
             }
 
             private final void showPopup(MouseEvent e) {
@@ -178,29 +197,32 @@ public final class Main extends JPanel implements Doogal {
                 }
             }
 
+            @Override
             public final void mouseClicked(MouseEvent ev) {
                 if (SwingUtilities.isLeftMouseButton(ev)
                         && 2 == ev.getClickCount()) {
                     final Point p = ev.getPoint();
                     final int index = jtable.rowAtPoint(p);
                     if (-1 != index) {
-                        final TableAdapter model = (TableAdapter) jtable.getModel();
-                        final String name = model.getAction();
-                        if (null != name) {
+                        final TableAdapter model = (TableAdapter) jtable
+                                .getModel();
+                        final String name = model.getType().getAction();
+                        if (null != name)
                             try {
                                 eval(name);
                             } catch (final EvalException e) {
                                 e.printStackTrace();
                             }
-                        }
                     }
                 }
             }
 
+            @Override
             public final void mousePressed(MouseEvent e) {
                 showPopup(e);
             }
 
+            @Override
             public final void mouseReleased(MouseEvent e) {
                 showPopup(e);
             }
@@ -322,6 +344,8 @@ public final class Main extends JPanel implements Doogal {
         printResource("motd.txt", out);
 
         actions = new HashMap<String, Action>();
+        context = new HashSet<Action>();
+
         final Map<String, Command> builtins = doogal.getBuiltins();
         for (final Entry<String, Command> entry : builtins.entrySet()) {
             final Command command = entry.getValue();
@@ -340,7 +364,8 @@ public final class Main extends JPanel implements Doogal {
                     if (null != largePath) {
                         final URL largeUrl = getClass().getResource(largePath);
                         if (largeUrl != null)
-                            putValue(Action.LARGE_ICON_KEY, new ImageIcon(largeUrl));
+                            putValue(Action.LARGE_ICON_KEY, new ImageIcon(
+                                    largeUrl));
                     }
 
                     final String smallPath = command.getSmallIcon();
@@ -359,6 +384,13 @@ public final class Main extends JPanel implements Doogal {
                     }
                 }
             });
+
+            for (final TableType type : TableType.values()) {
+                if (null != type.getAction())
+                    context.add(actions.get(type.getAction()));
+                for (final String action : type.getActions())
+                    context.add(actions.get(action));
+            }
         }
     }
 
@@ -482,7 +514,7 @@ public final class Main extends JPanel implements Doogal {
         toolBar.add(actions.get("recent"));
         toolBar.add(actions.get("set"));
         toolBar.add(actions.get("help"));
-        
+
         f.setLayout(new BorderLayout());
         f.add(toolBar, BorderLayout.PAGE_START);
         f.add(m, BorderLayout.CENTER);
