@@ -1,5 +1,5 @@
 package org.doogal.core;
 
-enum Type {
+enum CommandType {
     ALIAS, BUILTIN
 }

@@ -15,7 +15,7 @@ import org.doogal.core.view.View;
 
 final class Open {
 
-    static void exec(View view, SharedState state, Term term) throws Exception {
+    static boolean exec(View view, SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -28,7 +28,7 @@ final class Open {
 
             if (!edit(state.getEditor(), tmp, view.getOut())) {
                 view.getLog().info("no change...");
-                return;
+                return false;
             }
 
             view.getLog().info(
@@ -52,5 +52,6 @@ final class Open {
             tmp.delete();
         }
         state.addRecent(id);
+        return true;
     }
 }

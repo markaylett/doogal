@@ -7,5 +7,5 @@ public interface Command {
 
     String getSmallIcon();
 
-    Type getType();
+    CommandType getType();
 }

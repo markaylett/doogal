@@ -450,14 +450,16 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 view.getLog().info("new document...");
-                New.exec(view, state);
+                if (New.exec(view, state))
+                    view.refresh(TableType.DOCUMENT);
             }
 
             @SuppressWarnings("unused")
             @Synopsis("new [template]")
             public final void exec(String s) throws Exception {
                 view.getLog().info("new document...");
-                New.exec(view, state, s);
+                if (New.exec(view, state, s))
+                    view.refresh(TableType.DOCUMENT);
             }
         };
     }
@@ -503,15 +505,15 @@ final class Model implements Closeable {
                         return;
                     }
                 view.getLog().info("opening...");
-                Open.exec(view, state, getTerm());
-                view.refresh(TableType.DOCUMENT);
+                if (Open.exec(view, state, getTerm()))
+                    view.refresh(TableType.DOCUMENT);
             }
 
             @Synopsis("open [doc]")
             public final void exec(String s) throws Exception {
                 view.getLog().info("opening...");
-                Open.exec(view, state, getTerm(s));
-                view.refresh(TableType.DOCUMENT);
+                if (Open.exec(view, state, getTerm(s)))
+                    view.refresh(TableType.DOCUMENT);
             }
         };
     }

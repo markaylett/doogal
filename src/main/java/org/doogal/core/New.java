@@ -13,7 +13,7 @@ import org.doogal.core.view.View;
 
 final class New {
 
-    static void exec(View view, SharedState state, String template)
+    static boolean exec(View view, SharedState state, String template)
             throws Exception {
 
         final String id = newId();
@@ -23,7 +23,7 @@ final class New {
 
             if (!edit(state.getEditor(), tmp, view.getOut())) {
                 view.getLog().info("discarding...");
-                return;
+                return false;
             }
 
             view.getLog().info(
@@ -46,9 +46,10 @@ final class New {
             tmp.delete();
         }
         state.addRecent(id);
+        return true;
     }
 
-    static void exec(View view, SharedState state) throws Exception {
-        exec(view, state, "plain");
+    static boolean exec(View view, SharedState state) throws Exception {
+        return exec(view, state, "plain");
     }
 }

@@ -78,7 +78,7 @@ public final class SyncDoogal implements Doogal {
                 final PairTable table = new PairTable(TableType.ALIAS, "alias",
                         "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
-                    if (Type.ALIAS == entry.getValue().getType())
+                    if (CommandType.ALIAS == entry.getValue().getType())
                         table.add(entry.getKey(), entry.getValue()
                                 .getDescription());
 
@@ -96,7 +96,7 @@ public final class SyncDoogal implements Doogal {
                 final PairTable table = new PairTable(TableType.ALIAS, "alias",
                         "description");
                 for (final Entry<String, Command> entry : commands.entrySet())
-                    if (Type.ALIAS == entry.getValue().getType()
+                    if (CommandType.ALIAS == entry.getValue().getType()
                             && entry.getKey().startsWith(hint))
                         table.add(entry.getKey(), entry.getValue()
                                 .getDescription());
@@ -134,6 +134,7 @@ public final class SyncDoogal implements Doogal {
                         SyncDoogal.this.eval(name, all);
                     }
                 });
+                view.refresh(TableType.ALIAS);
             }
         });
         commands.put("unalias", new AbstractBuiltin() {
@@ -157,7 +158,7 @@ public final class SyncDoogal implements Doogal {
             @Synopsis("unalias name")
             public final void exec(String name) throws EvalException {
                 final Command cmd = commands.get(name);
-                if (null == cmd || Type.ALIAS != cmd.getType())
+                if (null == cmd || CommandType.ALIAS != cmd.getType())
                     throw new EvalException("unknown alias");
 
                 commands.remove(name);
@@ -195,7 +196,7 @@ public final class SyncDoogal implements Doogal {
                 final List<String> ls = new ArrayList<String>();
 
                 for (final Entry<String, Command> entry : commands.entrySet())
-                    if (Type.BUILTIN == entry.getValue().getType())
+                    if (CommandType.BUILTIN == entry.getValue().getType())
                         table.add(entry.getKey(), entry.getValue()
                                 .getDescription());
 
@@ -213,7 +214,7 @@ public final class SyncDoogal implements Doogal {
 
                 String last = null;
                 for (final Entry<String, Command> entry : commands.entrySet())
-                    if (Type.BUILTIN == entry.getValue().getType()
+                    if (CommandType.BUILTIN == entry.getValue().getType()
                             && entry.getKey().startsWith(hint)) {
                         table.add(entry.getKey(), entry.getValue()
                                 .getDescription());
@@ -351,7 +352,7 @@ public final class SyncDoogal implements Doogal {
         final Map<String, Command> map = new HashMap<String, Command>();
 
         for (final Entry<String, Command> entry : commands.entrySet())
-            if (Type.BUILTIN == entry.getValue().getType())
+            if (CommandType.BUILTIN == entry.getValue().getType())
                 map.put(entry.getKey(), entry.getValue());
 
         return map;

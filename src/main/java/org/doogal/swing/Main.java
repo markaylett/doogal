@@ -67,6 +67,7 @@ import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
+import org.doogal.core.PromptDoogal;
 import org.doogal.core.Repo;
 import org.doogal.core.Shellwords;
 import org.doogal.core.Size;
@@ -274,12 +275,21 @@ public final class Main extends JPanel implements Doogal {
                             return;
                         for (final Action action : context)
                             action.setEnabled(false);
-                        jtable.setRowSorter(new TableRowSorter<TableModel>(
-                                model));
                         jtable.setModel(model);
                         setArgs();
                     }
                 });
+                try {
+                    EventQueue.invokeLater(new Runnable() {
+                        public final void run() {
+                            if (closed)
+                                return;
+                            jtable.setRowSorter(new TableRowSorter<TableModel>(
+                                    model));
+                        }
+                    });
+                } catch (NoClassDefFoundError e) {
+                }
             }
 
             public final void setPage(String n) throws EvalException,
@@ -313,6 +323,7 @@ public final class Main extends JPanel implements Doogal {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         setPrompt(true);
+                        out.println("ready");
                     }
                 });
             }
@@ -320,8 +331,8 @@ public final class Main extends JPanel implements Doogal {
 
         final Repo repo = new Repo(env.getRepo());
         repo.init();
-        doogal = new AsyncDoogal(log, new SyncDoogal(env, view, controller,
-                repo));
+        doogal = new AsyncDoogal(log, new PromptDoogal(controller,
+                new SyncDoogal(env, view, controller, repo)));
 
         prompt.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
@@ -329,7 +340,6 @@ public final class Main extends JPanel implements Doogal {
                 history.add(s);
                 final Reader reader = new StringReader(s);
                 prompt.setText("");
-                setPrompt(false);
                 try {
                     Shellwords.parse(reader, Main.this);
                 } catch (final EvalException e) {
@@ -414,29 +424,34 @@ public final class Main extends JPanel implements Doogal {
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {
+        setPrompt(false);
         console.setText("");
         doogal.eval(cmd, args);
     }
 
     public final void eval() throws EvalException {
+        setPrompt(false);
         console.setText("");
         doogal.eval();
     }
 
     public final void batch(Reader reader) throws EvalException, IOException,
             ParseException {
+        setPrompt(false);
         console.setText("");
         doogal.batch(reader);
     }
 
     public final void batch(File file) throws EvalException, IOException,
             ParseException {
+        setPrompt(false);
         console.setText("");
         doogal.batch(file);
     }
 
     public final void config() throws EvalException, IOException,
             ParseException {
+        setPrompt(false);
         console.setText("");
         doogal.config();
     }

@@ -9,7 +9,7 @@ abstract class AbstractBuiltin implements Command {
         return null;
     }
 
-    public final Type getType() {
-        return Type.BUILTIN;
+    public final CommandType getType() {
+        return CommandType.BUILTIN;
     }
 }

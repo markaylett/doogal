@@ -9,7 +9,7 @@ abstract class AbstractAlias implements Command {
         return null;
     }
 
-    public final Type getType() {
-        return Type.ALIAS;
+    public final CommandType getType() {
+        return CommandType.ALIAS;
     }
 }
