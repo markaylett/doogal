@@ -738,10 +738,12 @@ final class Model implements Closeable {
                 return "update configuration";
             }
 
+            @Override
             public final String getLargeIcon() {
                 return "/Preferences24.gif";
             }
 
+            @Override
             public final String getSmallIcon() {
                 return "/Preferences16.gif";
             }

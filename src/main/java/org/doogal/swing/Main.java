@@ -142,11 +142,7 @@ public final class Main extends JPanel implements Doogal {
                             return;
                         final ListSelectionModel model = (ListSelectionModel) e
                                 .getSource();
-                        if (model.isSelectionEmpty()) {
-                            setArgs();
-                            for (final Action action : context)
-                                action.setEnabled(false);
-                        } else {
+                        if (!model.isSelectionEmpty()) {
                             final TableAdapter tableModel = (TableAdapter) jtable
                                     .getModel();
                             final String[] names = tableModel.getType()
@@ -274,9 +270,14 @@ public final class Main extends JPanel implements Doogal {
                 final TableModel model = newTableModel(table);
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
+                        if (closed)
+                            return;
+                        for (final Action action : context)
+                            action.setEnabled(false);
                         jtable.setRowSorter(new TableRowSorter<TableModel>(
                                 model));
                         jtable.setModel(model);
+                        setArgs();
                     }
                 });
             }
@@ -386,11 +387,21 @@ public final class Main extends JPanel implements Doogal {
             });
 
             for (final TableType type : TableType.values()) {
-                if (null != type.getAction())
-                    context.add(actions.get(type.getAction()));
-                for (final String action : type.getActions())
-                    context.add(actions.get(action));
+                if (null != type.getAction()
+                        && !"help".equals(type.getAction())) {
+                    final Action action = actions.get(type.getAction());
+                    if (null != action)
+                        context.add(action);
+                }
+                for (final String name : type.getActions()) {
+                    final Action action = actions.get(name);
+                    if (null != action && !"help".equals(name))
+                        context.add(action);
+                }
             }
+            context.remove("help");
+            for (final Action action : context)
+                action.setEnabled(false);
         }
     }
 
@@ -483,13 +494,13 @@ public final class Main extends JPanel implements Doogal {
 
         final JMenu tools = new JMenu("Tools");
         tools.setMnemonic(KeyEvent.VK_T);
+        tools.add(new JMenuItem(actions.get("alias")));
         tools.add(new JMenuItem(actions.get("archive")));
         tools.add(new JMenuItem(actions.get("index")));
         tools.add(new JMenuItem(actions.get("set")));
 
         final JMenu help = new JMenu("Help");
         help.setMnemonic(KeyEvent.VK_H);
-        help.add(new JMenuItem(actions.get("alias")));
         help.add(new JMenuItem(actions.get("help")));
 
         final JMenuBar mb = new JMenuBar();

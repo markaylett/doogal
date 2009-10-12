@@ -31,7 +31,6 @@ public final class SyncDoogal implements Doogal {
     private final Controller controller;
     private final Model model;
     private final Map<String, Command> commands;
-    private boolean interact;
 
     private static void printHelp(String cmd, Command value,
             final PrintWriter out) throws Exception {
@@ -120,13 +119,7 @@ public final class SyncDoogal implements Doogal {
                     }
 
                     public final void exec() throws EvalException {
-                        final boolean orig = interact;
-                        interact = false;
-                        try {
-                            SyncDoogal.this.eval(name, toks.toArray());
-                        } finally {
-                            interact = orig;
-                        }
+                        SyncDoogal.this.eval(name, toks.toArray());
                     }
 
                     public final void exec(Object... args) throws EvalException {
@@ -138,13 +131,7 @@ public final class SyncDoogal implements Doogal {
                         System
                                 .arraycopy(args, 0, all, toks.size(),
                                         args.length);
-                        final boolean orig = interact;
-                        interact = false;
-                        try {
-                            SyncDoogal.this.eval(name, all);
-                        } finally {
-                            interact = orig;
-                        }
+                        SyncDoogal.this.eval(name, all);
                     }
                 });
             }
@@ -250,7 +237,7 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             @Synopsis("exit")
             public final void exec() throws ExitException {
-                controller.exit(interact);
+                controller.exit(true);
             }
         });
     }
@@ -262,7 +249,6 @@ public final class SyncDoogal implements Doogal {
         this.controller = controller;
         model = new Model(env, this.view, repo);
         commands = new TreeMap<String, Command>();
-        interact = true;
         addCommands();
     }
 
@@ -323,35 +309,20 @@ public final class SyncDoogal implements Doogal {
             view.getLog().error("invalid arguments");
         } catch (final InvocationTargetException e) {
             final Throwable t = e.getCause();
-            if (t instanceof ExitException) {
-                // No ready prompt.
-                interact = false;
+            if (t instanceof ExitException)
                 throw (ExitException) t;
-            }
             view.getLog().error(t.getLocalizedMessage());
         } catch (final Exception e) {
             view.getLog().error(e.getLocalizedMessage());
-        } finally {
-            if (interact)
-                controller.ready();
         }
     }
 
     public final void eval() throws EvalException {
-        if (interact)
-            eval("next");
     }
 
     public final void batch(Reader reader) throws EvalException, IOException,
             ParseException {
-        final boolean orig = interact;
-        interact = false;
-        try {
-            Shellwords.parse(reader, this);
-        } finally {
-            interact = orig;
-            controller.ready();
-        }
+        Shellwords.parse(reader, this);
     }
 
     public final void batch(File file) throws EvalException, IOException,

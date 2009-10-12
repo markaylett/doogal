@@ -86,6 +86,6 @@ public final class LastRefreshView implements RefreshView {
     }
 
     public final TableType getType() {
-        return null;
+        return type;
     }
 }

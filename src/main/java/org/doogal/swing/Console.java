@@ -40,6 +40,7 @@ import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
 import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
+import org.doogal.core.PromptDoogal;
 import org.doogal.core.Repo;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
@@ -132,8 +133,8 @@ public final class Console extends JPanel implements Doogal {
 
         final Repo repo = new Repo(env.getRepo());
         repo.init();
-        doogal = new AsyncDoogal(log, new SyncDoogal(env, view, controller,
-                repo));
+        doogal = new AsyncDoogal(log, new PromptDoogal(controller,
+                new SyncDoogal(env, view, controller, repo)));
 
         prompt.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
