@@ -13,5 +13,9 @@ public final class Constants {
     public static final int MAX_RESULTS = 200;
     public static final int PAGE_SIZE = 12;
     public static final String PROMPT = "doogal> ";
-    static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yy");
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+            "dd-MMM-yy");
+    public static final int SMALL_FONT = 12;
+    public static final int MEDIUM_FONT = 14;
+    public static final int LARGE_FONT = 16;
 }

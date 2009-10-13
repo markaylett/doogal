@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
@@ -117,5 +118,12 @@ final class SwingUtil {
         keymap.addActionForKeyStroke(key, action);
 
         comp.setKeymap(keymap);
+    }
+
+    static void setRowSorter(JTable table) {
+        try {
+            Compat.setRowSorter(table);
+        } catch (final NoClassDefFoundError e) {
+        }
     }
 }

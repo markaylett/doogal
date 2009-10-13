@@ -21,6 +21,11 @@ import java.util.Map.Entry;
 
 import javax.mail.internet.ParseException;
 
+import org.doogal.core.command.AbstractAlias;
+import org.doogal.core.command.AbstractBuiltin;
+import org.doogal.core.command.Builtin;
+import org.doogal.core.command.Command;
+import org.doogal.core.command.CommandType;
 import org.doogal.core.table.PairTable;
 import org.doogal.core.table.TableType;
 import org.doogal.core.view.LastRefreshView;
@@ -145,9 +150,9 @@ public final class SyncDoogal implements Doogal {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (TableType.ALIAS == view.getType()) {
-                    final Object[] args = model.getArgs();
-                    if (null != args && 0 < args.length) {
-                        exec(args[0].toString());
+                    final Selection select = model.getSelection();
+                    if (null != select) {
+                        exec(select.getArg().toString());
                         return;
                     }
                 }
@@ -184,9 +189,9 @@ public final class SyncDoogal implements Doogal {
             public final void exec() throws Exception {
 
                 if (TableType.BUILTIN == view.getType()) {
-                    final Object[] args = model.getArgs();
-                    if (null != args && 0 < args.length) {
-                        exec(args[0].toString());
+                    final Selection select = model.getSelection();
+                    if (null != select) {
+                        exec(select.getArg().toString());
                         return;
                     }
                 }
@@ -344,8 +349,12 @@ public final class SyncDoogal implements Doogal {
         batch(model.getConfig());
     }
 
-    public final void setArgs(Object... args) {
-        model.setArgs(args);
+    public final void setSelection(TableType type, Object... args) {
+        model.setSelection(new Selection(type, args));
+    }
+
+    public final void clearSelection() {
+        model.setSelection(null);
     }
 
     public final Map<String, Command> getBuiltins() {

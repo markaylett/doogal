@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
+import org.doogal.core.command.Command;
+import org.doogal.core.table.TableType;
+
 public final class PromptDoogal implements Doogal {
     private final Controller controller;
     private final Doogal doogal;
@@ -15,7 +18,7 @@ public final class PromptDoogal implements Doogal {
     public PromptDoogal(Controller controller, Doogal doogal) {
         this.controller = controller;
         this.doogal = doogal;
-        this.depth = 0;
+        depth = 0;
     }
 
     public final void close() throws IOException {
@@ -76,8 +79,12 @@ public final class PromptDoogal implements Doogal {
         }
     }
 
-    public final void setArgs(Object... args) {
-        doogal.setArgs(args);
+    public final void setSelection(TableType type, Object... args) {
+        doogal.setSelection(type, args);
+    }
+
+    public final void clearSelection() {
+        doogal.clearSelection();
     }
 
     public final Map<String, Command> getBuiltins() {

@@ -8,6 +8,9 @@ import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
+import org.doogal.core.command.Command;
+import org.doogal.core.table.TableType;
+
 public interface Doogal extends Closeable, Interpreter {
 
     void batch(Reader reader) throws EvalException, IOException, ParseException;
@@ -17,7 +20,9 @@ public interface Doogal extends Closeable, Interpreter {
 
     void config() throws EvalException, IOException, ParseException;
 
-    void setArgs(Object... args);
+    void setSelection(TableType type, Object... args);
+
+    void clearSelection();
 
     Map<String, Command> getBuiltins();
 }

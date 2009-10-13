@@ -15,7 +15,8 @@ import org.doogal.core.view.View;
 
 final class Open {
 
-    static boolean exec(View view, SharedState state, Term term) throws Exception {
+    static boolean exec(View view, SharedState state, Term term)
+            throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);

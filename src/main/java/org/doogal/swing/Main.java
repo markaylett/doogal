@@ -1,11 +1,11 @@
 package org.doogal.swing;
 
-import static org.doogal.core.Constants.PROMPT;
+import static org.doogal.core.Constants.SMALL_FONT;
 import static org.doogal.core.Utility.printResource;
 import static org.doogal.swing.SwingUtil.newScrollPane;
 import static org.doogal.swing.SwingUtil.parentFrame;
 import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
-import static org.doogal.swing.SwingUtil.setEmacsKeyMap;
+import static org.doogal.swing.SwingUtil.setRowSorter;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,7 +14,6 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,10 +33,8 @@ import java.util.Map.Entry;
 import javax.mail.internet.ParseException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -47,7 +43,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -57,11 +52,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 import org.apache.commons.logging.Log;
 import org.doogal.core.AsyncDoogal;
-import org.doogal.core.Command;
 import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
@@ -69,10 +62,10 @@ import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
 import org.doogal.core.PromptDoogal;
 import org.doogal.core.Repo;
-import org.doogal.core.Shellwords;
 import org.doogal.core.Size;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
+import org.doogal.core.command.Command;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
@@ -83,13 +76,9 @@ import org.doogal.core.view.View;
 public final class Main extends JPanel implements Doogal {
 
     private static final long serialVersionUID = 1L;
-    private static final int SMALL_FONT = 12;
-    private static final int MEDIUM_FONT = 14;
-    private static final int LARGE_FONT = 16;
 
-    private final History history;
     private final JTextArea console;
-    private final JTextField prompt;
+    private final CommandPanel prompt;
     private final Doogal doogal;
 
     private final Map<String, Action> actions;
@@ -108,17 +97,8 @@ public final class Main extends JPanel implements Doogal {
         return new TableAdapter(table);
     }
 
-    private final void setPrompt(boolean b) {
-        prompt.setEnabled(b);
-        prompt.setEditable(b);
-        if (b)
-            prompt.requestFocus();
-    }
-
     Main() throws Exception {
         super(new BorderLayout());
-
-        history = new History();
 
         final JTable jtable = new JTable(new TableAdapter());
         jtable.setFocusable(false);
@@ -154,7 +134,7 @@ public final class Main extends JPanel implements Doogal {
                             final Object[] args = new Object[rows.length];
                             for (int i = 0; i < rows.length; ++i)
                                 args[i] = jtable.getValueAt(rows[i], 0);
-                            setArgs(args);
+                            setSelection(tableModel.getType(), args);
                         }
                     }
                 });
@@ -233,36 +213,21 @@ public final class Main extends JPanel implements Doogal {
         console.setFocusable(false);
         console.setLineWrap(true);
 
-        final JPanel promptPanel = new JPanel();
-        promptPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        promptPanel.setLayout(new BorderLayout());
+        final Environment env = new Environment();
+        final PrintWriter out = new PrintWriter(new TextAreaStream(console),
+                true);
+        final Log log = new StandardLog(out, out);
 
-        final JLabel label = new JLabel(PROMPT);
-        label.setFont(new Font("Dialog", Font.BOLD, LARGE_FONT));
-        prompt = new JTextField();
-        prompt.setMargin(new Insets(2, 2, 2, 2));
-        prompt.setFont(new Font("Monospaced", Font.PLAIN, MEDIUM_FONT));
-
-        label.setLabelFor(prompt);
-
-        promptPanel.add(label, BorderLayout.WEST);
-        promptPanel.add(prompt, BorderLayout.CENTER);
-
-        setPrompt(false);
-        setEmacsKeyMap(prompt, history);
+        prompt = new CommandPanel(this, log);
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 newScrollPane(jtable), newScrollPane(console));
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
 
-        add(promptPanel, BorderLayout.NORTH);
+        add(prompt, BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
 
-        final Environment env = new Environment();
-        final PrintWriter out = new PrintWriter(new TextAreaStream(console),
-                true);
-        final Log log = new StandardLog(out, out);
         final View view = new AbstractView(out, log) {
 
             @Override
@@ -276,20 +241,10 @@ public final class Main extends JPanel implements Doogal {
                         for (final Action action : context)
                             action.setEnabled(false);
                         jtable.setModel(model);
-                        setArgs();
+                        clearSelection();
+                        setRowSorter(jtable);
                     }
                 });
-                try {
-                    EventQueue.invokeLater(new Runnable() {
-                        public final void run() {
-                            if (closed)
-                                return;
-                            jtable.setRowSorter(new TableRowSorter<TableModel>(
-                                    model));
-                        }
-                    });
-                } catch (NoClassDefFoundError e) {
-                }
             }
 
             public final void setPage(String n) throws EvalException,
@@ -322,8 +277,7 @@ public final class Main extends JPanel implements Doogal {
             public final void ready() {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        setPrompt(true);
-                        out.println("ready");
+                        prompt.setPrompt(true);
                     }
                 });
             }
@@ -333,24 +287,6 @@ public final class Main extends JPanel implements Doogal {
         repo.init();
         doogal = new AsyncDoogal(log, new PromptDoogal(controller,
                 new SyncDoogal(env, view, controller, repo)));
-
-        prompt.addActionListener(new ActionListener() {
-            public final void actionPerformed(ActionEvent ev) {
-                final String s = prompt.getText();
-                history.add(s);
-                final Reader reader = new StringReader(s);
-                prompt.setText("");
-                try {
-                    Shellwords.parse(reader, Main.this);
-                } catch (final EvalException e) {
-                    log.error(e.getLocalizedMessage());
-                } catch (final IOException e) {
-                    log.error(e.getLocalizedMessage());
-                } catch (final ParseException e) {
-                    log.error(e.getLocalizedMessage());
-                }
-            }
-        });
 
         printResource("motd.txt", out);
 
@@ -424,40 +360,44 @@ public final class Main extends JPanel implements Doogal {
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {
-        setPrompt(false);
+        prompt.setPrompt(false);
         console.setText("");
         doogal.eval(cmd, args);
     }
 
     public final void eval() throws EvalException {
-        setPrompt(false);
+        prompt.setPrompt(false);
         console.setText("");
         doogal.eval();
     }
 
     public final void batch(Reader reader) throws EvalException, IOException,
             ParseException {
-        setPrompt(false);
+        prompt.setPrompt(false);
         console.setText("");
         doogal.batch(reader);
     }
 
     public final void batch(File file) throws EvalException, IOException,
             ParseException {
-        setPrompt(false);
+        prompt.setPrompt(false);
         console.setText("");
         doogal.batch(file);
     }
 
     public final void config() throws EvalException, IOException,
             ParseException {
-        setPrompt(false);
+        prompt.setPrompt(false);
         console.setText("");
         doogal.config();
     }
 
-    public final void setArgs(Object... args) {
-        doogal.setArgs(args);
+    public final void setSelection(TableType type, Object... args) {
+        doogal.setSelection(type, args);
+    }
+
+    public final void clearSelection() {
+        doogal.clearSelection();
     }
 
     public final Map<String, Command> getBuiltins() {
@@ -502,7 +442,6 @@ public final class Main extends JPanel implements Doogal {
         final JMenu search = new JMenu("Search");
         search.setMnemonic(KeyEvent.VK_S);
         search.add(new JMenuItem(actions.get("browse")));
-        search.add(new JMenuItem(actions.get("search")));
         search.add(new JMenuItem(actions.get("more")));
         search.add(new JMenuItem(actions.get("recent")));
         search.add(new JMenuItem(actions.get("names")));
@@ -535,7 +474,6 @@ public final class Main extends JPanel implements Doogal {
         toolBar.add(actions.get("delete"));
         toolBar.add(actions.get("peek"));
         toolBar.add(actions.get("browse"));
-        toolBar.add(actions.get("search"));
         toolBar.add(actions.get("more"));
         toolBar.add(actions.get("recent"));
         toolBar.add(actions.get("set"));

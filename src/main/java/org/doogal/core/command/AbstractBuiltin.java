@@ -1,6 +1,6 @@
-package org.doogal.core;
+package org.doogal.core.command;
 
-abstract class AbstractBuiltin implements Command {
+public abstract class AbstractBuiltin implements Command {
     public String getLargeIcon() {
         return null;
     }

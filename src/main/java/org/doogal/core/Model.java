@@ -23,6 +23,9 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
+import org.doogal.core.command.AbstractBuiltin;
+import org.doogal.core.command.Builtin;
+import org.doogal.core.command.Command;
 import org.doogal.core.table.ArrayTable;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
@@ -48,7 +51,7 @@ final class Model implements Closeable {
     private final IdentityMap identityMap;
     private final Recent recent;
     private SharedState state;
-    private Object[] args;
+    private Selection select;
 
     private final Term getTerm(String value) throws IOException {
         return Character.isDigit(value.charAt(0)) ? identityMap.getTerm(value)
@@ -152,7 +155,7 @@ final class Model implements Closeable {
         identityMap = new IdentityMap();
         recent = new Recent();
         state = null;
-        args = null;
+        select = null;
     }
 
     public final void close() {
@@ -180,12 +183,12 @@ final class Model implements Closeable {
             state = new SharedState(env, repo, identityMap, recent);
     }
 
-    final void setArgs(Object... args) {
-        this.args = args;
+    final void setSelection(Selection select) {
+        this.select = select;
     }
 
-    final Object[] getArgs() {
-        return args;
+    final Selection getSelection() {
+        return select;
     }
 
     final File getConfig() {
@@ -254,8 +257,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (TableType.DOCUMENT == view.getType())
-                    if (null != args && 0 < args.length) {
-                        exec(args);
+                    if (null != select) {
+                        exec(select.getArgs());
                         return;
                     }
                 // Only when context arguments are set.
@@ -398,8 +401,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws EvalException, IOException {
                 if (TableType.DOCUMENT == view.getType())
-                    if (null != args && 0 < args.length) {
-                        exec(args[0].toString());
+                    if (null != select) {
+                        exec(select.getArg().toString());
                         return;
                     }
                 view.setTable(more(getTerm()));
@@ -500,8 +503,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (TableType.DOCUMENT == view.getType())
-                    if (null != args && 0 < args.length) {
-                        exec(args[0].toString());
+                    if (null != select) {
+                        exec(select.getArg().toString());
                         return;
                     }
                 view.getLog().info("opening...");
@@ -538,8 +541,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (TableType.DOCUMENT == view.getType())
-                    if (null != args && 0 < args.length) {
-                        exec(args);
+                    if (null != select) {
+                        exec(select.getArgs());
                         return;
                     }
                 Peek.exec(view, state, getTerm());
@@ -617,8 +620,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (TableType.DOCUMENT == view.getType())
-                    if (null != args && 0 < args.length) {
-                        exec(args);
+                    if (null != select) {
+                        exec(select.getArgs());
                         return;
                     }
                 view.getLog().info("publishing...");
@@ -783,8 +786,8 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             public final void exec() throws Exception {
                 if (TableType.DOCUMENT == view.getType())
-                    if (null != args && 0 < args.length) {
-                        exec(args);
+                    if (null != select) {
+                        exec(select.getArgs());
                         return;
                     }
                 view.getLog().info("tidying...");

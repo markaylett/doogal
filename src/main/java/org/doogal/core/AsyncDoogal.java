@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.logging.Log;
+import org.doogal.core.command.Command;
+import org.doogal.core.table.TableType;
 
 public final class AsyncDoogal implements Doogal {
     private final Log log;
@@ -124,10 +126,18 @@ public final class AsyncDoogal implements Doogal {
         });
     }
 
-    public final void setArgs(final Object... args) {
+    public final void setSelection(final TableType type, final Object... args) {
         executor.execute(new Runnable() {
             public final void run() {
-                doogal.setArgs(args);
+                doogal.setSelection(type, args);
+            }
+        });
+    }
+
+    public final void clearSelection() {
+        executor.execute(new Runnable() {
+            public final void run() {
+                doogal.clearSelection();
             }
         });
     }

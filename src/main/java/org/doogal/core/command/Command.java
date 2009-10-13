@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.command;
 
 public interface Command {
     String getDescription();

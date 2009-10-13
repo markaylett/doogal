@@ -34,7 +34,6 @@ import javax.swing.WindowConstants;
 
 import org.apache.commons.logging.Log;
 import org.doogal.core.AsyncDoogal;
-import org.doogal.core.Command;
 import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
@@ -45,6 +44,8 @@ import org.doogal.core.Repo;
 import org.doogal.core.Shellwords;
 import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
+import org.doogal.core.command.Command;
+import org.doogal.core.table.TableType;
 import org.doogal.core.view.PrintView;
 import org.doogal.core.view.View;
 
@@ -185,8 +186,12 @@ public final class Console extends JPanel implements Doogal {
         doogal.config();
     }
 
-    public final void setArgs(Object... args) {
-        doogal.setArgs(args);
+    public final void setSelection(TableType type, Object... args) {
+        doogal.setSelection(type, args);
+    }
+
+    public final void clearSelection() {
+        doogal.clearSelection();
     }
 
     public final Map<String, Command> getBuiltins() {

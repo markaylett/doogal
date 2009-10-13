@@ -1,6 +1,6 @@
-package org.doogal.core;
+package org.doogal.core.command;
 
-abstract class AbstractAlias implements Command {
+public abstract class AbstractAlias implements Command {
     public final String getLargeIcon() {
         return null;
     }
