@@ -51,6 +51,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -230,7 +232,22 @@ public final class Main extends JPanel implements Doogal {
         tabbedPane = new JTabbedPane();
         tabbedPane.add("Console", newScrollPane(console));
         tabbedPane.add("Document", newScrollPane(document));
+        console.getDocument().addDocumentListener(new DocumentListener() {
 
+            public final void changedUpdate(DocumentEvent e) {
+                tabbedPane.setSelectedIndex(0);
+            }
+
+            public final void insertUpdate(DocumentEvent e) {
+                tabbedPane.setSelectedIndex(0);
+            }
+
+            public final void removeUpdate(DocumentEvent e) {
+                tabbedPane.setSelectedIndex(0);
+            }
+            
+        });
+        
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 newScrollPane(jtable), newScrollPane(tabbedPane));
         splitPane.setOneTouchExpandable(true);
