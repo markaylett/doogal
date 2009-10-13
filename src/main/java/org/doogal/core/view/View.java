@@ -23,7 +23,7 @@ public interface View extends Closeable {
 
     Log getLog();
 
-    void setPage(String n) throws EvalException, IOException;
+    void setPage(int n) throws EvalException, IOException;
 
     void showPage() throws EvalException, IOException;
 

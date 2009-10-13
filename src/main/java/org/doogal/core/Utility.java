@@ -374,4 +374,25 @@ public final class Utility {
         for (int i = 0; i < rowCount; ++i)
             out.printf(bf.toString(), (Object[]) body[i]);
     }
+
+    static File findEditor() {
+        final String[] editors = new String[] { "emacsclient", "vi", "gedit",
+                "TextMate", "TextPad.exe", "wordpad.exe", "notepad.exe" };
+        final File[] found = new File[editors.length];
+        final String[] dirs = System.getenv("PATH").split(File.pathSeparator);
+        for (int i = 0; i < dirs.length; ++i) {
+            final File dir = new File(dirs[i]);
+            if (dir.isDirectory())
+                for (int j = 0; j < editors.length; ++j) {
+                    final File editor = new File(dir, editors[j]);
+                    if (editor.exists() && null == found[j])
+                        found[j] = editor;
+                }
+        }
+        int i = 0;
+        for (; i < found.length; ++i)
+            if (null != found[i])
+                break;
+        return found[i];
+    }
 }

@@ -249,8 +249,19 @@ public final class Main extends JPanel implements Doogal {
                 });
             }
 
-            public final void setPage(String n) throws EvalException,
+            public final void setPage(final int n) throws EvalException,
                     IOException {
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        final JScrollPane scrollPane = (JScrollPane) jtable
+                                .getParent().getParent();
+                        final JScrollBar scrollBar = scrollPane
+                                .getVerticalScrollBar();
+                        int value = n * scrollBar.getBlockIncrement(1);
+                        value = Math.min(value, scrollBar.getMaximum());
+                        scrollBar.setValue(value);
+                    }
+                });
             }
 
             public final void showPage() throws EvalException, IOException {
@@ -259,21 +270,33 @@ public final class Main extends JPanel implements Doogal {
             }
 
             public final void nextPage() throws EvalException, IOException {
-                final JScrollPane scrollPane = (JScrollPane) jtable.getParent().getParent();
-                final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-                int value = scrollBar.getValue();
-                value += scrollBar.getBlockIncrement(1);
-                value = Math.min(value, scrollBar.getMaximum());
-                scrollBar.setValue(value);
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        final JScrollPane scrollPane = (JScrollPane) jtable
+                                .getParent().getParent();
+                        final JScrollBar scrollBar = scrollPane
+                                .getVerticalScrollBar();
+                        int value = scrollBar.getValue();
+                        value += scrollBar.getBlockIncrement(1);
+                        value = Math.min(value, scrollBar.getMaximum());
+                        scrollBar.setValue(value);
+                    }
+                });
             }
 
             public final void prevPage() throws EvalException, IOException {
-                final JScrollPane scrollPane = (JScrollPane) jtable.getParent().getParent();
-                final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-                int value = scrollBar.getValue();
-                value -= scrollBar.getBlockIncrement(-1);
-                value = Math.max(value, scrollBar.getMinimum());
-                scrollBar.setValue(value);
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        final JScrollPane scrollPane = (JScrollPane) jtable
+                                .getParent().getParent();
+                        final JScrollBar scrollBar = scrollPane
+                                .getVerticalScrollBar();
+                        int value = scrollBar.getValue();
+                        value -= scrollBar.getBlockIncrement(-1);
+                        value = Math.max(value, scrollBar.getMinimum());
+                        scrollBar.setValue(value);
+                    }
+                });
             }
         };
         final Controller controller = new Controller() {
@@ -496,7 +519,6 @@ public final class Main extends JPanel implements Doogal {
         f.setLayout(new BorderLayout());
         f.add(toolBar, BorderLayout.PAGE_START);
         f.add(m, BorderLayout.CENTER);
-        f.pack();
 
         final Dimension d = f.getToolkit().getScreenSize();
         f.setSize(d.width / 2, d.height / 2);

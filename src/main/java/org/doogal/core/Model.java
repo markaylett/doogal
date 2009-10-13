@@ -317,7 +317,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("goto n")
             public final void exec(String n) throws EvalException, IOException {
-                view.setPage(n);
+                view.setPage(Integer.valueOf(n));
                 view.showPage();
             }
         };
@@ -625,7 +625,7 @@ final class Model implements Closeable {
                         return;
                     }
                 view.getLog().info("publishing...");
-                Publish.exec(state, getTerm());
+                Publish.exec(view, state, getTerm());
             }
 
             @SuppressWarnings("unused")
@@ -634,13 +634,13 @@ final class Model implements Closeable {
                 if ("*".equals(s))
                     view.whileSummary(new Predicate<Summary>() {
                         public final boolean call(Summary arg) throws Exception {
-                            Publish.exec(state, identityMap
-                                    .getTerm(arg.getId()));
+                            Publish.exec(view, state, identityMap.getTerm(arg
+                                    .getId()));
                             return true;
                         }
                     });
                 else
-                    Publish.exec(state, getTerm(s));
+                    Publish.exec(view, state, getTerm(s));
             }
 
             @Synopsis("publish [doc...]")
@@ -652,13 +652,13 @@ final class Model implements Closeable {
                     if ("*".equals(s))
                         glob = true;
                     else
-                        Publish.exec(state, getTerm(arg.toString()));
+                        Publish.exec(view, state, getTerm(arg.toString()));
                 }
                 if (glob)
                     view.whileSummary(new Predicate<Summary>() {
                         public final boolean call(Summary arg) throws Exception {
-                            Publish.exec(state, identityMap
-                                    .getTerm(arg.getId()));
+                            Publish.exec(view, state, identityMap.getTerm(arg
+                                    .getId()));
                             return true;
                         }
                     });
@@ -740,7 +740,7 @@ final class Model implements Closeable {
     public final Command newEnv() {
         return new AbstractBuiltin() {
             public final String getDescription() {
-                return "update configuration";
+                return "environment configuration";
             }
 
             @Override
@@ -765,6 +765,7 @@ final class Model implements Closeable {
             public final void exec(String name) throws EvalException,
                     IOException {
                 env.reset(name);
+                view.refresh(TableType.ENVIRONMENT);
             }
 
             @SuppressWarnings("unused")
@@ -772,6 +773,7 @@ final class Model implements Closeable {
             public final void exec(String name, String value)
                     throws EvalException, IOException {
                 env.set(name, value);
+                view.refresh(TableType.ENVIRONMENT);
             }
         };
     }

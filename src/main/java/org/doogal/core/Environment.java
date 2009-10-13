@@ -1,9 +1,11 @@
 package org.doogal.core;
 
 import static org.doogal.core.Constants.DEFAULT_EDITOR;
+import static org.doogal.core.Utility.findEditor;
 import static org.doogal.core.Utility.getPath;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -29,7 +31,15 @@ public final class Environment {
     private String inbox;
 
     private static String defaultEditor() {
-        final String s = System.getenv("EDITOR");
+        String s = System.getenv("EDITOR");
+        if (null == s) {
+            final File editor = findEditor();
+            if (null != editor)
+                try {
+                    s = editor.getCanonicalPath();
+                } catch (final IOException e) {
+                }
+        }
         return null == s ? DEFAULT_EDITOR : s;
     }
 
@@ -181,5 +191,11 @@ public final class Environment {
         for (final Entry<String, Accessor> entry : env.entrySet())
             table.add(entry.getKey(), entry.getValue().get().toString());
         return table;
+    }
+
+    public static void main(String[] args) throws Exception {
+        final File editor = findEditor();
+        if (null != editor)
+            System.out.println(editor);
     }
 }

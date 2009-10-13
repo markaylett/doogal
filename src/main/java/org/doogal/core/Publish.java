@@ -25,6 +25,7 @@ import org.apache.maven.doxia.parser.ParseException;
 import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkFactory;
+import org.doogal.core.view.View;
 
 final class Publish {
 
@@ -88,13 +89,12 @@ final class Publish {
         return false;
     }
 
-    private static void convert(SharedState state, String title,
-            String[] authors, Date date, Reader contents, Parser parser,
-            String outName) throws IOException, ParseException {
+    private static void convert(String title, String[] authors, Date date,
+            Reader contents, Parser parser, File outDir, String outName)
+            throws IOException, ParseException {
 
         final SinkFactory factory = new XhtmlSinkFactory();
-        final Sink xhtml = factory.createSink(new File(state.getHtml()),
-                outName);
+        final Sink xhtml = factory.createSink(outDir, outName);
         try {
             parser.parse(contents, new HeaderSink(title, authors, date, xhtml));
         } finally {
@@ -102,7 +102,7 @@ final class Publish {
         }
     }
 
-    static void exec(SharedState state, Term term) throws Exception {
+    static void exec(View view, SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -115,13 +115,21 @@ final class Publish {
 
             final InternetHeaders headers = new InternetHeaders(is);
             final String title = getTitle(headers, id);
-            final String name = toName(title);
+            final File outDir = new File(state.getHtml());
+            final String outName = toName(title) + ".html";
+            final File outPath = new File(outDir, outName);
 
-            final Reader contents = new InputStreamReader(is, "UTF-8");
-            final Parser parser = isApt(headers) ? new AptParser()
-                    : new PlainParser();
-            convert(state, title, headers.getHeader("author"), new Date(file
-                    .lastModified()), contents, parser, name + ".html");
+            // Not exists or is older.
+
+            if (!outPath.exists()
+                    || outPath.lastModified() < file.lastModified()) {
+                final Reader contents = new InputStreamReader(is, "UTF-8");
+                final Parser parser = isApt(headers) ? new AptParser()
+                        : new PlainParser();
+                convert(title, headers.getHeader("author"), new Date(file
+                        .lastModified()), contents, parser, outDir, outName);
+            } else
+                view.getLog().info("up to date...");
 
         } finally {
             is.close();

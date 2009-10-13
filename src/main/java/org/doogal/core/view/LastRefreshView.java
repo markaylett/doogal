@@ -56,7 +56,7 @@ public final class LastRefreshView implements RefreshView {
         return view.getLog();
     }
 
-    public final void setPage(String n) throws EvalException, IOException {
+    public final void setPage(int n) throws EvalException, IOException {
         view.setPage(n);
     }
 

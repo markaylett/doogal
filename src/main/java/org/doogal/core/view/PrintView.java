@@ -27,8 +27,8 @@ public final class PrintView extends AbstractView {
                 + PAGE_SIZE);
     }
 
-    public final void setPage(String n) throws EvalException, IOException {
-        final int i = Math.max(Integer.valueOf(n) - 1, 0) * PAGE_SIZE;
+    public final void setPage(int n) throws EvalException, IOException {
+        final int i = Math.max(n - 1, 0) * PAGE_SIZE;
         if (null == table || table.getRowCount() <= i)
             throw new EvalException("no such page");
         start = i;
