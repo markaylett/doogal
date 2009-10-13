@@ -40,6 +40,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -257,9 +259,21 @@ public final class Main extends JPanel implements Doogal {
             }
 
             public final void nextPage() throws EvalException, IOException {
+                final JScrollPane scrollPane = (JScrollPane) jtable.getParent().getParent();
+                final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+                int value = scrollBar.getValue();
+                value += scrollBar.getBlockIncrement(1);
+                value = Math.min(value, scrollBar.getMaximum());
+                scrollBar.setValue(value);
             }
 
             public final void prevPage() throws EvalException, IOException {
+                final JScrollPane scrollPane = (JScrollPane) jtable.getParent().getParent();
+                final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+                int value = scrollBar.getValue();
+                value -= scrollBar.getBlockIncrement(-1);
+                value = Math.max(value, scrollBar.getMinimum());
+                scrollBar.setValue(value);
             }
         };
         final Controller controller = new Controller() {
