@@ -102,7 +102,7 @@ final class Publish {
         }
     }
 
-    static void exec(View view, SharedState state, Term term) throws Exception {
+    static File exec(View view, SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -130,10 +130,12 @@ final class Publish {
                         .lastModified()), contents, parser, outDir, outName);
             } else
                 view.getLog().info("up to date...");
+            
+            state.addRecent(id);
+            return outPath;
 
         } finally {
             is.close();
         }
-        state.addRecent(id);
     }
 }

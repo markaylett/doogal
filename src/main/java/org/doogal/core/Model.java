@@ -31,6 +31,7 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Holder;
 import org.doogal.core.util.Predicate;
 import org.doogal.core.view.RefreshView;
 
@@ -626,43 +627,59 @@ final class Model implements Closeable {
                         return;
                     }
                 view.getLog().info("publishing...");
-                Publish.exec(view, state, getTerm());
+                view.setHtml(Publish.exec(view, state, getTerm()));
             }
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
                 view.getLog().info("publishing...");
-                if ("*".equals(s))
+
+                if ("*".equals(s)) {
+                    final Holder<File> first = new Holder<File>();
                     view.whileSummary(new Predicate<Summary>() {
                         public final boolean call(Summary arg) throws Exception {
-                            Publish.exec(view, state, identityMap.getTerm(arg
+                            final File file = Publish.exec(view, state, identityMap.getTerm(arg
                                     .getId()));
+                            if (first.isEmpty())
+                                first.set(file);
                             return true;
                         }
                     });
-                else
-                    Publish.exec(view, state, getTerm(s));
+                    view.setHtml(first.get());
+                } else
+                    view.setHtml(Publish.exec(view, state, getTerm(s)));
             }
 
             @Synopsis("publish [doc...]")
             public final void exec(Object... args) throws Exception {
                 view.getLog().info("publishing...");
+
                 boolean glob = false;
+                final Holder<File> first = new Holder<File>();
+
                 for (final Object arg : args) {
                     final String s = arg.toString();
-                    if ("*".equals(s))
+                    if (!"*".equals(s)) {
+                        final File file = Publish.exec(view, state, getTerm(arg.toString()));
+                        if (first.isEmpty())
+                            first.set(file);
+                    } else {
+                        // Glob once.
                         glob = true;
-                    else
-                        Publish.exec(view, state, getTerm(arg.toString()));
+                    }
                 }
-                if (glob)
+                if (glob) {
                     view.whileSummary(new Predicate<Summary>() {
                         public final boolean call(Summary arg) throws Exception {
-                            Publish.exec(view, state, identityMap.getTerm(arg
+                            final File file = Publish.exec(view, state, identityMap.getTerm(arg
                                     .getId()));
+                            if (first.isEmpty())
+                                first.set(file);
                             return true;
                         }
                     });
+                }
+                view.setHtml(first.get());
             }
         };
     }

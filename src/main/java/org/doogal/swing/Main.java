@@ -43,6 +43,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -79,8 +80,10 @@ public final class Main extends JPanel implements Doogal {
 
     private static final long serialVersionUID = 1L;
 
-    private final JTextArea console;
     private final CommandPanel prompt;
+    private final JTabbedPane tabbedPane;
+    private final JTextArea console;
+    private final DocumentPanel document;
     private final Doogal doogal;
 
     private final Map<String, Action> actions;
@@ -215,15 +218,21 @@ public final class Main extends JPanel implements Doogal {
         console.setFocusable(false);
         console.setLineWrap(true);
 
+        document = new DocumentPanel();
+        
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(console),
                 true);
         final Log log = new StandardLog(out, out);
 
         prompt = new CommandPanel(this, log);
+        
+        tabbedPane = new JTabbedPane();
+        tabbedPane.add("Console", newScrollPane(console));
+        tabbedPane.add("Document", newScrollPane(document));
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                newScrollPane(jtable), newScrollPane(console));
+                newScrollPane(jtable), newScrollPane(tabbedPane));
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
 
@@ -249,6 +258,21 @@ public final class Main extends JPanel implements Doogal {
                 });
             }
 
+            public final void setHtml(final File file) {
+                if (null == file)
+                    return;
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        try {
+                            document.setPage(file);
+                            tabbedPane.setSelectedIndex(1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+            
             public final void setPage(final int n) throws EvalException,
                     IOException {
                 EventQueue.invokeLater(new Runnable() {

@@ -1,6 +1,7 @@
 package org.doogal.core.view;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -23,6 +24,8 @@ public interface View extends Closeable {
 
     Log getLog();
 
+    void setHtml(File file);
+    
     void setPage(int n) throws EvalException, IOException;
 
     void showPage() throws EvalException, IOException;
