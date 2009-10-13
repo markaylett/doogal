@@ -29,6 +29,8 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.doogal.core.table.Table;
+import org.doogal.core.util.FileStats;
+import org.doogal.core.util.Predicate;
 
 public final class Utility {
 
@@ -274,7 +276,7 @@ public final class Utility {
         return pred.first;
     }
 
-    static BufferedReader newBufferedReader(InputStream in)
+    public static BufferedReader newBufferedReader(InputStream in)
             throws UnsupportedEncodingException {
         return new BufferedReader(new InputStreamReader(in, "UTF-8"));
     }

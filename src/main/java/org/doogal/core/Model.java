@@ -31,6 +31,7 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Predicate;
 import org.doogal.core.view.RefreshView;
 
 final class Model implements Closeable {

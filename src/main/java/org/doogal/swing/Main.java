@@ -64,14 +64,14 @@ import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
 import org.doogal.core.PromptDoogal;
 import org.doogal.core.Repo;
-import org.doogal.core.Size;
-import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
 import org.doogal.core.command.Command;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Size;
+import org.doogal.core.util.StandardLog;
 import org.doogal.core.view.AbstractView;
 import org.doogal.core.view.View;
 

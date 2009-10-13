@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

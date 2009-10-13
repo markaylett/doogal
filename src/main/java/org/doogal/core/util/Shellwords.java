@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.util;
 
 import static org.doogal.core.Utility.newBufferedReader;
 
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.internet.ParseException;
+
+import org.doogal.core.EvalException;
 
 public final class Shellwords {
     private final StreamTokenizer tokeniser;
@@ -84,7 +86,7 @@ public final class Shellwords {
         return eof;
     }
 
-    static List<Object> readLine(Reader reader) throws EvalException,
+    public static List<Object> readLine(Reader reader) throws EvalException,
             IOException, ParseException {
         return new Shellwords(reader).readLine();
     }

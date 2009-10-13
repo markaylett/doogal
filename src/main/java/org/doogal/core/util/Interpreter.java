@@ -1,4 +1,6 @@
-package org.doogal.core;
+package org.doogal.core.util;
+
+import org.doogal.core.EvalException;
 
 public interface Interpreter {
 

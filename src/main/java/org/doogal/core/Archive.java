@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.doogal.core.util.Predicate;
+
 final class Archive {
     static void exec(final Repo repo) throws Exception {
 

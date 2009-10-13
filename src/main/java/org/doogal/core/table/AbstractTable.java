@@ -2,8 +2,8 @@ package org.doogal.core.table;
 
 import java.util.Date;
 
-import org.doogal.core.Size;
 import org.doogal.core.Summary;
+import org.doogal.core.util.Size;
 
 public abstract class AbstractTable implements Table {
     protected static Object getValueAt(Summary summary, int columnIndex) {

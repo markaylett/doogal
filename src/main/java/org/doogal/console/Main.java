@@ -12,9 +12,9 @@ import org.doogal.core.Environment;
 import org.doogal.core.ExitException;
 import org.doogal.core.PromptDoogal;
 import org.doogal.core.Repo;
-import org.doogal.core.Shellwords;
-import org.doogal.core.StandardLog;
 import org.doogal.core.SyncDoogal;
+import org.doogal.core.util.Shellwords;
+import org.doogal.core.util.StandardLog;
 import org.doogal.core.view.PrintView;
 import org.doogal.core.view.View;
 

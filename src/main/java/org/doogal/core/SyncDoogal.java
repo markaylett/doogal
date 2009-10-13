@@ -28,6 +28,8 @@ import org.doogal.core.command.Command;
 import org.doogal.core.command.CommandType;
 import org.doogal.core.table.PairTable;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Predicate;
+import org.doogal.core.util.Shellwords;
 import org.doogal.core.view.LastRefreshView;
 import org.doogal.core.view.View;
 

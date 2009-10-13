@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
+import org.doogal.core.util.Predicate;
 
 final class Index {
 

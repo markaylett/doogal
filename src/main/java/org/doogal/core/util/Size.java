@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.util;
 
 public final class Size extends Number implements Comparable<Size> {
     private static final long KILO = 1024L;

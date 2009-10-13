@@ -10,6 +10,7 @@ import javax.mail.internet.ParseException;
 
 import org.doogal.core.command.Command;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Interpreter;
 
 public interface Doogal extends Closeable, Interpreter {
 

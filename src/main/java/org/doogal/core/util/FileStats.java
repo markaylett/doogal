@@ -1,20 +1,20 @@
-package org.doogal.core;
+package org.doogal.core.util;
 
 import java.io.File;
 
-final class FileStats {
+public final class FileStats {
     private final File file;
     private final long lastModified;
     private final long length;
 
-    FileStats(File file) {
+    public FileStats(File file) {
         // Works for non-existent files.
         this.file = file;
         lastModified = file.lastModified();
         length = file.length();
     }
 
-    final boolean hasFileChanged() {
+    public final boolean hasFileChanged() {
         return lastModified != file.lastModified() || length != file.length();
     }
 }

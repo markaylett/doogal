@@ -7,9 +7,9 @@ import java.io.PrintWriter;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
 import org.doogal.core.EvalException;
-import org.doogal.core.Predicate;
 import org.doogal.core.Summary;
 import org.doogal.core.table.Table;
+import org.doogal.core.util.Predicate;
 
 public interface View extends Closeable {
 

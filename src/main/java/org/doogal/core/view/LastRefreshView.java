@@ -6,11 +6,11 @@ import java.io.PrintWriter;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.Term;
 import org.doogal.core.EvalException;
-import org.doogal.core.Interpreter;
-import org.doogal.core.Predicate;
 import org.doogal.core.Summary;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Interpreter;
+import org.doogal.core.util.Predicate;
 
 public final class LastRefreshView implements RefreshView {
 

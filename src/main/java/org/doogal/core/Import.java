@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
+import org.doogal.core.util.Predicate;
 import org.doogal.core.view.View;
 
 final class Import {

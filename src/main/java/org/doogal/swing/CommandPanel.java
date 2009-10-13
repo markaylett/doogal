@@ -22,8 +22,8 @@ import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
 import org.doogal.core.EvalException;
-import org.doogal.core.Interpreter;
-import org.doogal.core.Shellwords;
+import org.doogal.core.util.Interpreter;
+import org.doogal.core.util.Shellwords;
 
 final class CommandPanel extends JPanel {
     private static final long serialVersionUID = 1L;
