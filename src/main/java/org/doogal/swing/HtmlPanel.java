@@ -46,6 +46,7 @@ final class HtmlPanel extends JPanel {
     private final void find(Pattern pattern) {
         final Highlighter highlighter = textPane.getHighlighter();
         final HTMLDocument doc = (HTMLDocument) textPane.getDocument();
+        highlighter.removeAllHighlights();
         for (final HTMLDocument.Iterator it = doc.getIterator(HTML.Tag.CONTENT); it
                 .isValid(); it.next())
             try {
@@ -83,7 +84,8 @@ final class HtmlPanel extends JPanel {
                     } else {
                         if (Desktop.isDesktopSupported())
                             try {
-                                Desktop.getDesktop().browse(ev.getURL().toURI());
+                                Desktop.getDesktop()
+                                        .browse(ev.getURL().toURI());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -109,20 +111,28 @@ final class HtmlPanel extends JPanel {
         final Document doc = kit.createDefaultDocument();
         textPane.setDocument(doc);
 
-        final JTextField find = new JTextField();
-        find.addActionListener(new ActionListener() {
+        final JTextField highlight = new JTextField();
+        highlight.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
-                find(Pattern.compile(find.getText()));
+                find(Pattern.compile(highlight.getText()));
             }
         });
 
-        final JPanel page = new JPanel(new BorderLayout());
-        page.setBackground(Color.white);
-        page.add(title, BorderLayout.NORTH);
-        page.add(textPane, BorderLayout.CENTER);
+        final JLabel label = new JLabel("highlight: ");
+        label.setLabelFor(highlight);
 
-        add(newScrollPane(page), BorderLayout.CENTER);
-        add(find, BorderLayout.SOUTH);
+        final JPanel center = new JPanel(new BorderLayout());
+        center.setBackground(Color.white);
+        center.add(title, BorderLayout.NORTH);
+        center.add(textPane, BorderLayout.CENTER);
+
+        final JPanel south = new JPanel(new BorderLayout());
+        south.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        south.add(label, BorderLayout.WEST);
+        south.add(highlight, BorderLayout.CENTER);
+
+        add(SwingUtil.newVerticalScrollPane(center), BorderLayout.CENTER);
+        add(south, BorderLayout.SOUTH);
     }
 
     final void setPage(String title, File path) throws IOException,
@@ -149,8 +159,7 @@ final class HtmlPanel extends JPanel {
                     final Dimension d = f.getToolkit().getScreenSize();
                     f.setSize(d.width / 2, d.height / 2);
                     f.setVisible(true);
-                    panel.setPage("Test", new File(
-                            "u:/doc/doogal/html/index.html"));
+                    panel.setPage("Test", new File("c:/tmp/index.html"));
                 } catch (final Exception e) {
                     e.printStackTrace();
                 }
