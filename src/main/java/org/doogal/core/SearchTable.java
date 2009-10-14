@@ -59,10 +59,6 @@ final class SearchTable extends AbstractTable implements DocumentTable {
         // Collect first page.
         totalHits = Math.min(fetch(PAGE_SIZE), Constants.MAX_RESULTS);
         state.retain();
-        if (0 < hits.length) {
-            final Document doc = state.doc(hits[0].doc);
-            state.addRecent(doc.get("id"));
-        }
     }
 
     public final void close() throws IOException {

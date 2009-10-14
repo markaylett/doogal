@@ -31,7 +31,7 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
-import org.doogal.core.util.Html;
+import org.doogal.core.util.HtmlPage;
 import org.doogal.core.util.Predicate;
 import org.doogal.core.util.WriteOnce;
 import org.doogal.core.view.RefreshView;
@@ -81,8 +81,6 @@ final class Model implements Closeable {
                 final Document doc = state.doc(j);
                 final String id = doc.get("id");
                 final int lid = state.getLocal(id);
-                if (0 == table.getRowCount())
-                    state.addRecent(id);
                 table.add(new Summary(lid, doc));
             }
         }
@@ -633,7 +631,7 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
-                final WriteOnce<Html> once = new WriteOnce<Html>();
+                final WriteOnce<HtmlPage> once = new WriteOnce<HtmlPage>();
                 view.getLog().info("publishing...");
 
                 if ("*".equals(s))
@@ -653,7 +651,7 @@ final class Model implements Closeable {
 
             @Synopsis("publish [doc...]")
             public final void exec(Object... args) throws Exception {
-                final WriteOnce<Html> once = new WriteOnce<Html>();
+                final WriteOnce<HtmlPage> once = new WriteOnce<HtmlPage>();
                 view.getLog().info("publishing...");
 
                 boolean glob = false;

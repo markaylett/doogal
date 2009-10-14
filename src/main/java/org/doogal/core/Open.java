@@ -51,8 +51,8 @@ final class Open {
 
         } finally {
             tmp.delete();
+            state.addRecent(id);
         }
-        state.addRecent(id);
         return true;
     }
 }

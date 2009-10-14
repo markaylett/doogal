@@ -25,7 +25,7 @@ import org.apache.maven.doxia.parser.ParseException;
 import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkFactory;
-import org.doogal.core.util.Html;
+import org.doogal.core.util.HtmlPage;
 import org.doogal.core.view.View;
 
 final class Publish {
@@ -105,7 +105,7 @@ final class Publish {
         }
     }
 
-    static Html exec(View view, SharedState state, Term term) throws Exception {
+    static HtmlPage exec(View view, SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -137,7 +137,7 @@ final class Publish {
                 view.getLog().info("up to date...");
 
             state.addRecent(id);
-            return new Html(title, outPath);
+            return new HtmlPage(title, outPath);
 
         } finally {
             is.close();

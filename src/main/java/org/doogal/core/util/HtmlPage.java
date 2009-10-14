@@ -5,11 +5,11 @@ import java.io.File;
 import net.jcip.annotations.Immutable;
 
 @Immutable
-public final class Html {
+public final class HtmlPage {
     private final String title;
     private final File path;
 
-    public Html(String title, File path) {
+    public HtmlPage(String title, File path) {
         this.title = title;
         this.path = path;
     }

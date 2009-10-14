@@ -73,7 +73,7 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
-import org.doogal.core.util.Html;
+import org.doogal.core.util.HtmlPage;
 import org.doogal.core.util.Size;
 import org.doogal.core.util.StandardLog;
 import org.doogal.core.view.AbstractView;
@@ -232,7 +232,7 @@ public final class Main extends JPanel implements Doogal {
 
         tabbedPane = new JTabbedPane();
         tabbedPane.add("Console", newScrollPane(console));
-        tabbedPane.add("Document", newScrollPane(document));
+        tabbedPane.add("Document", document);
         console.getDocument().addDocumentListener(new DocumentListener() {
 
             public final void changedUpdate(DocumentEvent e) {
@@ -250,7 +250,7 @@ public final class Main extends JPanel implements Doogal {
         });
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                newScrollPane(jtable), newScrollPane(tabbedPane));
+                newScrollPane(jtable), tabbedPane);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
 
@@ -276,7 +276,7 @@ public final class Main extends JPanel implements Doogal {
                 });
             }
 
-            public final void setHtml(final Html html) {
+            public final void setHtml(final HtmlPage html) {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         try {

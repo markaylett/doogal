@@ -3,13 +3,14 @@ package org.doogal.core.view;
 import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.printTable;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 import org.doogal.core.EvalException;
 import org.doogal.core.table.Table;
-import org.doogal.core.util.Html;
+import org.doogal.core.util.HtmlPage;
 
 public final class PrintView extends AbstractView {
 
@@ -28,7 +29,13 @@ public final class PrintView extends AbstractView {
                 + PAGE_SIZE);
     }
 
-    public final void setHtml(Html html) {
+    public final void setHtml(HtmlPage html) {
+        if (Desktop.isDesktopSupported())
+            try {
+                Desktop.getDesktop().browse(html.getPath().toURI());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     public final void setPage(int n) throws EvalException, IOException {

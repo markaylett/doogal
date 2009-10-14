@@ -15,6 +15,8 @@ import javax.swing.Action;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
@@ -25,9 +27,11 @@ final class SwingUtil {
     }
 
     static Component newScrollPane(Component view) {
-        final JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(view);
-        return scrollPane;
+        return new JScrollPane(view);
+    }
+
+    static Component newVerticalScrollPane(Component view) {
+        return new JScrollPane(view, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     static Frame parentFrame(Container c) {
@@ -121,9 +125,7 @@ final class SwingUtil {
     }
 
     static void setRowSorter(JTable table) {
-        try {
-            Compat.setRowSorter(table);
-        } catch (final NoClassDefFoundError e) {
-        }
+        final TableModel model = table.getModel();
+        table.setRowSorter(new TableRowSorter<TableModel>(model));
     }
 }
