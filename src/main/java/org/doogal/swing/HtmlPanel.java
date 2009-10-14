@@ -1,7 +1,6 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Constants.LARGE_FONT;
-import static org.doogal.swing.SwingUtil.newScrollPane;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,13 +28,36 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
+import javax.swing.text.html.ParagraphView;
 
 final class HtmlPanel extends JPanel {
+    private final class WrapParagraphView extends ParagraphView {
+        private final int wrap;
+        public WrapParagraphView(Element elem) {
+            super(elem);
+            final Dimension d = getToolkit().getScreenSize();
+            this.wrap = d.width / 2;
+        }
+
+        @Override
+        public final void layout(int width, int height) {
+            super.layout(wrap, height);
+        }
+
+        @Override
+        public final float getMinimumSpan(int axis) {
+            return super.getPreferredSpan(axis);
+        }
+    }
+
     private static final long serialVersionUID = 1L;
     private final JLabel title;
     private final JTextPane textPane;
@@ -81,15 +103,12 @@ final class HtmlPanel extends JPanel {
                         final HTMLDocument doc = (HTMLDocument) pane
                                 .getDocument();
                         doc.processHTMLFrameHyperlinkEvent(evt);
-                    } else {
-                        if (Desktop.isDesktopSupported())
-                            try {
-                                Desktop.getDesktop()
-                                        .browse(ev.getURL().toURI());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                    }
+                    } else if (Desktop.isDesktopSupported())
+                        try {
+                            Desktop.getDesktop().browse(ev.getURL().toURI());
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                        }
                 }
             }
         });
@@ -105,6 +124,20 @@ final class HtmlPanel extends JPanel {
                 doc.setAsynchronousLoadPriority(-1);
                 return doc;
             }
+
+            @Override
+            public final ViewFactory getViewFactory() {
+                final ViewFactory factory = super.getViewFactory();
+                return new ViewFactory() {
+                    public View create(Element elem) {
+                        View view = factory.create(elem);
+                        if (view instanceof ParagraphView)
+                            view = new WrapParagraphView(elem);
+                        return view;
+                    }
+                };
+            }
+
         };
         textPane.setEditorKit(kit);
 
@@ -122,12 +155,13 @@ final class HtmlPanel extends JPanel {
         label.setLabelFor(highlight);
 
         final JPanel center = new JPanel(new BorderLayout());
+        center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         center.setBackground(Color.white);
         center.add(title, BorderLayout.NORTH);
         center.add(textPane, BorderLayout.CENTER);
 
         final JPanel south = new JPanel(new BorderLayout());
-        south.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        south.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         south.add(label, BorderLayout.WEST);
         south.add(highlight, BorderLayout.CENTER);
 

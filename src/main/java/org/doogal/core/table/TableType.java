@@ -2,8 +2,8 @@ package org.doogal.core.table;
 
 public enum TableType {
     ALIAS(null, new String[] { "unalias" }), BUILTIN("help",
-            new String[] { "help" }), DOCUMENT("peek", new String[] {
-            "peek", "open", "delete", "more", "publish", "tidy" }), ENVIRONMENT, FIELD_NAME, FIELD_VALUE;
+            new String[] { "help" }), DOCUMENT("peek", new String[] { "peek",
+            "open", "delete", "more", "publish", "tidy" }), ENVIRONMENT, FIELD_NAME, FIELD_VALUE;
     private final String action;
     private final String[] actions;
 

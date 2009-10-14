@@ -15,6 +15,7 @@ import javax.swing.Action;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.DefaultEditorKit;
@@ -31,7 +32,9 @@ final class SwingUtil {
     }
 
     static Component newVerticalScrollPane(Component view) {
-        return new JScrollPane(view, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        return new JScrollPane(view,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     static Frame parentFrame(Container c) {

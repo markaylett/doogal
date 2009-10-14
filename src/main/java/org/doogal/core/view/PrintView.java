@@ -33,7 +33,7 @@ public final class PrintView extends AbstractView {
         if (Desktop.isDesktopSupported())
             try {
                 Desktop.getDesktop().browse(html.getPath().toURI());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
             }
     }
