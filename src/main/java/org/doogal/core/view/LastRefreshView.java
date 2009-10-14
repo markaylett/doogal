@@ -1,6 +1,5 @@
 package org.doogal.core.view;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -10,6 +9,7 @@ import org.doogal.core.EvalException;
 import org.doogal.core.Summary;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Html;
 import org.doogal.core.util.Interpreter;
 import org.doogal.core.util.Predicate;
 
@@ -57,10 +57,10 @@ public final class LastRefreshView implements RefreshView {
         return view.getLog();
     }
 
-    public final void setHtml(File file) {
-        view.setHtml(file);
+    public final void setHtml(Html html) {
+        view.setHtml(html);
     }
-    
+
     public final void setPage(int n) throws EvalException, IOException {
         view.setPage(n);
     }

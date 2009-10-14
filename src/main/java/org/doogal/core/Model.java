@@ -31,8 +31,9 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
-import org.doogal.core.util.Holder;
+import org.doogal.core.util.Html;
 import org.doogal.core.util.Predicate;
+import org.doogal.core.util.WriteOnce;
 import org.doogal.core.view.RefreshView;
 
 final class Model implements Closeable {
@@ -632,54 +633,49 @@ final class Model implements Closeable {
 
             @SuppressWarnings("unused")
             public final void exec(String s) throws Exception {
+                final WriteOnce<Html> once = new WriteOnce<Html>();
                 view.getLog().info("publishing...");
 
-                if ("*".equals(s)) {
-                    final Holder<File> first = new Holder<File>();
+                if ("*".equals(s))
                     view.whileSummary(new Predicate<Summary>() {
                         public final boolean call(Summary arg) throws Exception {
-                            final File file = Publish.exec(view, state, identityMap.getTerm(arg
-                                    .getId()));
-                            if (first.isEmpty())
-                                first.set(file);
+                            once.set(Publish.exec(view, state, identityMap
+                                    .getTerm(arg.getId())));
                             return true;
                         }
                     });
-                    view.setHtml(first.get());
-                } else
-                    view.setHtml(Publish.exec(view, state, getTerm(s)));
+                else
+                    once.set(Publish.exec(view, state, getTerm(s)));
+
+                if (!once.isEmpty())
+                    view.setHtml(once.get());
             }
 
             @Synopsis("publish [doc...]")
             public final void exec(Object... args) throws Exception {
+                final WriteOnce<Html> once = new WriteOnce<Html>();
                 view.getLog().info("publishing...");
 
                 boolean glob = false;
-                final Holder<File> first = new Holder<File>();
-
                 for (final Object arg : args) {
                     final String s = arg.toString();
-                    if (!"*".equals(s)) {
-                        final File file = Publish.exec(view, state, getTerm(arg.toString()));
-                        if (first.isEmpty())
-                            first.set(file);
-                    } else {
+                    if (!"*".equals(s))
+                        once.set(Publish.exec(view, state, getTerm(arg
+                                .toString())));
+                    else
                         // Glob once.
                         glob = true;
-                    }
                 }
-                if (glob) {
+                if (glob)
                     view.whileSummary(new Predicate<Summary>() {
                         public final boolean call(Summary arg) throws Exception {
-                            final File file = Publish.exec(view, state, identityMap.getTerm(arg
-                                    .getId()));
-                            if (first.isEmpty())
-                                first.set(file);
+                            once.set(Publish.exec(view, state, identityMap
+                                    .getTerm(arg.getId())));
                             return true;
                         }
                     });
-                }
-                view.setHtml(first.get());
+                if (!once.isEmpty())
+                    view.setHtml(once.get());
             }
         };
     }

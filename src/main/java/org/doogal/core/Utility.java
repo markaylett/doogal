@@ -293,7 +293,7 @@ public final class Utility {
         return append(file, 2, cal.get(Calendar.DAY_OF_MONTH));
     }
 
-    static String toName(String s) {
+    static String toFileName(String s) {
         final StringBuilder sb = new StringBuilder();
         final int len = s.length();
         boolean ws = false;

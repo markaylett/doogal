@@ -2,7 +2,7 @@ package org.doogal.core;
 
 import static org.doogal.core.Utility.firstFile;
 import static org.doogal.core.Utility.getId;
-import static org.doogal.core.Utility.toName;
+import static org.doogal.core.Utility.toFileName;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,6 +25,7 @@ import org.apache.maven.doxia.parser.ParseException;
 import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkFactory;
+import org.doogal.core.util.Html;
 import org.doogal.core.view.View;
 
 final class Publish {
@@ -61,15 +62,17 @@ final class Publish {
         return null == values || 0 == values.length ? null : values[0];
     }
 
+    private static String getName(InternetHeaders headers, String def) {
+        final String s = getFirst(headers, "name");
+        return null == s ? def : s;
+    }
+
     private static String getTitle(InternetHeaders headers, String def) {
-        String s = getFirst(headers, "Name");
+        String s = getFirst(headers, "title");
         if (null == s) {
-            s = getFirst(headers, "Title");
-            if (null == s) {
-                s = getFirst(headers, "Subject");
-                if (null == s)
-                    s = def;
-            }
+            s = getFirst(headers, "subject");
+            if (null == s)
+                s = def;
         }
         return s;
     }
@@ -102,7 +105,7 @@ final class Publish {
         }
     }
 
-    static File exec(View view, SharedState state, Term term) throws Exception {
+    static Html exec(View view, SharedState state, Term term) throws Exception {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -115,8 +118,10 @@ final class Publish {
 
             final InternetHeaders headers = new InternetHeaders(is);
             final String title = getTitle(headers, id);
+            // Name defaults to title.
+            final String name = getName(headers, title);
             final File outDir = new File(state.getHtml());
-            final String outName = toName(title) + ".html";
+            final String outName = toFileName(name) + ".html";
             final File outPath = new File(outDir, outName);
 
             // Not exists or is older.
@@ -130,9 +135,9 @@ final class Publish {
                         .lastModified()), contents, parser, outDir, outName);
             } else
                 view.getLog().info("up to date...");
-            
+
             state.addRecent(id);
-            return outPath;
+            return new Html(title, outPath);
 
         } finally {
             is.close();

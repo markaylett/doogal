@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 
+import net.jcip.annotations.Immutable;
+
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 
+@Immutable
 public final class Summary {
     private final int id;
     private final long size;

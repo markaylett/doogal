@@ -73,6 +73,7 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Html;
 import org.doogal.core.util.Size;
 import org.doogal.core.util.StandardLog;
 import org.doogal.core.view.AbstractView;
@@ -85,7 +86,7 @@ public final class Main extends JPanel implements Doogal {
     private final CommandPanel prompt;
     private final JTabbedPane tabbedPane;
     private final JTextArea console;
-    private final DocumentPanel document;
+    private final HtmlPanel document;
     private final Doogal doogal;
 
     private final Map<String, Action> actions;
@@ -220,15 +221,15 @@ public final class Main extends JPanel implements Doogal {
         console.setFocusable(false);
         console.setLineWrap(true);
 
-        document = new DocumentPanel();
-        
+        document = new HtmlPanel();
+
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(console),
                 true);
         final Log log = new StandardLog(out, out);
 
         prompt = new CommandPanel(this, log);
-        
+
         tabbedPane = new JTabbedPane();
         tabbedPane.add("Console", newScrollPane(console));
         tabbedPane.add("Document", newScrollPane(document));
@@ -245,9 +246,9 @@ public final class Main extends JPanel implements Doogal {
             public final void removeUpdate(DocumentEvent e) {
                 tabbedPane.setSelectedIndex(0);
             }
-            
+
         });
-        
+
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 newScrollPane(jtable), newScrollPane(tabbedPane));
         splitPane.setOneTouchExpandable(true);
@@ -275,21 +276,19 @@ public final class Main extends JPanel implements Doogal {
                 });
             }
 
-            public final void setHtml(final File file) {
-                if (null == file)
-                    return;
+            public final void setHtml(final Html html) {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         try {
-                            document.setPage(file);
+                            document.setPage(html.getTitle(), html.getPath());
                             tabbedPane.setSelectedIndex(1);
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                             e.printStackTrace();
                         }
                     }
                 });
             }
-            
+
             public final void setPage(final int n) throws EvalException,
                     IOException {
                 EventQueue.invokeLater(new Runnable() {
