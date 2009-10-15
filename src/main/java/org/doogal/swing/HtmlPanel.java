@@ -6,7 +6,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -16,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -64,9 +67,10 @@ final class HtmlPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private final JLabel title;
     private final JTextPane textPane;
+    private final JTextField find;
+    private final JLabel matches;
 
-    private static final Highlighter.HighlightPainter FIND_HIGHLIGHT_PAINTER =
-        new DefaultHighlighter.DefaultHighlightPainter(
+    private static final Highlighter.HighlightPainter FIND_HIGHLIGHT_PAINTER = new DefaultHighlighter.DefaultHighlightPainter(
             Color.yellow);
 
     private final void find(Pattern pattern) {
@@ -74,9 +78,11 @@ final class HtmlPanel extends JPanel {
         final Highlighter highlighter = textPane.getHighlighter();
         highlighter.removeAllHighlights();
 
+        int matches = 0;
+
         final HTMLDocument doc = (HTMLDocument) textPane.getDocument();
         for (final HTMLDocument.Iterator it = doc.getIterator(HTML.Tag.CONTENT); it
-                .isValid(); it.next()) {
+                .isValid(); it.next())
             try {
                 final String fragment = doc.getText(it.getStartOffset(), it
                         .getEndOffset()
@@ -87,12 +93,22 @@ final class HtmlPanel extends JPanel {
                             + matcher.start(), it.getStartOffset()
                             + matcher.end(), FIND_HIGHLIGHT_PAINTER);
                     once.set(it.getStartOffset());
+                    ++matches;
                 }
             } catch (final BadLocationException ex) {
             }
-        }
         if (!once.isEmpty())
             textPane.setCaretPosition(once.get());
+        this.matches.setText(String.format("%d matches", matches));
+    }
+
+    private final void find(String pattern) {
+        if (null == pattern || 0 == pattern.length()) {
+            final Highlighter highlighter = textPane.getHighlighter();
+            highlighter.removeAllHighlights();
+            matches.setText("");
+        } else
+            find(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
     }
 
     HtmlPanel() {
@@ -100,6 +116,8 @@ final class HtmlPanel extends JPanel {
 
         title = new JLabel();
         textPane = new JTextPane();
+        find = new JTextField();
+        matches = new JLabel();
 
         title.setFont(new Font("Dialog", Font.BOLD, LARGE_FONT));
         title.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -155,26 +173,39 @@ final class HtmlPanel extends JPanel {
         final Document doc = kit.createDefaultDocument();
         textPane.setDocument(doc);
 
-        final JTextField highlight = new JTextField();
-        highlight.addActionListener(new ActionListener() {
+        find.setColumns(16);
+        find.setFont(new Font("Dialog", Font.PLAIN, 9));
+        find.setMargin(new Insets(2, 2, 2, 2));
+        find.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
-                find(Pattern.compile(highlight.getText()));
+                find(find.getText());
             }
         });
 
-        final JLabel label = new JLabel("highlight: ");
-        label.setLabelFor(highlight);
+        final JLabel label = new JLabel("Quick Find: ");
+        label.setLabelFor(find);
 
         final JPanel center = new JPanel(new BorderLayout());
-        center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        center.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         center.setBackground(Color.white);
         center.add(title, BorderLayout.NORTH);
         center.add(textPane, BorderLayout.CENTER);
 
-        final JPanel south = new JPanel(new BorderLayout());
-        south.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        south.add(label, BorderLayout.WEST);
-        south.add(highlight, BorderLayout.CENTER);
+        final JButton clear = new JButton("Clear");
+        clear.setMargin(new Insets(1, 5, 0, 5));
+        clear.setFont(new Font("Dialog", Font.PLAIN, 9));
+        clear.addActionListener(new ActionListener() {
+            public final void actionPerformed(ActionEvent e) {
+                find.setText("");
+                find("");
+            }
+        });
+
+        final JPanel south = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        south.add(label);
+        south.add(find);
+        south.add(clear);
+        south.add(matches);
 
         add(SwingUtil.newVerticalScrollPane(center), BorderLayout.CENTER);
         add(south, BorderLayout.SOUTH);
@@ -184,14 +215,12 @@ final class HtmlPanel extends JPanel {
             MalformedURLException {
         this.title.setText(title);
 
-        final Highlighter highlighter = textPane.getHighlighter();
-        highlighter.removeAllHighlights();
-        
         final Document doc = textPane.getDocument();
         doc.putProperty(Document.TitleProperty, title);
         // Clearing stream forces refresh.
         doc.putProperty(Document.StreamDescriptionProperty, null);
         textPane.setPage(path.toURI().toURL());
+        find(find.getText());
     }
 
     public static void main(String[] args) {

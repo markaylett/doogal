@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -32,9 +33,13 @@ final class SwingUtil {
     }
 
     static Component newVerticalScrollPane(Component view) {
-        return new JScrollPane(view,
+        final JScrollPane scrollPane = new JScrollPane(view,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+        scrollBar.setBlockIncrement(scrollBar.getBlockIncrement() * 20);
+        scrollBar.setUnitIncrement(scrollBar.getUnitIncrement() * 20);
+        return scrollPane;
     }
 
     static Frame parentFrame(Container c) {

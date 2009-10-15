@@ -506,8 +506,8 @@ public final class Main extends JPanel implements Doogal {
         file.setMnemonic(KeyEvent.VK_F);
         file.add(new JMenuItem(actions.get("new")));
         file.add(new JMenuItem(actions.get("open")));
-        file.add(new JMenuItem(actions.get("import")));
         file.add(new JMenuItem(actions.get("publish")));
+        file.add(new JMenuItem(actions.get("import")));
         file.add(new JMenuItem(actions.get("exit")));
 
         final JMenu edit = new JMenu("Edit");
@@ -546,13 +546,14 @@ public final class Main extends JPanel implements Doogal {
         final JToolBar toolBar = new JToolBar();
         toolBar.add(actions.get("new"));
         toolBar.add(actions.get("open"));
-        toolBar.add(actions.get("import"));
         toolBar.add(actions.get("publish"));
+        toolBar.add(actions.get("import"));
         toolBar.add(actions.get("delete"));
         toolBar.add(actions.get("peek"));
         toolBar.add(actions.get("browse"));
         toolBar.add(actions.get("more"));
         toolBar.add(actions.get("recent"));
+        toolBar.add(actions.get("index"));
         toolBar.add(actions.get("set"));
         toolBar.add(actions.get("help"));
 

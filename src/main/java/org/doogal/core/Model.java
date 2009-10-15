@@ -221,12 +221,12 @@ final class Model implements Closeable {
 
             @Override
             public final String getLargeIcon() {
-                return "/WebComponent24.gif";
+                return "/Find24.gif";
             }
 
             @Override
             public final String getSmallIcon() {
-                return "/WebComponent16.gif";
+                return "/Find16.gif";
             }
 
             @SuppressWarnings("unused")
@@ -355,6 +355,16 @@ final class Model implements Closeable {
         return new AbstractBuiltin() {
             public final String getDescription() {
                 return "generate search index";
+            }
+
+            @Override
+            public final String getLargeIcon() {
+                return "/History24.gif";
+            }
+
+            @Override
+            public final String getSmallIcon() {
+                return "/History16.gif";
             }
 
             @SuppressWarnings("unused")
@@ -610,12 +620,12 @@ final class Model implements Closeable {
 
             @Override
             public final String getLargeIcon() {
-                return "/Export24.gif";
+                return "/WebComponent24.gif";
             }
 
             @Override
             public final String getSmallIcon() {
-                return "/Export16.gif";
+                return "/WebComponent16.gif";
             }
 
             @SuppressWarnings("unused")
@@ -687,12 +697,12 @@ final class Model implements Closeable {
 
             @Override
             public final String getLargeIcon() {
-                return "/History24.gif";
+                return "/Bookmarks24.gif";
             }
 
             @Override
             public final String getSmallIcon() {
-                return "/History16.gif";
+                return "/Bookmarks16.gif";
             }
 
             @SuppressWarnings("unused")
