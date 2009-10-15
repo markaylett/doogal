@@ -38,13 +38,16 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import javax.swing.text.html.ParagraphView;
 
+import org.doogal.core.util.WriteOnce;
+
 final class HtmlPanel extends JPanel {
     private final class WrapParagraphView extends ParagraphView {
         private final int wrap;
+
         public WrapParagraphView(Element elem) {
             super(elem);
             final Dimension d = getToolkit().getScreenSize();
-            this.wrap = d.width / 2;
+            wrap = d.width / 2;
         }
 
         @Override
@@ -62,26 +65,34 @@ final class HtmlPanel extends JPanel {
     private final JLabel title;
     private final JTextPane textPane;
 
-    private static final Highlighter.HighlightPainter FIND_HIGHLIGHT_PAINTER = new DefaultHighlighter.DefaultHighlightPainter(
+    private static final Highlighter.HighlightPainter FIND_HIGHLIGHT_PAINTER =
+        new DefaultHighlighter.DefaultHighlightPainter(
             Color.yellow);
 
     private final void find(Pattern pattern) {
+        final WriteOnce<Integer> once = new WriteOnce<Integer>();
         final Highlighter highlighter = textPane.getHighlighter();
-        final HTMLDocument doc = (HTMLDocument) textPane.getDocument();
         highlighter.removeAllHighlights();
+
+        final HTMLDocument doc = (HTMLDocument) textPane.getDocument();
         for (final HTMLDocument.Iterator it = doc.getIterator(HTML.Tag.CONTENT); it
-                .isValid(); it.next())
+                .isValid(); it.next()) {
             try {
                 final String fragment = doc.getText(it.getStartOffset(), it
                         .getEndOffset()
                         - it.getStartOffset());
                 final Matcher matcher = pattern.matcher(fragment);
-                while (matcher.find())
+                while (matcher.find()) {
                     highlighter.addHighlight(it.getStartOffset()
                             + matcher.start(), it.getStartOffset()
                             + matcher.end(), FIND_HIGHLIGHT_PAINTER);
+                    once.set(it.getStartOffset());
+                }
             } catch (final BadLocationException ex) {
             }
+        }
+        if (!once.isEmpty())
+            textPane.setCaretPosition(once.get());
     }
 
     HtmlPanel() {
@@ -173,6 +184,9 @@ final class HtmlPanel extends JPanel {
             MalformedURLException {
         this.title.setText(title);
 
+        final Highlighter highlighter = textPane.getHighlighter();
+        highlighter.removeAllHighlights();
+        
         final Document doc = textPane.getDocument();
         doc.putProperty(Document.TitleProperty, title);
         // Clearing stream forces refresh.
