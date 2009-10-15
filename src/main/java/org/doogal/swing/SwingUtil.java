@@ -32,16 +32,6 @@ final class SwingUtil {
         return new JScrollPane(view);
     }
 
-    static Component newVerticalScrollPane(Component view) {
-        final JScrollPane scrollPane = new JScrollPane(view,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        scrollBar.setBlockIncrement(scrollBar.getBlockIncrement() * 20);
-        scrollBar.setUnitIncrement(scrollBar.getUnitIncrement() * 20);
-        return scrollPane;
-    }
-
     static Frame parentFrame(Container c) {
         while (c != null) {
             if (c instanceof Frame)

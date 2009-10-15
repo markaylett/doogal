@@ -51,8 +51,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -83,10 +81,10 @@ public final class Main extends JPanel implements Doogal {
 
     private static final long serialVersionUID = 1L;
 
-    private final CommandPanel prompt;
+    private final CommandPanel command;
     private final JTabbedPane tabbedPane;
-    private final JTextArea console;
     private final HtmlPanel document;
+    private final JTextArea console;
     private final Doogal doogal;
 
     private final Map<String, Action> actions;
@@ -107,6 +105,10 @@ public final class Main extends JPanel implements Doogal {
 
     Main() throws Exception {
         super(new BorderLayout());
+
+        tabbedPane = new JTabbedPane();
+        document = new HtmlPanel();
+        console = new JTextArea();
 
         final JTable jtable = new JTable(new TableAdapter());
         jtable.setFocusable(false);
@@ -213,7 +215,6 @@ public final class Main extends JPanel implements Doogal {
             }
         });
 
-        console = new JTextArea();
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
 
@@ -221,40 +222,25 @@ public final class Main extends JPanel implements Doogal {
         console.setFocusable(false);
         console.setLineWrap(true);
 
-        document = new HtmlPanel();
-
         final Environment env = new Environment();
         final PrintWriter out = new PrintWriter(new TextAreaStream(console),
                 true);
         final Log log = new StandardLog(out, out);
 
-        prompt = new CommandPanel(this, log);
+        command = new CommandPanel(this, log);
 
-        tabbedPane = new JTabbedPane();
-        tabbedPane.add("Console", newScrollPane(console));
+        tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
+        tabbedPane.add("Table", newScrollPane(jtable));
         tabbedPane.add("Document", document);
-        console.getDocument().addDocumentListener(new DocumentListener() {
-
-            public final void changedUpdate(DocumentEvent e) {
-                tabbedPane.setSelectedIndex(0);
-            }
-
-            public final void insertUpdate(DocumentEvent e) {
-                tabbedPane.setSelectedIndex(0);
-            }
-
-            public final void removeUpdate(DocumentEvent e) {
-                tabbedPane.setSelectedIndex(0);
-            }
-
-        });
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                newScrollPane(jtable), tabbedPane);
+                tabbedPane, newScrollPane(console));
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
+        // Weighted to top panel.
+        splitPane.setResizeWeight(0.7);
 
-        add(prompt, BorderLayout.NORTH);
+        add(command, BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
 
         final View view = new AbstractView(out, log) {
@@ -272,6 +258,7 @@ public final class Main extends JPanel implements Doogal {
                         jtable.setModel(model);
                         clearSelection();
                         setRowSorter(jtable);
+                        tabbedPane.setSelectedIndex(0);
                     }
                 });
             }
@@ -293,10 +280,7 @@ public final class Main extends JPanel implements Doogal {
                     IOException {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        final JScrollPane scrollPane = (JScrollPane) jtable
-                                .getParent().getParent();
-                        final JScrollBar scrollBar = scrollPane
-                                .getVerticalScrollBar();
+                        final JScrollBar scrollBar = getVerticalScrollBar();
                         int value = n * scrollBar.getBlockIncrement(1);
                         value = Math.min(value, scrollBar.getMaximum());
                         scrollBar.setValue(value);
@@ -305,17 +289,12 @@ public final class Main extends JPanel implements Doogal {
             }
 
             public final void showPage() throws EvalException, IOException {
-                if (0 == table.getRowCount())
-                    out.println("no results");
             }
 
             public final void nextPage() throws EvalException, IOException {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        final JScrollPane scrollPane = (JScrollPane) jtable
-                                .getParent().getParent();
-                        final JScrollBar scrollBar = scrollPane
-                                .getVerticalScrollBar();
+                        final JScrollBar scrollBar = getVerticalScrollBar();
                         int value = scrollBar.getValue();
                         value += scrollBar.getBlockIncrement(1);
                         value = Math.min(value, scrollBar.getMaximum());
@@ -327,10 +306,7 @@ public final class Main extends JPanel implements Doogal {
             public final void prevPage() throws EvalException, IOException {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        final JScrollPane scrollPane = (JScrollPane) jtable
-                                .getParent().getParent();
-                        final JScrollBar scrollBar = scrollPane
-                                .getVerticalScrollBar();
+                        final JScrollBar scrollBar = getVerticalScrollBar();
                         int value = scrollBar.getValue();
                         value -= scrollBar.getBlockIncrement(-1);
                         value = Math.max(value, scrollBar.getMinimum());
@@ -354,7 +330,7 @@ public final class Main extends JPanel implements Doogal {
             public final void ready() {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        prompt.setPrompt(true);
+                        command.setPrompt(true);
                     }
                 });
             }
@@ -437,34 +413,34 @@ public final class Main extends JPanel implements Doogal {
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {
-        prompt.setPrompt(false);
+        command.setPrompt(false);
         console.setText("");
         doogal.eval(cmd, args);
     }
 
     public final void eval() throws EvalException {
-        prompt.setPrompt(false);
+        command.setPrompt(false);
         console.setText("");
         doogal.eval();
     }
 
     public final void batch(Reader reader) throws EvalException, IOException,
             ParseException {
-        prompt.setPrompt(false);
+        command.setPrompt(false);
         console.setText("");
         doogal.batch(reader);
     }
 
     public final void batch(File file) throws EvalException, IOException,
             ParseException {
-        prompt.setPrompt(false);
+        command.setPrompt(false);
         console.setText("");
         doogal.batch(file);
     }
 
     public final void config() throws EvalException, IOException,
             ParseException {
-        prompt.setPrompt(false);
+        command.setPrompt(false);
         console.setText("");
         doogal.config();
     }
@@ -483,6 +459,15 @@ public final class Main extends JPanel implements Doogal {
 
     final Map<String, Action> getActions() {
         return actions;
+    }
+
+    final JScrollBar getVerticalScrollBar() {
+        if (0 == tabbedPane.getSelectedIndex()) {
+            final JScrollPane scrollPane = (JScrollPane) tabbedPane.getSelectedComponent();
+            return scrollPane.getVerticalScrollBar();
+        }
+
+        return document.getVerticalScrollBar();
     }
 
     private static void run() throws Exception {

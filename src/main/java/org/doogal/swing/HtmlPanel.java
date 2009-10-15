@@ -1,6 +1,7 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Constants.LARGE_FONT;
+import static org.doogal.core.Constants.TINY_FONT;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -23,8 +24,11 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -67,6 +71,7 @@ final class HtmlPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private final JLabel title;
     private final JTextPane textPane;
+    private final JScrollPane scrollPane;
     private final JTextField find;
     private final JLabel matches;
 
@@ -174,7 +179,7 @@ final class HtmlPanel extends JPanel {
         textPane.setDocument(doc);
 
         find.setColumns(16);
-        find.setFont(new Font("Dialog", Font.PLAIN, 9));
+        find.setFont(new Font("Dialog", Font.PLAIN, TINY_FONT));
         find.setMargin(new Insets(2, 2, 2, 2));
         find.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent ev) {
@@ -201,13 +206,20 @@ final class HtmlPanel extends JPanel {
             }
         });
 
-        final JPanel south = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         south.add(label);
         south.add(find);
         south.add(clear);
         south.add(matches);
 
-        add(SwingUtil.newVerticalScrollPane(center), BorderLayout.CENTER);
+        scrollPane = new JScrollPane(center,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+        scrollBar.setBlockIncrement(scrollBar.getBlockIncrement() * 20);
+        scrollBar.setUnitIncrement(scrollBar.getUnitIncrement() * 20);
+
+        add(scrollPane, BorderLayout.CENTER);
         add(south, BorderLayout.SOUTH);
     }
 
@@ -221,6 +233,10 @@ final class HtmlPanel extends JPanel {
         doc.putProperty(Document.StreamDescriptionProperty, null);
         textPane.setPage(path.toURI().toURL());
         find(find.getText());
+    }
+
+    final JScrollBar getVerticalScrollBar() {
+        return scrollPane.getVerticalScrollBar();
     }
 
     public static void main(String[] args) {
