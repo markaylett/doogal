@@ -138,7 +138,7 @@ final class Publish {
                 view.getLog().info("up to date...");
 
             state.addRecent(id);
-            return new HtmlPage(title, outPath);
+            return new HtmlPage(state.getLocal(id), title, outPath);
 
         } finally {
             is.close();

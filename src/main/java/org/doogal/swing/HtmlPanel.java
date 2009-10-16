@@ -1,7 +1,7 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Constants.TINY_FONT;
-import static org.doogal.core.Utility.*;
+import static org.doogal.core.Utility.newBufferedReader;
 import static org.doogal.swing.SwingUtil.nextScrollPage;
 import static org.doogal.swing.SwingUtil.prevScrollPage;
 import static org.doogal.swing.SwingUtil.setScrollPage;
@@ -19,9 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -46,17 +49,21 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import javax.swing.text.html.StyleSheet;
 
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.HtmlPage;
 import org.doogal.core.util.WriteOnce;
 
 final class HtmlPanel extends JPanel implements ViewPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private final Map<String, Action> actions;
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
     private final JTextField find;
     private final JLabel matches;
+    private HtmlPage page;
 
-    private static final Highlighter.HighlightPainter FIND_HIGHLIGHT_PAINTER = new DefaultHighlighter.DefaultHighlightPainter(
+    private static final Highlighter.HighlightPainter HIGHLIGHTER = new DefaultHighlighter.DefaultHighlightPainter(
             Color.yellow);
 
     private final void find(Pattern pattern) {
@@ -77,7 +84,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                 while (matcher.find()) {
                     highlighter.addHighlight(it.getStartOffset()
                             + matcher.start(), it.getStartOffset()
-                            + matcher.end(), FIND_HIGHLIGHT_PAINTER);
+                            + matcher.end(), HIGHLIGHTER);
                     once.set(it.getStartOffset());
                     ++matches;
                 }
@@ -97,12 +104,17 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             find(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
     }
 
-    HtmlPanel() throws IOException {
+    HtmlPanel(Map<String, Action> actions) throws IOException {
         super(new BorderLayout());
 
+        this.actions = actions;
         textPane = new JTextPane();
         find = new JTextField();
         matches = new JLabel();
+        page = null;
+
+        final Dimension d = matches.getPreferredSize();
+        matches.setPreferredSize(new Dimension(100, d.height));
 
         textPane.setEditable(false);
         textPane.setFocusable(false);
@@ -138,7 +150,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                 return doc;
             }
         };
-        
+
         final StyleSheet styleSheet = kit.getStyleSheet();
         final InputStream is = getClass().getResourceAsStream("/doogal.css");
         try {
@@ -146,7 +158,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
         } finally {
             is.close();
         }
-        
+
         textPane.setEditorKit(kit);
 
         final Document doc = kit.createDefaultDocument();
@@ -166,7 +178,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
 
         final JButton clear = new JButton("Clear");
         clear.setMargin(new Insets(1, 5, 0, 5));
-        clear.setFont(new Font("Dialog", Font.PLAIN, 9));
+        clear.setFont(new Font("Dialog", Font.PLAIN, TINY_FONT));
         clear.addActionListener(new ActionListener() {
             public final void actionPerformed(ActionEvent e) {
                 find.setText("");
@@ -208,25 +220,30 @@ final class HtmlPanel extends JPanel implements ViewPanel {
     }
 
     public final void setVisible() {
-
+        if (null != page) {
+            final String[] names = TableType.DOCUMENT.getActions();
+            for (int i = 0; i < names.length; ++i)
+                actions.get(names[i]).setEnabled(true);
+        }
     }
 
     public final TableType getType() {
-        return TableType.ALIAS;
+        return TableType.DOCUMENT;
     }
 
     public final Object[] getSelection() {
-        return new Object[0];
+        return null == page ? new Object[0] : new Object[] { String
+                .valueOf(page.getId()) };
     }
 
-    final void setPage(String title, File path) throws IOException,
-            MalformedURLException {
+    final void setPage(HtmlPage page) throws IOException, MalformedURLException {
 
+        this.page = page;
         final Document doc = textPane.getDocument();
-        doc.putProperty(Document.TitleProperty, title);
+        doc.putProperty(Document.TitleProperty, page.getTitle());
         // Clearing stream forces refresh.
         doc.putProperty(Document.StreamDescriptionProperty, null);
-        textPane.setPage(path.toURI().toURL());
+        textPane.setPage(page.getPath().toURI().toURL());
         find(find.getText());
     }
 
@@ -239,7 +256,8 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             public final void run() {
                 try {
                     final JFrame f = new JFrame("HtmlPanel");
-                    final HtmlPanel panel = new HtmlPanel();
+                    final HtmlPanel panel = new HtmlPanel(Collections
+                            .<String, Action> emptyMap());
                     f.setContentPane(panel);
 
                     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -247,8 +265,8 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                     final Dimension d = f.getToolkit().getScreenSize();
                     f.setSize(d.width / 2, d.height / 2);
                     f.setVisible(true);
-                    panel.setPage("Test", new File(
-                            "c:/tmp/ice_release_procedure.html"));
+                    panel.setPage(new HtmlPage(1, "Test", new File(
+                            "c:/tmp/index.html")));
                 } catch (final Exception e) {
                     e.printStackTrace();
                 }

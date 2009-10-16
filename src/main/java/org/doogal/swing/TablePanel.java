@@ -1,6 +1,9 @@
 package org.doogal.swing;
 
-import static org.doogal.swing.SwingUtil.*;
+import static org.doogal.swing.SwingUtil.nextScrollPage;
+import static org.doogal.swing.SwingUtil.prevScrollPage;
+import static org.doogal.swing.SwingUtil.setRowSorter;
+import static org.doogal.swing.SwingUtil.setScrollPage;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
@@ -149,15 +152,13 @@ final class TablePanel extends JPanel implements ViewPanel {
 
     public final void setVisible() {
         if (!table.getSelectionModel().isSelectionEmpty()) {
-            final TableAdapter tableModel = (TableAdapter) table
-                    .getModel();
-            final String[] names = tableModel.getType()
-                    .getActions();
+            final TableAdapter tableModel = (TableAdapter) table.getModel();
+            final String[] names = tableModel.getType().getActions();
             for (int i = 0; i < names.length; ++i)
                 actions.get(names[i]).setEnabled(true);
         }
     }
-    
+
     public final TableType getType() {
         final TableAdapter tableModel = (TableAdapter) table.getModel();
         return tableModel.getType();

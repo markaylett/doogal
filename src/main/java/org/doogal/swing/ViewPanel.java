@@ -8,6 +8,6 @@ interface ViewPanel extends Pager {
     void setVisible();
 
     TableType getType();
-    
+
     Object[] getSelection();
 }

@@ -69,13 +69,13 @@ public final class Main extends JPanel implements Doogal {
 
     private static final long serialVersionUID = 1L;
 
+    private final Map<String, Action> actions;
+    private final Set<Action> context;
+
     private final CommandPanel command;
     private final JTabbedPane tabbedPane;
     private final HtmlPanel htmlPanel;
     private final JTextArea console;
-
-    private final Map<String, Action> actions;
-    private final Set<Action> context;
 
     private final Doogal doogal;
 
@@ -95,11 +95,12 @@ public final class Main extends JPanel implements Doogal {
     Main() throws Exception {
         super(new BorderLayout());
 
-        tabbedPane = new JTabbedPane();
-        htmlPanel = new HtmlPanel();
-        console = new JTextArea();
         actions = new HashMap<String, Action>();
         context = new HashSet<Action>();
+
+        tabbedPane = new JTabbedPane();
+        htmlPanel = new HtmlPanel(actions);
+        console = new JTextArea();
 
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
@@ -126,7 +127,7 @@ public final class Main extends JPanel implements Doogal {
                 for (final Action action : context)
                     action.setEnabled(false);
                 final ViewPanel vp = (ViewPanel) tabbedPane
-                    .getSelectedComponent();
+                        .getSelectedComponent();
                 vp.setVisible();
             }
         });
@@ -190,7 +191,7 @@ public final class Main extends JPanel implements Doogal {
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
                         try {
-                            htmlPanel.setPage(html.getTitle(), html.getPath());
+                            htmlPanel.setPage(html);
                             tabbedPane.setSelectedIndex(1);
                         } catch (final Exception e) {
                             e.printStackTrace();

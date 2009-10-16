@@ -2,5 +2,12 @@ body {
   font-family: verdana, arial, sans-serif;
   margin: 10px;
   word-wrap: break-word;
-  width: 100px;
+}
+
+.table {
+  border-collapse: collapse;
+}
+
+.th, .td {
+  padding: 4px 4px 4px 4px;
 }
