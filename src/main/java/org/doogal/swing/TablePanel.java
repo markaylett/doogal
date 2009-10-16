@@ -1,10 +1,10 @@
 package org.doogal.swing;
 
-import static org.doogal.swing.SwingUtil.newScrollPane;
-import static org.doogal.swing.SwingUtil.setRowSorter;
+import static org.doogal.swing.SwingUtil.*;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -14,6 +14,7 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -23,19 +24,23 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
-import org.doogal.core.Doogal;
-import org.doogal.core.EvalException;
+import org.doogal.core.table.TableType;
 import org.doogal.core.util.Size;
 
 final class TablePanel extends JPanel implements ViewPanel {
 
     private static final long serialVersionUID = 1L;
+    private final Map<String, Action> actions;
     private final JTable table;
+    private final JScrollPane scrollPane;
 
-    TablePanel(final Doogal doogal, final Map<String, Action> actions) {
+    TablePanel(final Map<String, Action> actions) {
         super(new BorderLayout());
 
+        this.actions = actions;
         table = new JTable(new TableAdapter());
+        scrollPane = new JScrollPane(table);
+        scrollPane.setFocusable(false);
         table.setFocusable(false);
         table.setDefaultRenderer(Size.class, new DefaultTableCellRenderer() {
 
@@ -54,21 +59,7 @@ final class TablePanel extends JPanel implements ViewPanel {
         table.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
                     public final void valueChanged(ListSelectionEvent e) {
-                        final ListSelectionModel model = (ListSelectionModel) e
-                                .getSource();
-                        if (!model.isSelectionEmpty()) {
-                            final TableAdapter tableModel = (TableAdapter) table
-                                    .getModel();
-                            final String[] names = tableModel.getType()
-                                    .getActions();
-                            for (int i = 0; i < names.length; ++i)
-                                actions.get(names[i]).setEnabled(true);
-                            final int[] rows = table.getSelectedRows();
-                            final Object[] args = new Object[rows.length];
-                            for (int i = 0; i < rows.length; ++i)
-                                args[i] = table.getValueAt(rows[i], 0);
-                            doogal.setSelection(tableModel.getType(), args);
-                        }
+                        setVisible();
                     }
                 });
 
@@ -117,12 +108,12 @@ final class TablePanel extends JPanel implements ViewPanel {
                         final TableAdapter model = (TableAdapter) table
                                 .getModel();
                         final String name = model.getType().getAction();
-                        if (null != name)
-                            try {
-                                doogal.eval(name);
-                            } catch (final EvalException e) {
-                                e.printStackTrace();
-                            }
+                        if (null != name) {
+                            final Action action = actions.get(name);
+                            action.actionPerformed(new ActionEvent(ev
+                                    .getSource(), ev.getID(), (String) action
+                                    .getValue(Action.NAME)));
+                        }
                     }
                 }
             }
@@ -138,19 +129,46 @@ final class TablePanel extends JPanel implements ViewPanel {
             }
         });
 
-        add(newScrollPane(table), BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     public final void close() throws IOException {
     }
 
-    public final void setPage(int n) throws EvalException, IOException {
+    public final void setPage(int n) {
+        setScrollPage(scrollPane.getVerticalScrollBar(), n);
     }
 
-    public final void nextPage() throws EvalException, IOException {
+    public final void nextPage() {
+        nextScrollPage(scrollPane.getVerticalScrollBar());
     }
 
-    public final void prevPage() throws EvalException, IOException {
+    public final void prevPage() {
+        prevScrollPage(scrollPane.getVerticalScrollBar());
+    }
+
+    public final void setVisible() {
+        if (!table.getSelectionModel().isSelectionEmpty()) {
+            final TableAdapter tableModel = (TableAdapter) table
+                    .getModel();
+            final String[] names = tableModel.getType()
+                    .getActions();
+            for (int i = 0; i < names.length; ++i)
+                actions.get(names[i]).setEnabled(true);
+        }
+    }
+    
+    public final TableType getType() {
+        final TableAdapter tableModel = (TableAdapter) table.getModel();
+        return tableModel.getType();
+    }
+
+    public final Object[] getSelection() {
+        final int[] rows = table.getSelectedRows();
+        final Object[] ids = new Object[rows.length];
+        for (int i = 0; i < rows.length; ++i)
+            ids[i] = table.getValueAt(rows[i], 0);
+        return ids;
     }
 
     final void setModel(TableModel model) {

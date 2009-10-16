@@ -1,7 +1,10 @@
 package org.doogal.swing;
 
-import static org.doogal.core.Constants.LARGE_FONT;
 import static org.doogal.core.Constants.TINY_FONT;
+import static org.doogal.core.Utility.*;
+import static org.doogal.swing.SwingUtil.nextScrollPage;
+import static org.doogal.swing.SwingUtil.prevScrollPage;
+import static org.doogal.swing.SwingUtil.setScrollPage;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,11 +17,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -35,42 +38,19 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
-import javax.swing.text.html.ParagraphView;
+import javax.swing.text.html.StyleSheet;
 
-import org.doogal.core.EvalException;
+import org.doogal.core.table.TableType;
 import org.doogal.core.util.WriteOnce;
 
 final class HtmlPanel extends JPanel implements ViewPanel {
-    private final class WrapParagraphView extends ParagraphView {
-        private final int wrap;
-
-        public WrapParagraphView(Element elem) {
-            super(elem);
-            final Dimension d = getToolkit().getScreenSize();
-            wrap = d.width / 2;
-        }
-
-        @Override
-        public final void layout(int width, int height) {
-            super.layout(wrap, height);
-        }
-
-        @Override
-        public final float getMinimumSpan(int axis) {
-            return super.getPreferredSpan(axis);
-        }
-    }
 
     private static final long serialVersionUID = 1L;
-    private final JLabel title;
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
     private final JTextField find;
@@ -117,17 +97,15 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             find(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
     }
 
-    HtmlPanel() {
+    HtmlPanel() throws IOException {
         super(new BorderLayout());
 
-        title = new JLabel();
         textPane = new JTextPane();
         find = new JTextField();
         matches = new JLabel();
 
-        title.setFont(new Font("Dialog", Font.BOLD, LARGE_FONT));
-        title.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         textPane.setEditable(false);
+        textPane.setFocusable(false);
         textPane.addHyperlinkListener(new HyperlinkListener() {
 
             public final void hyperlinkUpdate(HyperlinkEvent ev) {
@@ -159,21 +137,16 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                 doc.setAsynchronousLoadPriority(-1);
                 return doc;
             }
-
-            @Override
-            public final ViewFactory getViewFactory() {
-                final ViewFactory factory = super.getViewFactory();
-                return new ViewFactory() {
-                    public View create(Element elem) {
-                        View view = factory.create(elem);
-                        if (view instanceof ParagraphView)
-                            view = new WrapParagraphView(elem);
-                        return view;
-                    }
-                };
-            }
-
         };
+        
+        final StyleSheet styleSheet = kit.getStyleSheet();
+        final InputStream is = getClass().getResourceAsStream("/doogal.css");
+        try {
+            styleSheet.loadRules(newBufferedReader(is), null);
+        } finally {
+            is.close();
+        }
+        
         textPane.setEditorKit(kit);
 
         final Document doc = kit.createDefaultDocument();
@@ -191,12 +164,6 @@ final class HtmlPanel extends JPanel implements ViewPanel {
         final JLabel label = new JLabel("Quick Find: ");
         label.setLabelFor(find);
 
-        final JPanel center = new JPanel(new BorderLayout());
-        center.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        center.setBackground(Color.white);
-        center.add(title, BorderLayout.NORTH);
-        center.add(textPane, BorderLayout.CENTER);
-
         final JButton clear = new JButton("Clear");
         clear.setMargin(new Insets(1, 5, 0, 5));
         clear.setFont(new Font("Dialog", Font.PLAIN, 9));
@@ -207,26 +174,53 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             }
         });
 
-        final JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        south.add(label);
-        south.add(find);
-        south.add(clear);
-        south.add(matches);
+        final JPanel findPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        findPanel.add(label);
+        findPanel.add(find);
+        findPanel.add(clear);
+        findPanel.add(matches);
 
-        scrollPane = new JScrollPane(center,
+        scrollPane = new JScrollPane(textPane,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setFocusable(false);
         final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
         scrollBar.setBlockIncrement(scrollBar.getBlockIncrement() * 20);
         scrollBar.setUnitIncrement(scrollBar.getUnitIncrement() * 20);
 
         add(scrollPane, BorderLayout.CENTER);
-        add(south, BorderLayout.SOUTH);
+        add(findPanel, BorderLayout.SOUTH);
+    }
+
+    public final void close() throws IOException {
+    }
+
+    public final void setPage(int n) {
+        setScrollPage(scrollPane.getVerticalScrollBar(), n);
+    }
+
+    public final void nextPage() {
+        nextScrollPage(scrollPane.getVerticalScrollBar());
+    }
+
+    public final void prevPage() {
+        prevScrollPage(scrollPane.getVerticalScrollBar());
+    }
+
+    public final void setVisible() {
+
+    }
+
+    public final TableType getType() {
+        return TableType.ALIAS;
+    }
+
+    public final Object[] getSelection() {
+        return new Object[0];
     }
 
     final void setPage(String title, File path) throws IOException,
             MalformedURLException {
-        this.title.setText(title);
 
         final Document doc = textPane.getDocument();
         doc.putProperty(Document.TitleProperty, title);
@@ -234,18 +228,6 @@ final class HtmlPanel extends JPanel implements ViewPanel {
         doc.putProperty(Document.StreamDescriptionProperty, null);
         textPane.setPage(path.toURI().toURL());
         find(find.getText());
-    }
-
-    public final void close() throws IOException {
-    }
-
-    public final void setPage(int n) throws EvalException, IOException {
-    }
-
-    public final void nextPage() throws EvalException, IOException {
-    }
-
-    public final void prevPage() throws EvalException, IOException {
     }
 
     final JScrollBar getVerticalScrollBar() {
@@ -265,7 +247,8 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                     final Dimension d = f.getToolkit().getScreenSize();
                     f.setSize(d.width / 2, d.height / 2);
                     f.setVisible(true);
-                    panel.setPage("Test", new File("c:/tmp/index.html"));
+                    panel.setPage("Test", new File(
+                            "c:/tmp/ice_release_procedure.html"));
                 } catch (final Exception e) {
                     e.printStackTrace();
                 }

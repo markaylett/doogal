@@ -1,7 +1,6 @@
 package org.doogal.swing;
 
 import static org.doogal.core.Utility.printResource;
-import static org.doogal.swing.SwingUtil.newScrollPane;
 import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
 import static org.doogal.swing.SwingUtil.setEmacsKeyMap;
 
@@ -27,6 +26,7 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -103,7 +103,7 @@ public final class Console extends JPanel implements Doogal {
         setPrompt(false);
         setEmacsKeyMap(prompt, history);
 
-        add(newScrollPane(console), BorderLayout.CENTER);
+        add(new JScrollPane(console), BorderLayout.CENTER);
         add(prompt, BorderLayout.SOUTH);
 
         final Environment env = new Environment();

@@ -1,6 +1,5 @@
 package org.doogal.swing;
 
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Event;
 import java.awt.Frame;
@@ -13,7 +12,6 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.table.TableModel;
@@ -25,10 +23,6 @@ import javax.swing.text.Keymap;
 final class SwingUtil {
     private SwingUtil() {
 
-    }
-
-    static Component newScrollPane(Component view) {
-        return new JScrollPane(view);
     }
 
     static Frame parentFrame(Container c) {

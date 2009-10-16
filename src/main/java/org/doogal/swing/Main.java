@@ -2,7 +2,6 @@ package org.doogal.swing;
 
 import static org.doogal.core.Constants.SMALL_FONT;
 import static org.doogal.core.Utility.printResource;
-import static org.doogal.swing.SwingUtil.newScrollPane;
 import static org.doogal.swing.SwingUtil.parentFrame;
 import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
 
@@ -35,12 +34,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
@@ -113,13 +115,24 @@ public final class Main extends JPanel implements Doogal {
 
         command = new CommandPanel(this, log);
 
-        final TablePanel tablePanel = new TablePanel(this, actions);
+        final TablePanel tablePanel = new TablePanel(actions);
+
+        tabbedPane.setFocusable(false);
         tabbedPane.setTabPlacement(SwingConstants.BOTTOM);
         tabbedPane.add("Table", tablePanel);
         tabbedPane.add("Document", htmlPanel);
+        tabbedPane.addChangeListener(new ChangeListener() {
+            public final void stateChanged(ChangeEvent e) {
+                for (final Action action : context)
+                    action.setEnabled(false);
+                final ViewPanel vp = (ViewPanel) tabbedPane
+                    .getSelectedComponent();
+                vp.setVisible();
+            }
+        });
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                tabbedPane, newScrollPane(console));
+                tabbedPane, new JScrollPane(console));
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getToolkit().getScreenSize().height / 4);
         // Weighted to top panel.
@@ -296,6 +309,7 @@ public final class Main extends JPanel implements Doogal {
         // Avoid multiple close from multiple clicks.
         if (!closed) {
             closed = true;
+            // TODO: close each view panel.
             doogal.close();
         }
     }
@@ -303,6 +317,8 @@ public final class Main extends JPanel implements Doogal {
     public final void eval(String cmd, Object... args) throws EvalException {
         command.setPrompt(false);
         console.setText("");
+        final ViewPanel vp = (ViewPanel) tabbedPane.getSelectedComponent();
+        doogal.setSelection(vp.getType(), vp.getSelection());
         doogal.eval(cmd, args);
     }
 
