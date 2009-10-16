@@ -16,7 +16,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.DefaultEditorKit;
@@ -125,5 +124,25 @@ final class SwingUtil {
     static void setRowSorter(JTable table) {
         final TableModel model = table.getModel();
         table.setRowSorter(new TableRowSorter<TableModel>(model));
+    }
+
+    static void setScrollPage(JScrollBar scrollBar, int n) {
+        int value = n * scrollBar.getBlockIncrement(1);
+        value = Math.min(value, scrollBar.getMaximum());
+        scrollBar.setValue(value);
+    }
+
+    static void nextScrollPage(JScrollBar scrollBar) {
+        int value = scrollBar.getValue();
+        value += scrollBar.getBlockIncrement(1);
+        value = Math.min(value, scrollBar.getMaximum());
+        scrollBar.setValue(value);
+    }
+
+    static void prevScrollPage(JScrollBar scrollBar) {
+        int value = scrollBar.getValue();
+        value -= scrollBar.getBlockIncrement(-1);
+        value = Math.max(value, scrollBar.getMinimum());
+        scrollBar.setValue(value);
     }
 }

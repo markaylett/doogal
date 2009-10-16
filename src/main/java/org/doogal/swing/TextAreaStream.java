@@ -14,6 +14,7 @@ final class TextAreaStream extends OutputStream {
     private static final int MAX_LINES = MAX_RESULTS * 10;
 
     private final JTextArea textArea;
+    private final boolean scroll;
     private final StringBuilder sb;
 
     private final void append(String s) {
@@ -26,14 +27,16 @@ final class TextAreaStream extends OutputStream {
                 lc = MAX_LINES;
             }
             // Scroll to top.
-            textArea.setCaretPosition(0);
+            textArea.setCaretPosition(scroll ? textArea.getDocument()
+                    .getLength() : 0);
         } catch (final BadLocationException e) {
             e.printStackTrace();
         }
     }
 
-    TextAreaStream(final JTextArea textArea) {
+    TextAreaStream(final JTextArea textArea, boolean scroll) {
         this.textArea = textArea;
+        this.scroll = scroll;
         sb = new StringBuilder();
     }
 

@@ -233,7 +233,7 @@ final class Model implements Closeable {
             @Synopsis("browse")
             public final void exec() throws Exception {
                 view.setTable(browse());
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -319,7 +319,7 @@ final class Model implements Closeable {
             @Synopsis("goto n")
             public final void exec(String n) throws EvalException, IOException {
                 view.setPage(Integer.valueOf(n));
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -386,7 +386,7 @@ final class Model implements Closeable {
             @SuppressWarnings("unused")
             @Synopsis("list")
             public final void exec() throws EvalException, IOException {
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -417,13 +417,13 @@ final class Model implements Closeable {
                         return;
                     }
                 view.setTable(more(getTerm()));
-                view.showPage();
+                view.refresh();
             }
 
             @Synopsis("more [doc]")
             public final void exec(String s) throws EvalException, IOException {
                 view.setTable(more(getTerm(s)));
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -439,7 +439,7 @@ final class Model implements Closeable {
             @Synopsis("names")
             public final void exec() throws Exception {
                 view.setTable(names());
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -489,7 +489,7 @@ final class Model implements Closeable {
             @Synopsis("next")
             public final void exec() throws EvalException, IOException {
                 view.nextPage();
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -606,7 +606,7 @@ final class Model implements Closeable {
             @Synopsis("previous")
             public final void exec() throws EvalException, IOException {
                 view.prevPage();
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -709,7 +709,7 @@ final class Model implements Closeable {
             @Synopsis("recent")
             public final void exec() throws EvalException, IOException {
                 view.setTable(recent.asTable(state));
-                view.showPage();
+                view.refresh();
             }
         };
     }
@@ -739,13 +739,13 @@ final class Model implements Closeable {
                 view.getLog().info(
                         String.format("searching for '%s'...\n", last));
                 view.setTable(search(last));
-                view.showPage();
+                view.refresh();
             }
 
             public final void exec(String s) throws EvalException, IOException,
                     ParseException {
                 view.setTable(search(s));
-                view.showPage();
+                view.refresh();
                 last = s;
             }
 
@@ -779,7 +779,7 @@ final class Model implements Closeable {
             @Synopsis("set")
             public final void exec() throws EvalException, IOException {
                 view.setTable(env.asTable());
-                view.showPage();
+                view.refresh();
             }
 
             @SuppressWarnings("unused")
@@ -868,7 +868,7 @@ final class Model implements Closeable {
             public final void exec(String s) throws EvalException, IOException,
                     ParseException {
                 view.setTable(values(s));
-                view.showPage();
+                view.refresh();
             }
         };
     }

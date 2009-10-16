@@ -35,6 +35,22 @@ public final class LastRefreshView implements RefreshView {
         view.close();
     }
 
+    public final void setPage(int n) throws EvalException, IOException {
+        view.setPage(n);
+    }
+
+    public final void nextPage() throws EvalException, IOException {
+        view.nextPage();
+    }
+
+    public final void prevPage() throws EvalException, IOException {
+        view.prevPage();
+    }
+
+    public final void setHtml(HtmlPage html) {
+        view.setHtml(html);
+    }
+
     public final void setTable(Table table) throws IOException {
         view.setTable(table);
         changed = true;
@@ -57,24 +73,8 @@ public final class LastRefreshView implements RefreshView {
         return view.getLog();
     }
 
-    public final void setHtml(HtmlPage html) {
-        view.setHtml(html);
-    }
-
-    public final void setPage(int n) throws EvalException, IOException {
-        view.setPage(n);
-    }
-
-    public final void showPage() throws EvalException, IOException {
-        view.showPage();
-    }
-
-    public final void nextPage() throws EvalException, IOException {
-        view.nextPage();
-    }
-
-    public final void prevPage() throws EvalException, IOException {
-        view.prevPage();
+    public final void refresh() throws EvalException, IOException {
+        view.refresh();
     }
 
     public final void refresh(TableType type) throws EvalException {

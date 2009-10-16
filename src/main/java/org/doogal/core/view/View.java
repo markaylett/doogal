@@ -1,6 +1,5 @@
 package org.doogal.core.view;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -12,7 +11,9 @@ import org.doogal.core.table.Table;
 import org.doogal.core.util.HtmlPage;
 import org.doogal.core.util.Predicate;
 
-public interface View extends Closeable {
+public interface View extends Pager {
+
+    void setHtml(HtmlPage html);
 
     void setTable(Table table) throws IOException;
 
@@ -24,13 +25,5 @@ public interface View extends Closeable {
 
     Log getLog();
 
-    void setHtml(HtmlPage html);
-
-    void setPage(int n) throws EvalException, IOException;
-
-    void showPage() throws EvalException, IOException;
-
-    void nextPage() throws EvalException, IOException;
-
-    void prevPage() throws EvalException, IOException;
+    void refresh() throws EvalException, IOException;
 }

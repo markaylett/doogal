@@ -45,9 +45,10 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import javax.swing.text.html.ParagraphView;
 
+import org.doogal.core.EvalException;
 import org.doogal.core.util.WriteOnce;
 
-final class HtmlPanel extends JPanel {
+final class HtmlPanel extends JPanel implements ViewPanel {
     private final class WrapParagraphView extends ParagraphView {
         private final int wrap;
 
@@ -235,6 +236,18 @@ final class HtmlPanel extends JPanel {
         find(find.getText());
     }
 
+    public final void close() throws IOException {
+    }
+
+    public final void setPage(int n) throws EvalException, IOException {
+    }
+
+    public final void nextPage() throws EvalException, IOException {
+    }
+
+    public final void prevPage() throws EvalException, IOException {
+    }
+
     final JScrollBar getVerticalScrollBar() {
         return scrollPane.getVerticalScrollBar();
     }
@@ -245,7 +258,7 @@ final class HtmlPanel extends JPanel {
                 try {
                     final JFrame f = new JFrame("HtmlPanel");
                     final HtmlPanel panel = new HtmlPanel();
-                    f.getContentPane().add(panel, BorderLayout.CENTER);
+                    f.setContentPane(panel);
 
                     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

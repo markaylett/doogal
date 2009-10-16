@@ -5,18 +5,14 @@ import static org.doogal.core.Utility.printResource;
 import static org.doogal.swing.SwingUtil.newScrollPane;
 import static org.doogal.swing.SwingUtil.parentFrame;
 import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
-import static org.doogal.swing.SwingUtil.setRowSorter;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -39,21 +35,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
@@ -72,7 +59,6 @@ import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
 import org.doogal.core.util.HtmlPage;
-import org.doogal.core.util.Size;
 import org.doogal.core.util.StandardLog;
 import org.doogal.core.view.AbstractView;
 import org.doogal.core.view.View;
@@ -83,12 +69,13 @@ public final class Main extends JPanel implements Doogal {
 
     private final CommandPanel command;
     private final JTabbedPane tabbedPane;
-    private final HtmlPanel document;
+    private final HtmlPanel htmlPanel;
     private final JTextArea console;
-    private final Doogal doogal;
 
     private final Map<String, Action> actions;
     private final Set<Action> context;
+
+    private final Doogal doogal;
 
     private boolean closed = false;
 
@@ -107,113 +94,10 @@ public final class Main extends JPanel implements Doogal {
         super(new BorderLayout());
 
         tabbedPane = new JTabbedPane();
-        document = new HtmlPanel();
+        htmlPanel = new HtmlPanel();
         console = new JTextArea();
-
-        final JTable jtable = new JTable(new TableAdapter());
-        jtable.setFocusable(false);
-        jtable.setDefaultRenderer(Size.class, new DefaultTableCellRenderer() {
-
-            private static final long serialVersionUID = 1L;
-
-            {
-                setHorizontalAlignment(SwingConstants.RIGHT);
-            }
-
-            @Override
-            protected final void setValue(Object value) {
-                super.setValue(value.toString());
-            }
-        });
-
-        jtable.getSelectionModel().addListSelectionListener(
-                new ListSelectionListener() {
-                    public final void valueChanged(ListSelectionEvent e) {
-                        if (closed)
-                            return;
-                        final ListSelectionModel model = (ListSelectionModel) e
-                                .getSource();
-                        if (!model.isSelectionEmpty()) {
-                            final TableAdapter tableModel = (TableAdapter) jtable
-                                    .getModel();
-                            final String[] names = tableModel.getType()
-                                    .getActions();
-                            for (int i = 0; i < names.length; ++i)
-                                actions.get(names[i]).setEnabled(true);
-                            final int[] rows = jtable.getSelectedRows();
-                            final Object[] args = new Object[rows.length];
-                            for (int i = 0; i < rows.length; ++i)
-                                args[i] = jtable.getValueAt(rows[i], 0);
-                            setSelection(tableModel.getType(), args);
-                        }
-                    }
-                });
-
-        jtable.addMouseListener(new MouseAdapter() {
-            private final void setSelection(int index) {
-                final ListSelectionModel selectionModel = jtable
-                        .getSelectionModel();
-                if (!selectionModel.isSelectedIndex(index))
-                    selectionModel.setSelectionInterval(index, index);
-            }
-
-            private final JPopupMenu newMenu() {
-                final TableAdapter model = (TableAdapter) jtable.getModel();
-                final String[] names = model.getType().getActions();
-                if (0 < names.length) {
-                    final JPopupMenu menu = new JPopupMenu();
-                    for (int i = 0; i < names.length; ++i) {
-                        final Action action = actions.get(names[i]);
-                        menu.add(new JMenuItem(action));
-                    }
-                    return menu;
-                }
-                return null;
-            }
-
-            private final void showPopup(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    final Point p = e.getPoint();
-                    final int index = jtable.rowAtPoint(p);
-                    if (-1 != index) {
-                        setSelection(index);
-                        final JPopupMenu menu = newMenu();
-                        if (null != menu)
-                            menu.show(e.getComponent(), e.getX(), e.getY());
-                    }
-                }
-            }
-
-            @Override
-            public final void mouseClicked(MouseEvent ev) {
-                if (SwingUtilities.isLeftMouseButton(ev)
-                        && 2 == ev.getClickCount()) {
-                    final Point p = ev.getPoint();
-                    final int index = jtable.rowAtPoint(p);
-                    if (-1 != index) {
-                        final TableAdapter model = (TableAdapter) jtable
-                                .getModel();
-                        final String name = model.getType().getAction();
-                        if (null != name)
-                            try {
-                                eval(name);
-                            } catch (final EvalException e) {
-                                e.printStackTrace();
-                            }
-                    }
-                }
-            }
-
-            @Override
-            public final void mousePressed(MouseEvent e) {
-                showPopup(e);
-            }
-
-            @Override
-            public final void mouseReleased(MouseEvent e) {
-                showPopup(e);
-            }
-        });
+        actions = new HashMap<String, Action>();
+        context = new HashSet<Action>();
 
         console.setMargin(new Insets(5, 5, 5, 5));
         console.setFont(new Font("Monospaced", Font.PLAIN, SMALL_FONT));
@@ -223,15 +107,16 @@ public final class Main extends JPanel implements Doogal {
         console.setLineWrap(true);
 
         final Environment env = new Environment();
-        final PrintWriter out = new PrintWriter(new TextAreaStream(console),
-                true);
+        final PrintWriter out = new PrintWriter(new TextAreaStream(console,
+                false), true);
         final Log log = new StandardLog(out, out);
 
         command = new CommandPanel(this, log);
 
-        tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
-        tabbedPane.add("Table", newScrollPane(jtable));
-        tabbedPane.add("Document", document);
+        final TablePanel tablePanel = new TablePanel(this, actions);
+        tabbedPane.setTabPlacement(SwingConstants.BOTTOM);
+        tabbedPane.add("Table", tablePanel);
+        tabbedPane.add("Document", htmlPanel);
 
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 tabbedPane, newScrollPane(console));
@@ -245,6 +130,62 @@ public final class Main extends JPanel implements Doogal {
 
         final View view = new AbstractView(out, log) {
 
+            public final void setPage(final int n) throws EvalException,
+                    IOException {
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        final ViewPanel vp = (ViewPanel) tabbedPane
+                                .getSelectedComponent();
+                        try {
+                            vp.setPage(n);
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            public final void nextPage() throws EvalException, IOException {
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        final ViewPanel vp = (ViewPanel) tabbedPane
+                                .getSelectedComponent();
+                        try {
+                            vp.nextPage();
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            public final void prevPage() throws EvalException, IOException {
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        final ViewPanel vp = (ViewPanel) tabbedPane
+                                .getSelectedComponent();
+                        try {
+                            vp.prevPage();
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            public final void setHtml(final HtmlPage html) {
+                EventQueue.invokeLater(new Runnable() {
+                    public final void run() {
+                        try {
+                            htmlPanel.setPage(html.getTitle(), html.getPath());
+                            tabbedPane.setSelectedIndex(1);
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
             @Override
             public final void setTable(final Table table) throws IOException {
                 super.setTable(table);
@@ -255,64 +196,14 @@ public final class Main extends JPanel implements Doogal {
                             return;
                         for (final Action action : context)
                             action.setEnabled(false);
-                        jtable.setModel(model);
+                        tablePanel.setModel(model);
                         clearSelection();
-                        setRowSorter(jtable);
                         tabbedPane.setSelectedIndex(0);
                     }
                 });
             }
 
-            public final void setHtml(final HtmlPage html) {
-                EventQueue.invokeLater(new Runnable() {
-                    public final void run() {
-                        try {
-                            document.setPage(html.getTitle(), html.getPath());
-                            tabbedPane.setSelectedIndex(1);
-                        } catch (final Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-
-            public final void setPage(final int n) throws EvalException,
-                    IOException {
-                EventQueue.invokeLater(new Runnable() {
-                    public final void run() {
-                        final JScrollBar scrollBar = getVerticalScrollBar();
-                        int value = n * scrollBar.getBlockIncrement(1);
-                        value = Math.min(value, scrollBar.getMaximum());
-                        scrollBar.setValue(value);
-                    }
-                });
-            }
-
-            public final void showPage() throws EvalException, IOException {
-            }
-
-            public final void nextPage() throws EvalException, IOException {
-                EventQueue.invokeLater(new Runnable() {
-                    public final void run() {
-                        final JScrollBar scrollBar = getVerticalScrollBar();
-                        int value = scrollBar.getValue();
-                        value += scrollBar.getBlockIncrement(1);
-                        value = Math.min(value, scrollBar.getMaximum());
-                        scrollBar.setValue(value);
-                    }
-                });
-            }
-
-            public final void prevPage() throws EvalException, IOException {
-                EventQueue.invokeLater(new Runnable() {
-                    public final void run() {
-                        final JScrollBar scrollBar = getVerticalScrollBar();
-                        int value = scrollBar.getValue();
-                        value -= scrollBar.getBlockIncrement(-1);
-                        value = Math.max(value, scrollBar.getMinimum());
-                        scrollBar.setValue(value);
-                    }
-                });
+            public final void refresh() throws EvalException, IOException {
             }
         };
         final Controller controller = new Controller() {
@@ -342,9 +233,6 @@ public final class Main extends JPanel implements Doogal {
                 new SyncDoogal(env, view, controller, repo)));
 
         printResource("motd.txt", out);
-
-        actions = new HashMap<String, Action>();
-        context = new HashSet<Action>();
 
         final Map<String, Command> builtins = doogal.getBuiltins();
         for (final Entry<String, Command> entry : builtins.entrySet()) {
@@ -459,15 +347,6 @@ public final class Main extends JPanel implements Doogal {
 
     final Map<String, Action> getActions() {
         return actions;
-    }
-
-    final JScrollBar getVerticalScrollBar() {
-        if (0 == tabbedPane.getSelectedIndex()) {
-            final JScrollPane scrollPane = (JScrollPane) tabbedPane.getSelectedComponent();
-            return scrollPane.getVerticalScrollBar();
-        }
-
-        return document.getVerticalScrollBar();
     }
 
     private static void run() throws Exception {

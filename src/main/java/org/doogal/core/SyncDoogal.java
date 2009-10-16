@@ -90,7 +90,7 @@ public final class SyncDoogal implements Doogal {
                                 .getDescription());
 
                 view.setTable(table);
-                view.showPage();
+                view.refresh();
             }
 
             @SuppressWarnings("unused")
@@ -109,7 +109,7 @@ public final class SyncDoogal implements Doogal {
                                 .getDescription());
 
                 view.setTable(table);
-                view.showPage();
+                view.refresh();
             }
 
             @SuppressWarnings("unused")
@@ -208,7 +208,7 @@ public final class SyncDoogal implements Doogal {
                                 .getDescription());
 
                 view.setTable(table);
-                view.showPage();
+                view.refresh();
             }
 
             @Synopsis("help [hint]")
@@ -234,7 +234,7 @@ public final class SyncDoogal implements Doogal {
                 }
 
                 view.setTable(table);
-                view.showPage();
+                view.refresh();
             }
         });
         commands.put("exit", new AbstractBuiltin() {

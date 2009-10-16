@@ -107,8 +107,8 @@ public final class Console extends JPanel implements Doogal {
         add(prompt, BorderLayout.SOUTH);
 
         final Environment env = new Environment();
-        final PrintWriter out = new PrintWriter(new TextAreaStream(console),
-                true);
+        final PrintWriter out = new PrintWriter(new TextAreaStream(console,
+                true), true);
         final Log log = new StandardLog(out, out);
         final View view = new PrintView(out, log);
         final Controller controller = new Controller() {
@@ -213,9 +213,7 @@ public final class Console extends JPanel implements Doogal {
         });
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        f.setLayout(new BorderLayout());
-        f.add(c, BorderLayout.CENTER);
-        f.pack();
+        f.setContentPane(c);
 
         final Dimension d = f.getToolkit().getScreenSize();
         f.setSize(d.width / 2, d.height / 2);
