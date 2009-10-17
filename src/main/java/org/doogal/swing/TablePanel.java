@@ -1,5 +1,6 @@
 package org.doogal.swing;
 
+import static org.doogal.swing.SwingUtil.newPopupMenu;
 import static org.doogal.swing.SwingUtil.nextScrollPage;
 import static org.doogal.swing.SwingUtil.prevScrollPage;
 import static org.doogal.swing.SwingUtil.setRowSorter;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.Action;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -74,27 +74,16 @@ final class TablePanel extends JPanel implements ViewPanel {
                     selectionModel.setSelectionInterval(index, index);
             }
 
-            private final JPopupMenu newMenu() {
-                final TableAdapter model = (TableAdapter) table.getModel();
-                final String[] names = model.getType().getActions();
-                if (0 < names.length) {
-                    final JPopupMenu menu = new JPopupMenu();
-                    for (int i = 0; i < names.length; ++i) {
-                        final Action action = actions.get(names[i]);
-                        menu.add(new JMenuItem(action));
-                    }
-                    return menu;
-                }
-                return null;
-            }
-
             private final void showPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     final Point p = e.getPoint();
                     final int index = table.rowAtPoint(p);
                     if (-1 != index) {
                         setSelection(index);
-                        final JPopupMenu menu = newMenu();
+                        final TableAdapter model = (TableAdapter) table
+                                .getModel();
+                        final JPopupMenu menu = newPopupMenu(model.getType(),
+                                actions);
                         if (null != menu)
                             menu.show(e.getComponent(), e.getX(), e.getY());
                     }

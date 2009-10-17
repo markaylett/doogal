@@ -2,6 +2,7 @@ package org.doogal.swing;
 
 import static org.doogal.core.Constants.TINY_FONT;
 import static org.doogal.core.Utility.newBufferedReader;
+import static org.doogal.swing.SwingUtil.newPopupMenu;
 import static org.doogal.swing.SwingUtil.nextScrollPage;
 import static org.doogal.swing.SwingUtil.prevScrollPage;
 import static org.doogal.swing.SwingUtil.setScrollPage;
@@ -15,6 +16,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +33,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -104,7 +108,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             find(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
     }
 
-    HtmlPanel(Map<String, Action> actions) throws IOException {
+    HtmlPanel(final Map<String, Action> actions) throws IOException {
         super(new BorderLayout());
 
         this.actions = actions;
@@ -163,7 +167,27 @@ final class HtmlPanel extends JPanel implements ViewPanel {
 
         final Document doc = kit.createDefaultDocument();
         textPane.setDocument(doc);
+        textPane.addMouseListener(new MouseAdapter() {
 
+            private final void showPopup(MouseEvent e) {
+                if (null != page && e.isPopupTrigger()) {
+                    final JPopupMenu menu = newPopupMenu(TableType.DOCUMENT,
+                            actions);
+                    if (null != menu)
+                        menu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public final void mousePressed(MouseEvent e) {
+                showPopup(e);
+            }
+
+            @Override
+            public final void mouseReleased(MouseEvent e) {
+                showPopup(e);
+            }
+        });
         find.setColumns(16);
         find.setFont(new Font("Dialog", Font.PLAIN, TINY_FONT));
         find.setMargin(new Insets(2, 2, 2, 2));

@@ -11,6 +11,8 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -19,6 +21,8 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
+
+import org.doogal.core.table.TableType;
 
 final class SwingUtil {
     private SwingUtil() {
@@ -138,5 +142,18 @@ final class SwingUtil {
         value -= scrollBar.getBlockIncrement(-1);
         value = Math.max(value, scrollBar.getMinimum());
         scrollBar.setValue(value);
+    }
+
+    static JPopupMenu newPopupMenu(TableType type, Map<String, Action> actions) {
+        final String[] names = type.getActions();
+        if (0 < names.length) {
+            final JPopupMenu menu = new JPopupMenu();
+            for (int i = 0; i < names.length; ++i) {
+                final Action action = actions.get(names[i]);
+                menu.add(new JMenuItem(action));
+            }
+            return menu;
+        }
+        return null;
     }
 }
