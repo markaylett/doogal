@@ -4,10 +4,14 @@
   <groupId>org.doogal</groupId>
   <artifactId>doogal</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>doogal</name>
-  <url>http://maven.apache.org</url>
+  <url>http://www.doogal.org</url>
   <description>Doogal</description>
+  <organization>
+    <name>DoogalOrg</name>
+    <url>http://www.doogal.org</url>
+  </organization>
   <build>
     <directory>lib</directory>
     <defaultGoal>package</defaultGoal>
@@ -22,7 +26,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.0.2</version>
         <configuration>
-          <executable>${env.JAVA16_HOME}/bin/javac</executable>
           <optimize/>
           <source>1.6</source>
           <target>1.6</target>
@@ -63,6 +66,35 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo.webstart</groupId>
+        <artifactId>webstart-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jnlp</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+           <libPath>lib</libPath>
+           <jnlp>
+             <inputTemplate>src/main/jnlp/template.vm</inputTemplate>
+             <outputFile>launch.jnlp</outputFile>
+             <mainClass>org.doogal.swing.Main</mainClass>
+             <j2seVersion>1.6+</j2seVersion>
+           </jnlp>
+           <sign>
+             <keystore>${env.HOME}/etc/keystore</keystore>
+             <keypass>${keypass}</keypass>
+             <storepass>${storepass}</storepass>
+             <alias>doogal</alias>
+             <verify>true</verify>
+           </sign>
+           <pack200>true</pack200>
+           <gzip>true</gzip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
