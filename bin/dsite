@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+repo=${DOOGAL_REPO:-'.'}
+
+pushd $repo
+pushd html
+rm *.html
+doogal <<EOF
+s label:site
+pub *
+EOF
+tar cvzf site.tgz *.html
+popd
+popd

@@ -160,4 +160,10 @@
         <distribution>repo</distribution>
     </license>
   </licenses>
+  <distributionManagement>
+    <site>
+      <id>website</id>
+      <url>scp://marayl@ssh.doogal.org/home/marayl/linux-i686/htdocs/project/</url>
+    </site>
+  </distributionManagement>
 </project>

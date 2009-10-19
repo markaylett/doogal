@@ -8,6 +8,9 @@ TODO:
  * apt doogal ids
  * apt css
  * email
+ * silent/batch
+ * icon
+ * pipe/shell
 
 $ find $DOOGAL_REPO/data -name "*.txt" -exec file {} \; | grep -v ASCII
 

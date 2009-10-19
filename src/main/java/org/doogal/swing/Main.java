@@ -423,7 +423,6 @@ public final class Main extends JPanel implements Doogal {
         mb.add(help);
 
         f.setJMenuBar(mb);
-
         final JToolBar toolBar = new JToolBar();
         toolBar.add(actions.get("new"));
         toolBar.add(actions.get("open"));
