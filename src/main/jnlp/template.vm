@@ -5,6 +5,8 @@
     <vendor>$project.Organization.Name</vendor>
     <homepage href="$project.Url"/>
     <description>$project.Description</description>
+    <icon href="images/doogal32.png"/>
+    <icon kind="splash" href="images/doogal64.png"/> 
 #if($offlineAllowed)
     <offline-allowed/>
 #end

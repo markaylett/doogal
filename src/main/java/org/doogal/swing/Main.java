@@ -441,6 +441,9 @@ public final class Main extends JPanel implements Doogal {
         f.add(toolBar, BorderLayout.PAGE_START);
         f.add(m, BorderLayout.CENTER);
 
+        final URL url = Main.class.getResource("/doogal32.png");
+        f.setIconImage(new ImageIcon(url).getImage());
+
         final Dimension d = f.getToolkit().getScreenSize();
         f.setSize(d.width / 2, d.height / 2);
         f.setVisible(true);

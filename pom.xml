@@ -6,10 +6,10 @@
   <packaging>jar</packaging>
   <version>0.0.1</version>
   <name>doogal</name>
-  <url>http://www.doogal.org</url>
+  <url>http://www.doogal.org/project</url>
   <description>Doogal</description>
   <organization>
-    <name>DoogalOrg</name>
+    <name>Doogal Org</name>
     <url>http://www.doogal.org</url>
   </organization>
   <build>
