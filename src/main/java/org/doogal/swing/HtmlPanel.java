@@ -108,14 +108,15 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             find(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
     }
 
-    HtmlPanel(final Map<String, Action> actions) throws IOException {
+    HtmlPanel(final Map<String, Action> actions, HtmlPage page)
+            throws IOException {
         super(new BorderLayout());
 
         this.actions = actions;
         textPane = new JTextPane();
         find = new JTextField();
         matches = new JLabel();
-        page = null;
+        this.page = null;
 
         final Dimension d = matches.getPreferredSize();
         matches.setPreferredSize(new Dimension(100, d.height));
@@ -170,7 +171,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
         textPane.addMouseListener(new MouseAdapter() {
 
             private final void showPopup(MouseEvent e) {
-                if (null != page && e.isPopupTrigger()) {
+                if (e.isPopupTrigger()) {
                     final JPopupMenu menu = newPopupMenu(TableType.DOCUMENT,
                             actions);
                     if (null != menu)
@@ -226,6 +227,8 @@ final class HtmlPanel extends JPanel implements ViewPanel {
 
         add(scrollPane, BorderLayout.CENTER);
         add(findPanel, BorderLayout.SOUTH);
+
+        setPage(page);
     }
 
     public final void close() throws IOException {
@@ -244,11 +247,9 @@ final class HtmlPanel extends JPanel implements ViewPanel {
     }
 
     public final void setVisible() {
-        if (null != page) {
-            final String[] names = TableType.DOCUMENT.getActions();
-            for (int i = 0; i < names.length; ++i)
-                actions.get(names[i]).setEnabled(true);
-        }
+        final String[] names = TableType.DOCUMENT.getActions();
+        for (int i = 0; i < names.length; ++i)
+            actions.get(names[i]).setEnabled(true);
     }
 
     public final TableType getType() {
@@ -256,8 +257,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
     }
 
     public final Object[] getSelection() {
-        return null == page ? new Object[0] : new Object[] { String
-                .valueOf(page.getId()) };
+        return new Object[] { String.valueOf(page.getId()) };
     }
 
     final void setPage(HtmlPage page) throws IOException, MalformedURLException {
@@ -271,6 +271,10 @@ final class HtmlPanel extends JPanel implements ViewPanel {
         find(find.getText());
     }
 
+    final HtmlPage getPage() {
+        return page;
+    }
+
     final JScrollBar getVerticalScrollBar() {
         return scrollPane.getVerticalScrollBar();
     }
@@ -281,7 +285,8 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                 try {
                     final JFrame f = new JFrame("HtmlPanel");
                     final HtmlPanel panel = new HtmlPanel(Collections
-                            .<String, Action> emptyMap());
+                            .<String, Action> emptyMap(), new HtmlPage(1,
+                            "Test", new File("c:/tmp/index.html")));
                     f.setContentPane(panel);
 
                     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -289,8 +294,6 @@ final class HtmlPanel extends JPanel implements ViewPanel {
                     final Dimension d = f.getToolkit().getScreenSize();
                     f.setSize(d.width / 2, d.height / 2);
                     f.setVisible(true);
-                    panel.setPage(new HtmlPage(1, "Test", new File(
-                            "c:/tmp/index.html")));
                 } catch (final Exception e) {
                     e.printStackTrace();
                 }

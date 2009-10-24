@@ -74,7 +74,6 @@ public final class Main extends JPanel implements Doogal {
 
     private final CommandPanel command;
     private final JTabbedPane tabbedPane;
-    private final HtmlPanel htmlPanel;
     private final JTextArea console;
 
     private final Doogal doogal;
@@ -99,7 +98,6 @@ public final class Main extends JPanel implements Doogal {
         context = new HashSet<Action>();
 
         tabbedPane = new JTabbedPane();
-        htmlPanel = new HtmlPanel(actions);
         console = new JTextArea();
 
         console.setMargin(new Insets(5, 5, 5, 5));
@@ -121,7 +119,6 @@ public final class Main extends JPanel implements Doogal {
         tabbedPane.setFocusable(false);
         tabbedPane.setTabPlacement(SwingConstants.BOTTOM);
         tabbedPane.add("Table", tablePanel);
-        tabbedPane.add("Document", htmlPanel);
         tabbedPane.addChangeListener(new ChangeListener() {
             public final void stateChanged(ChangeEvent e) {
                 for (final Action action : context)
@@ -189,10 +186,34 @@ public final class Main extends JPanel implements Doogal {
 
             public final void setHtml(final HtmlPage html) {
                 EventQueue.invokeLater(new Runnable() {
+                    public final int indexOfTab(int id) {
+                        final int n = tabbedPane.getTabCount();
+                        for (int i = 1; i < n; i++) {
+                            final HtmlPanel panel = (HtmlPanel) tabbedPane
+                                    .getComponentAt(i);
+                            if (id == panel.getPage().getId())
+                                return i;
+                        }
+                        return -1;
+                    }
+
                     public final void run() {
                         try {
-                            htmlPanel.setPage(html);
-                            tabbedPane.setSelectedIndex(1);
+                            int i = indexOfTab(html.getId());
+                            if (-1 == i) {
+                                i = tabbedPane.getTabCount();
+                                final HtmlPanel panel = new HtmlPanel(actions,
+                                        html);
+                                tabbedPane.add(html.getTitle(), panel);
+                                tabbedPane.setTabComponentAt(i, new TabPanel(
+                                        tabbedPane));
+                            } else {
+                                final HtmlPanel panel = (HtmlPanel) tabbedPane
+                                        .getComponentAt(i);
+                                panel.setPage(html);
+                                tabbedPane.setTitleAt(i, html.getTitle());
+                            }
+                            tabbedPane.setSelectedIndex(i);
                         } catch (final Exception e) {
                             e.printStackTrace();
                         }
