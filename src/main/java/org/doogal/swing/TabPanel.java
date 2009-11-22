@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -98,7 +99,7 @@ public final class TabPanel extends JPanel {
             }
         }
     };
-    
+
     public TabPanel(final JTabbedPane pane) {
         // Reset default FlowLayout's gaps.
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
