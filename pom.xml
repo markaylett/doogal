@@ -100,6 +100,11 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>jdepend</groupId>
+      <artifactId>jdepend</artifactId>
+      <version>2.9.1</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.4</version>
@@ -145,6 +150,14 @@
       <version>1.0</version>
     </dependency> 
   </dependencies>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
   <developers>
     <developer>
       <name>Mark Aylett</name>
