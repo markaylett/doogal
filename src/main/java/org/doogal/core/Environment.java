@@ -1,8 +1,8 @@
 package org.doogal.core;
 
-import static org.doogal.core.Constants.DEFAULT_EDITOR;
 import static org.doogal.core.Utility.findEditor;
 import static org.doogal.core.Utility.getPath;
+import static org.doogal.core.domain.Constants.DEFAULT_EDITOR;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.doogal.core.table.PairTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.EvalException;
 
 public final class Environment {
     private static interface Accessor {

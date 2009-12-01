@@ -1,7 +1,7 @@
 package org.doogal.swing;
 
-import static org.doogal.core.Constants.SMALL_FONT;
 import static org.doogal.core.Utility.printResource;
+import static org.doogal.core.domain.Constants.SMALL_FONT;
 import static org.doogal.swing.SwingUtil.parentFrame;
 import static org.doogal.swing.SwingUtil.postWindowClosingEvent;
 
@@ -50,7 +50,6 @@ import org.doogal.core.AsyncDoogal;
 import org.doogal.core.Controller;
 import org.doogal.core.Doogal;
 import org.doogal.core.Environment;
-import org.doogal.core.EvalException;
 import org.doogal.core.ExitException;
 import org.doogal.core.PromptDoogal;
 import org.doogal.core.Repo;
@@ -60,6 +59,7 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.EvalException;
 import org.doogal.core.util.HtmlPage;
 import org.doogal.core.util.StandardLog;
 import org.doogal.core.view.AbstractView;

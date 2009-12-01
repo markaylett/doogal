@@ -1,7 +1,7 @@
 package org.doogal.swing;
 
-import static org.doogal.core.Constants.TINY_FONT;
-import static org.doogal.core.Utility.newBufferedReader;
+import static org.doogal.core.domain.Constants.TINY_FONT;
+import static org.doogal.core.util.FileUtil.newBufferedReader;
 import static org.doogal.swing.SwingUtil.newPopupMenu;
 import static org.doogal.swing.SwingUtil.nextScrollPage;
 import static org.doogal.swing.SwingUtil.prevScrollPage;

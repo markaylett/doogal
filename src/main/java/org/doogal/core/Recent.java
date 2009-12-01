@@ -1,6 +1,6 @@
 package org.doogal.core;
 
-import static org.doogal.core.Constants.PAGE_SIZE;
+import static org.doogal.core.domain.Constants.PAGE_SIZE;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -9,8 +9,10 @@ import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.doogal.core.domain.Summary;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
+import org.doogal.core.util.EvalException;
 
 final class Recent {
     final List<String> ids;

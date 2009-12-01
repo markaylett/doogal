@@ -1,6 +1,6 @@
 package org.doogal.core.util;
 
-import static org.doogal.core.Utility.newBufferedReader;
+import static org.doogal.core.util.FileUtil.newBufferedReader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.internet.ParseException;
-
-import org.doogal.core.EvalException;
 
 public final class Shellwords {
     private final StreamTokenizer tokeniser;

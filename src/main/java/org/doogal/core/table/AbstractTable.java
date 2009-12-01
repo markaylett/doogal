@@ -2,7 +2,7 @@ package org.doogal.core.table;
 
 import java.util.Date;
 
-import org.doogal.core.Summary;
+import org.doogal.core.domain.Summary;
 import org.doogal.core.util.Size;
 
 public abstract class AbstractTable implements Table {

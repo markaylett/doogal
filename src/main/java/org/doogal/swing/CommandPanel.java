@@ -1,8 +1,8 @@
 package org.doogal.swing;
 
-import static org.doogal.core.Constants.LARGE_FONT;
-import static org.doogal.core.Constants.MEDIUM_FONT;
-import static org.doogal.core.Constants.PROMPT;
+import static org.doogal.core.domain.Constants.LARGE_FONT;
+import static org.doogal.core.domain.Constants.MEDIUM_FONT;
+import static org.doogal.core.domain.Constants.PROMPT;
 import static org.doogal.swing.SwingUtil.setEmacsKeyMap;
 
 import java.awt.BorderLayout;
@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
-import org.doogal.core.EvalException;
+import org.doogal.core.util.EvalException;
 import org.doogal.core.util.Interpreter;
 import org.doogal.core.util.Shellwords;
 

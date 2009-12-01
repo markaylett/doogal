@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.util;
 
 public class EvalException extends Exception {
     private static final long serialVersionUID = 1L;

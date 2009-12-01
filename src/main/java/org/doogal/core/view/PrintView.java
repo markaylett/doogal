@@ -1,15 +1,15 @@
 package org.doogal.core.view;
 
-import static org.doogal.core.Constants.PAGE_SIZE;
-import static org.doogal.core.Utility.printTable;
+import static org.doogal.core.domain.Constants.PAGE_SIZE;
+import static org.doogal.core.table.TableUtil.printTable;
 
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
-import org.doogal.core.EvalException;
 import org.doogal.core.table.Table;
+import org.doogal.core.util.EvalException;
 import org.doogal.core.util.HtmlPage;
 
 public final class PrintView extends AbstractView {

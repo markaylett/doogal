@@ -25,6 +25,7 @@ import org.apache.maven.doxia.parser.ParseException;
 import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkFactory;
+import org.doogal.core.util.EvalException;
 import org.doogal.core.util.HtmlPage;
 import org.doogal.core.view.View;
 

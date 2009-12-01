@@ -1,7 +1,7 @@
 package org.doogal.console;
 
-import static org.doogal.core.Constants.PROMPT;
 import static org.doogal.core.Utility.printResource;
+import static org.doogal.core.domain.Constants.PROMPT;
 
 import java.io.PrintWriter;
 

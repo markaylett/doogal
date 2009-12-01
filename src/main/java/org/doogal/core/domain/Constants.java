@@ -1,4 +1,4 @@
-package org.doogal.core;
+package org.doogal.core.domain;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

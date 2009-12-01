@@ -1,8 +1,8 @@
 package org.doogal.core;
 
-import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.openContents;
-import static org.doogal.core.Utility.printTable;
+import static org.doogal.core.domain.Constants.PAGE_SIZE;
+import static org.doogal.core.table.TableUtil.printTable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,6 +23,8 @@ import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
+import org.doogal.core.domain.Constants;
+import org.doogal.core.domain.Summary;
 import org.doogal.core.table.AbstractTable;
 import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;

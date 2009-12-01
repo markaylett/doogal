@@ -15,6 +15,7 @@ import javax.mail.internet.ParseException;
 import org.apache.commons.logging.Log;
 import org.doogal.core.command.Command;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.EvalException;
 
 public final class AsyncDoogal implements Doogal {
     private final Log log;

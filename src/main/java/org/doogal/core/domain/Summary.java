@@ -1,6 +1,6 @@
-package org.doogal.core;
+package org.doogal.core.domain;
 
-import static org.doogal.core.Constants.DATE_FORMAT;
+import static org.doogal.core.domain.Constants.DATE_FORMAT;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -25,7 +25,7 @@ public final class Summary {
         this.display = display;
     }
 
-    Summary(int id, Document doc) throws IOException {
+    public Summary(int id, Document doc) throws IOException {
 
         this.id = id;
         size = Long.parseLong(doc.get("content-length"));

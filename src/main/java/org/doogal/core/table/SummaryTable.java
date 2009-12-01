@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.doogal.core.Summary;
+import org.doogal.core.domain.Summary;
 
 public final class SummaryTable extends AbstractTable implements DocumentTable {
     private final List<Summary> list;

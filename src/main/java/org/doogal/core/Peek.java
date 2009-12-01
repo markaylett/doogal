@@ -1,9 +1,9 @@
 package org.doogal.core;
 
-import static org.doogal.core.Constants.PAGE_SIZE;
 import static org.doogal.core.Utility.firstDocument;
 import static org.doogal.core.Utility.openContents;
-import static org.doogal.core.Utility.printTable;
+import static org.doogal.core.domain.Constants.PAGE_SIZE;
+import static org.doogal.core.table.TableUtil.printTable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +13,9 @@ import java.io.InputStreamReader;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.doogal.core.domain.Summary;
 import org.doogal.core.table.SummaryTable;
+import org.doogal.core.util.EvalException;
 import org.doogal.core.view.View;
 
 final class Peek {

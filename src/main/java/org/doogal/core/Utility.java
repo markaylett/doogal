@@ -1,9 +1,8 @@
 package org.doogal.core;
 
-import static org.doogal.core.Constants.DATE_FORMAT;
+import static org.doogal.core.util.FileUtil.newBufferedReader;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,13 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -28,7 +23,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
-import org.doogal.core.table.Table;
 import org.doogal.core.util.FileStats;
 import org.doogal.core.util.Predicate;
 
@@ -276,16 +270,6 @@ public final class Utility {
         return pred.first;
     }
 
-    public static BufferedReader newBufferedReader(InputStream in)
-            throws UnsupportedEncodingException {
-        return new BufferedReader(new InputStreamReader(in, "UTF-8"));
-    }
-
-    static BufferedWriter newBufferedWriter(OutputStream out)
-            throws UnsupportedEncodingException {
-        return new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-    }
-
     static File subdir(File file) {
         final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         file = append(file, 4, cal.get(Calendar.YEAR));
@@ -309,72 +293,6 @@ public final class Utility {
                 }
         }
         return sb.toString();
-    }
-
-    private static String getStringAt(Table table, int rowIndex, int columnIndex)
-            throws IOException {
-
-        Object value = table.getValueAt(rowIndex, columnIndex);
-
-        final Class<?> clazz = table.getColumnClass(columnIndex);
-        if (Date.class.isAssignableFrom(clazz))
-            value = DATE_FORMAT.format(value);
-
-        return value.toString();
-    }
-
-    public static void printTable(Table table, int start, int end,
-            PrintWriter out) throws IOException {
-        final int rowCount = end - start;
-        final int[] max = new int[table.getColumnCount()];
-        final String[] head = new String[table.getColumnCount()];
-        final String[][] body = new String[rowCount][table.getColumnCount()];
-        for (int i = 0; i < rowCount; ++i)
-            for (int j = 0; j < table.getColumnCount(); ++j) {
-                final String value = getStringAt(table, start + i, j);
-                max[j] = Math.max(max[j], value.length());
-                body[i][j] = value;
-            }
-        final StringBuilder hf = new StringBuilder(" ");
-        final StringBuilder bf = new StringBuilder(" ");
-        int width = 0;
-        for (int j = 0; j < table.getColumnCount(); ++j) {
-            head[j] = table.getColumnName(j);
-            max[j] = Math.max(max[j], head[j].length());
-            width += max[j];
-
-            if (0 < hf.length()) {
-                ++width;
-                hf.append(' ');
-            }
-            hf.append("%-");
-            hf.append(max[j]);
-            hf.append('s');
-
-            if (0 < bf.length())
-                bf.append(' ');
-            if (Number.class.isAssignableFrom(table.getColumnClass(j))) {
-                bf.append('%');
-                bf.append(max[j]);
-            } else if (j < table.getColumnCount() - 1) {
-                bf.append("%-");
-                bf.append(max[j]);
-            } else
-                // No padding if last column and left-justified.
-                bf.append("%");
-            bf.append('s');
-        }
-
-        hf.append('\n');
-        bf.append('\n');
-
-        out.printf(hf.toString(), (Object[]) head);
-        out.print(' ');
-        for (int i = 0; i < width; ++i)
-            out.print('-');
-        out.println();
-        for (int i = 0; i < rowCount; ++i)
-            out.printf(bf.toString(), (Object[]) body[i]);
     }
 
     static File findEditor() {

@@ -1,6 +1,6 @@
 package org.doogal.swing;
 
-import static org.doogal.core.Constants.MAX_RESULTS;
+import static org.doogal.core.domain.Constants.MAX_RESULTS;
 
 import java.awt.EventQueue;
 import java.io.IOException;

@@ -9,6 +9,7 @@ import javax.mail.internet.ParseException;
 
 import org.doogal.core.command.Command;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.EvalException;
 
 public final class PromptDoogal implements Doogal {
     private final Controller controller;
