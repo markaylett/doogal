@@ -79,7 +79,7 @@ public final class CycleTest extends TestCase {
         jdepend.analyze();
         printCycles(jdepend, System.out);
         // Create Graphviz script.
-        final File file = new File("target/jdepends.sh");
+        final File file = new File("target/jdepend.sh");
         printScript(jdepend, file);
         // Fail if cycles exist.
         assertEquals("cycles exist", false, jdepend.containsCycles());
