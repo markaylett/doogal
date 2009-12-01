@@ -36,10 +36,12 @@ public final class CycleTest extends TestCase {
     private static void printScript(JDepend jdepend, PrintWriter out) {
         final Collection<JavaPackage> packages = jdepend.getPackages();
         out.println("#!/bin/sh");
-        out.println("cat <<EOD | tred | dot -Tgif >depends.gif");
+        out.println("cat <<EOD | tred | dot -Tgif >doogal.gif");
         out.println("digraph G {");
-        out.println("  node [shape=box];");
+        out.println("  label=\"Doogal\";");
         out.println("  edge [style=dashed];");
+        out.println("  graph [rankdir=BT];");
+        out.println("  node [shape=box];");
         for (final JavaPackage p : packages) {
             final Collection<JavaPackage> efferents = p.getEfferents();
             for (final JavaPackage q : efferents)
