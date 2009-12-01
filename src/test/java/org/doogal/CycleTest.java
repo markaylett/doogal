@@ -15,6 +15,15 @@ import junit.framework.TestCase;
 
 public final class CycleTest extends TestCase {
 
+    private static final String GIF = "doogal.gif";
+    private static final String LABEL = "Doogal";
+    private static final String PACKAGE = "org.doogal";
+    private static final String PREFIX = "org.";
+
+    private static final String toName(String name) {
+        return name.substring(PREFIX.length()).replaceAll("[.]", "_");
+    }
+
     @SuppressWarnings("unchecked")
     private static void printCycles(JDepend jdepend, PrintWriter out) {
         final Collection<JavaPackage> packages = jdepend.getPackages();
@@ -36,18 +45,18 @@ public final class CycleTest extends TestCase {
     private static void printScript(JDepend jdepend, PrintWriter out) {
         final Collection<JavaPackage> packages = jdepend.getPackages();
         out.println("#!/bin/sh");
-        out.println("cat <<EOD | tred | dot -Tgif >doogal.gif");
+        out.println("cat <<EOD | tred | dot -Tgif >" + GIF);
         out.println("digraph G {");
-        out.println("  label=\"Doogal\";");
+        out.println("  label=\"" + LABEL + "\";");
         out.println("  edge [style=dashed];");
         out.println("  graph [rankdir=BT];");
         out.println("  node [shape=box];");
         for (final JavaPackage p : packages) {
             final Collection<JavaPackage> efferents = p.getEfferents();
             for (final JavaPackage q : efferents)
-                if (q.getName().startsWith("org.doogal")) {
-                    final String from = p.getName().replaceAll("[.]", "_");
-                    final String to = q.getName().replaceAll("[.]", "_");
+                if (q.getName().startsWith(PACKAGE)) {
+                    final String from = toName(p.getName());
+                    final String to = toName(q.getName());
                     out.println("  " + from + " -> " + to + ";");
                 }
         }
@@ -63,6 +72,7 @@ public final class CycleTest extends TestCase {
         } finally {
             out.close();
         }
+        // Introduced in 1.6.
         file.setExecutable(true);
     }
 
