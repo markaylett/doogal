@@ -11,7 +11,6 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.Action;
@@ -124,7 +123,7 @@ final class TablePanel extends JPanel implements ViewPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    public final void close() throws IOException {
+    public final void destroy() {
     }
 
     public final void setPage(int n) {

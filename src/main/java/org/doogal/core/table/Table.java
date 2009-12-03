@@ -1,9 +1,10 @@
 package org.doogal.core.table;
 
-import java.io.Closeable;
 import java.io.IOException;
 
-public interface Table extends Closeable {
+import org.doogal.core.util.Destroyable;
+
+public interface Table extends Destroyable {
     TableType getType();
 
     int getRowCount();

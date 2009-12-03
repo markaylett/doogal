@@ -231,7 +231,7 @@ final class HtmlPanel extends JPanel implements ViewPanel {
         setPage(page);
     }
 
-    public final void close() throws IOException {
+    public final void destroy() {
     }
 
     public final void setPage(int n) {

@@ -261,8 +261,8 @@ public final class SyncDoogal implements Doogal {
         addCommands();
     }
 
-    public final void close() {
-        model.close();
+    public final void destroy() {
+        model.destroy();
     }
 
     @SuppressWarnings("unchecked")

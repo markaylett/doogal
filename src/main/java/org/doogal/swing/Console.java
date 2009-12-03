@@ -159,8 +159,8 @@ public final class Console extends JPanel implements Doogal {
         printResource("motd.txt", out);
     }
 
-    public final void close() throws IOException {
-        doogal.close();
+    public final void destroy() {
+        doogal.destroy();
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {
@@ -204,11 +204,7 @@ public final class Console extends JPanel implements Doogal {
         f.addWindowListener(new WindowAdapter() {
             @Override
             public final void windowClosing(WindowEvent ev) {
-                try {
-                    c.close();
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                }
+                c.destroy();
             }
         });
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

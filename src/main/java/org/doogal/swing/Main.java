@@ -78,7 +78,7 @@ public final class Main extends JPanel implements Doogal {
 
     private final Doogal doogal;
 
-    private boolean closed = false;
+    private boolean destroyed = false;
 
     private static TableModel newTableModel(Table table) throws IOException {
         if (null != table && table instanceof DocumentTable) {
@@ -227,7 +227,7 @@ public final class Main extends JPanel implements Doogal {
                 final TableModel model = newTableModel(table);
                 EventQueue.invokeLater(new Runnable() {
                     public final void run() {
-                        if (closed)
+                        if (destroyed)
                             return;
                         for (final Action action : context)
                             action.setEnabled(false);
@@ -327,12 +327,12 @@ public final class Main extends JPanel implements Doogal {
         }
     }
 
-    public final void close() throws IOException {
-        // Avoid multiple close from multiple clicks.
-        if (!closed) {
-            closed = true;
+    public final void destroy() {
+        // Avoid multiple destroy from multiple clicks.
+        if (!destroyed) {
+            destroyed = true;
             // TODO: close each view panel.
-            doogal.close();
+            doogal.destroy();
         }
     }
 
@@ -393,11 +393,7 @@ public final class Main extends JPanel implements Doogal {
         f.addWindowListener(new WindowAdapter() {
             @Override
             public final void windowClosing(WindowEvent ev) {
-                try {
-                    m.close();
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                }
+                m.destroy();
             }
         });
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

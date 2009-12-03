@@ -65,7 +65,7 @@ public final class Main {
             Shellwords.parse(System.in, doogal);
         } catch (final ExitException e) {
         } finally {
-            doogal.close();
+            doogal.destroy();
         }
     }
 }

@@ -1,6 +1,5 @@
 package org.doogal.core.table;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,7 @@ public final class PairTable implements Table {
         list = new ArrayList<Pair>();
     }
 
-    public final void close() throws IOException {
+    public final void destroy() {
 
     }
 

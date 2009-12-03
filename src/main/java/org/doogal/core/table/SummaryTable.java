@@ -15,7 +15,7 @@ public final class SummaryTable extends AbstractTable implements DocumentTable {
         list = new ArrayList<Summary>();
     }
 
-    public void close() throws IOException {
+    public void destroy() {
 
     }
 

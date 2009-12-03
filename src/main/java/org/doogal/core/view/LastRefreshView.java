@@ -31,8 +31,8 @@ public final class LastRefreshView implements RefreshView {
         args = null;
     }
 
-    public final void close() throws IOException {
-        view.close();
+    public final void destroy() {
+        view.destroy();
     }
 
     public final void setPage(int n) throws EvalException, IOException {

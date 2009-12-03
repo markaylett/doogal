@@ -1,6 +1,5 @@
 package org.doogal.core.table;
 
-import java.io.IOException;
 import java.util.List;
 
 public final class ListTable implements Table {
@@ -14,7 +13,7 @@ public final class ListTable implements Table {
         this.list = list;
     }
 
-    public final void close() throws IOException {
+    public final void destroy() {
 
     }
 

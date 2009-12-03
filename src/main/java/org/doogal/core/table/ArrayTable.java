@@ -1,7 +1,5 @@
 package org.doogal.core.table;
 
-import java.io.IOException;
-
 public final class ArrayTable implements Table {
     private final TableType type;
     private final String columnName;
@@ -13,7 +11,7 @@ public final class ArrayTable implements Table {
         this.list = list;
     }
 
-    public final void close() throws IOException {
+    public final void destroy() {
 
     }
 

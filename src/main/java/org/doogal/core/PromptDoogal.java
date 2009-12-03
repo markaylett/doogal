@@ -22,8 +22,8 @@ public final class PromptDoogal implements Doogal {
         depth = 0;
     }
 
-    public final void close() throws IOException {
-        doogal.close();
+    public final void destroy() {
+        doogal.destroy();
     }
 
     public final void eval(String cmd, Object... args) throws EvalException {

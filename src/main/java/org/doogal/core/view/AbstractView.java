@@ -21,13 +21,17 @@ public abstract class AbstractView implements View {
         table = null;
     }
 
-    public final void close() throws IOException {
-        setTable(null);
+    public final void destroy() {
+        try {
+            setTable(null);
+        } catch (IOException e) {
+            log.error("destroy() failed", e);
+        }
     }
 
     public void setTable(Table table) throws IOException {
         if (null != this.table)
-            this.table.close();
+            this.table.destroy();
         this.table = table;
     }
 

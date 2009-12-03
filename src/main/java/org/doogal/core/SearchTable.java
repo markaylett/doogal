@@ -63,8 +63,12 @@ final class SearchTable extends AbstractTable implements DocumentTable {
         state.retain();
     }
 
-    public final void close() throws IOException {
-        state.release();
+    public final void destroy() {
+        try {
+            state.release();
+        } catch (IOException e) {
+            view.getLog().error("destroy() failed", e);
+        }
     }
 
     public final int getRowCount() {

@@ -2,7 +2,6 @@ package org.doogal.core;
 
 import static org.doogal.core.Utility.join;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,13 +32,14 @@ import org.doogal.core.table.DocumentTable;
 import org.doogal.core.table.SummaryTable;
 import org.doogal.core.table.Table;
 import org.doogal.core.table.TableType;
+import org.doogal.core.util.Destroyable;
 import org.doogal.core.util.EvalException;
 import org.doogal.core.util.HtmlPage;
 import org.doogal.core.util.Predicate;
 import org.doogal.core.util.WriteOnce;
 import org.doogal.core.view.RefreshView;
 
-final class Model implements Closeable {
+final class Model implements Destroyable {
     private static final class WrapException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
@@ -162,12 +162,8 @@ final class Model implements Closeable {
         select = null;
     }
 
-    public final void close() {
-        try {
-            view.close();
-        } catch (final IOException e) {
-            view.getLog().error(e.getLocalizedMessage());
-        }
+    public final void destroy() {
+        view.destroy();
         if (null != state) {
             try {
                 state.release();

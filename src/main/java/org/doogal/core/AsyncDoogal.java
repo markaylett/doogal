@@ -28,14 +28,10 @@ public final class AsyncDoogal implements Doogal {
         executor = Executors.newSingleThreadExecutor();
     }
 
-    public final void close() {
+    public final void destroy() {
         executor.execute(new Runnable() {
             public final void run() {
-                try {
-                    doogal.close();
-                } catch (final IOException e) {
-                    log.error(e.getLocalizedMessage());
-                }
+                doogal.destroy();
             }
         });
         executor.shutdown();
