@@ -3,7 +3,6 @@ package org.doogal.notes.core;
 import static org.doogal.notes.core.Utility.whileLine;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -3,7 +3,6 @@ package org.doogal.notes.swing;
 import static org.doogal.notes.domain.Constants.MAX_RESULTS;
 
 import java.awt.EventQueue;
-import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.swing.JTextArea;

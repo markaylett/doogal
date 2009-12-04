@@ -9,7 +9,6 @@ import org.doogal.core.util.UnaryPredicate;
 import org.doogal.notes.domain.Summary;
 import org.doogal.notes.table.Table;
 import org.doogal.notes.table.TableType;
-import org.doogal.notes.util.EvalException;
 import org.doogal.notes.util.HtmlPage;
 import org.doogal.notes.util.Interpreter;
 

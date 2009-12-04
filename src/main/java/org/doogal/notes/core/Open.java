@@ -9,11 +9,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.doogal.notes.util.EvalException;
 import org.doogal.notes.view.View;
 

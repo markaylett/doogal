@@ -3,7 +3,6 @@ package org.doogal.notes.console;
 import static org.doogal.notes.core.Utility.printResource;
 import static org.doogal.notes.domain.Constants.PROMPT;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;

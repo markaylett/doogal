@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.LockObtainFailedException;
 
 public final class Repo {
     private final File root;

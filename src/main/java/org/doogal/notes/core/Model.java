@@ -3,7 +3,6 @@ package org.doogal.notes.core;
 import static org.doogal.notes.core.Utility.join;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,12 +10,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.mail.MessagingException;
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.IndexReader.FieldOption;
@@ -26,7 +22,6 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.doogal.core.util.Destroyable;
 import org.doogal.core.util.UnaryPredicate;
 import org.doogal.notes.command.AbstractBuiltin;

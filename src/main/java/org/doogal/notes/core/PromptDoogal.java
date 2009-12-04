@@ -1,7 +1,6 @@
 package org.doogal.notes.core;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
@@ -10,7 +9,6 @@ import javax.mail.internet.ParseException;
 
 import org.doogal.notes.command.Command;
 import org.doogal.notes.table.TableType;
-import org.doogal.notes.util.EvalException;
 
 public final class PromptDoogal implements Doogal {
     private final Controller controller;

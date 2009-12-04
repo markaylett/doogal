@@ -12,7 +12,6 @@ import org.apache.lucene.index.TermDocs;
 import org.doogal.notes.domain.Summary;
 import org.doogal.notes.table.DocumentTable;
 import org.doogal.notes.table.SummaryTable;
-import org.doogal.notes.util.EvalException;
 
 final class Recent {
     final List<String> ids;

@@ -21,7 +21,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
