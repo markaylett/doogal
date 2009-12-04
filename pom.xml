@@ -39,7 +39,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>org.doogal.swing.Main</mainClass>
+              <mainClass>org.doogal.notes.swing.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -82,7 +82,7 @@
            <jnlp>
              <inputTemplate>src/main/jnlp/template.vm</inputTemplate>
              <outputFile>launch.jnlp</outputFile>
-             <mainClass>org.doogal.swing.Main</mainClass>
+             <mainClass>org.doogal.notes.swing.Main</mainClass>
              <j2seVersion>1.6+</j2seVersion>
            </jnlp>
            <sign>
