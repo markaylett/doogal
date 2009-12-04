@@ -11,9 +11,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.doogal.core.util.Destroyable;
-
 import net.jcip.annotations.ThreadSafe;
+
+import org.doogal.core.util.Destroyable;
 
 /**
  * ScheduledExecutorService that implements the {@link Destroyable} interface.
@@ -49,7 +49,8 @@ public final class ScheduledExecutor implements Destroyable,
         return scheduler.invokeAll(tasks, timeout, unit);
     }
 
-    public final <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+    public final <T> List<Future<T>> invokeAll(
+            Collection<? extends Callable<T>> tasks)
             throws InterruptedException {
         return scheduler.invokeAll(tasks);
     }

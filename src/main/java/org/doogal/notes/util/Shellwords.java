@@ -83,7 +83,8 @@ public final class Shellwords {
         return eof;
     }
 
-    public static List<Object> readLine(Reader reader) throws IOException, ParseException {
+    public static List<Object> readLine(Reader reader) throws IOException,
+            ParseException {
         return new Shellwords(reader).readLine();
     }
 

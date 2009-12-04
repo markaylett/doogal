@@ -24,7 +24,7 @@ public abstract class AbstractView implements View {
     public final void destroy() {
         try {
             setTable(null);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.error("destroy() failed", e);
         }
     }
@@ -42,7 +42,8 @@ public abstract class AbstractView implements View {
         return docTable.peek(term, out);
     }
 
-    public final void whileSummary(UnaryPredicate<Summary> pred) throws IOException {
+    public final void whileSummary(UnaryPredicate<Summary> pred)
+            throws IOException {
         if (null == table || !(table instanceof DocumentTable))
             return;
         final DocumentTable docTable = (DocumentTable) table;

@@ -92,8 +92,8 @@ public final class Main extends JPanel implements Doogal {
         return new TableAdapter(table);
     }
 
-    Main() throws IllegalAccessException, IOException,
-            InvocationTargetException {
+    Main() throws IllegalAccessException, InvocationTargetException,
+            IOException {
         super(new BorderLayout());
 
         actions = new HashMap<String, Action>();
@@ -357,8 +357,7 @@ public final class Main extends JPanel implements Doogal {
         doogal.batch(reader);
     }
 
-    public final void batch(File file) throws IOException,
-            ParseException {
+    public final void batch(File file) throws IOException, ParseException {
         command.setPrompt(false);
         console.setText("");
         doogal.batch(file);
@@ -386,7 +385,8 @@ public final class Main extends JPanel implements Doogal {
         return actions;
     }
 
-    private static void run() throws IllegalAccessException, InvocationTargetException, IOException, ParseException {
+    private static void run() throws IllegalAccessException,
+            InvocationTargetException, IOException, ParseException {
         final JFrame f = new JFrame("Doogal");
         final Main m = new Main();
         f.addWindowListener(new WindowAdapter() {

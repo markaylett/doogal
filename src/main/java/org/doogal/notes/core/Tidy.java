@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -30,7 +31,8 @@ final class Tidy {
         return s.replaceFirst("\\s+$", "");
     }
 
-    private static void tidy(BufferedReader in, PrintWriter out) throws IOException {
+    private static void tidy(BufferedReader in, PrintWriter out)
+            throws IOException {
         for (;;) {
             final String line = in.readLine();
             if (null == line)
@@ -63,7 +65,8 @@ final class Tidy {
         }
     }
 
-    static void exec(View view, final SharedState state, Term term) throws IOException {
+    static void exec(View view, final SharedState state, Term term)
+            throws IOException {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);

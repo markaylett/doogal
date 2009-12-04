@@ -60,7 +60,8 @@ public final class LastRefreshView implements RefreshView {
         return view.peek(term);
     }
 
-    public final void whileSummary(UnaryPredicate<Summary> pred) throws IOException {
+    public final void whileSummary(UnaryPredicate<Summary> pred)
+            throws IOException {
         view.whileSummary(pred);
     }
 

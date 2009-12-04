@@ -17,7 +17,8 @@ import org.doogal.notes.view.View;
 
 final class Import {
 
-    private static File importFile(SharedState state, File from) throws IOException {
+    private static File importFile(SharedState state, File from)
+            throws IOException {
 
         File to = subdir(state.getData());
         final String id = newId();
@@ -26,7 +27,8 @@ final class Import {
         return to;
     }
 
-    static void exec(final View view, final SharedState state) throws IOException {
+    static void exec(final View view, final SharedState state)
+            throws IOException {
         final IndexWriter writer = new IndexWriter(state.getIndex(),
                 new StandardAnalyzer(), false,
                 IndexWriter.MaxFieldLength.LIMITED);

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -48,7 +47,8 @@ public final class Utility {
     private Utility() {
     }
 
-    static boolean edit(String editor, File path, PrintWriter err) throws UnsupportedEncodingException, InterruptedException, IOException {
+    static boolean edit(String editor, File path, PrintWriter err)
+            throws InterruptedException, IOException {
         final FileStats stats = new FileStats(path);
         final Process p = new ProcessBuilder(editor, path.getAbsolutePath())
                 .start();
@@ -66,7 +66,8 @@ public final class Utility {
         return stats.hasFileChanged();
     }
 
-    static boolean whileLine(String name, UnaryPredicate<String> pred) throws IOException {
+    static boolean whileLine(String name, UnaryPredicate<String> pred)
+            throws IOException {
         final InputStream is = Utility.class.getClassLoader()
                 .getResourceAsStream(name);
         if (null == is)
@@ -85,7 +86,8 @@ public final class Utility {
         return true;
     }
 
-    public static boolean printResource(String name, final PrintWriter out) throws IOException {
+    public static boolean printResource(String name, final PrintWriter out)
+            throws IOException {
         return whileLine(name, new UnaryPredicate<String>() {
             public final boolean call(String arg) {
                 out.println(arg);
@@ -214,7 +216,8 @@ public final class Utility {
         return !name.endsWith(".txt");
     }
 
-    static boolean whileFile(File dir, UnaryPredicate<File> pred) throws IOException {
+    static boolean whileFile(File dir, UnaryPredicate<File> pred)
+            throws IOException {
         if (!dir.exists())
             throw new FileNotFoundException(dir.getPath());
         if (!dir.isDirectory())
@@ -254,13 +257,15 @@ public final class Utility {
         }
     }
 
-    static Document firstDocument(IndexReader reader, Term term) throws IOException {
+    static Document firstDocument(IndexReader reader, Term term)
+            throws IOException {
         final FirstPredicate<Document> pred = new FirstPredicate<Document>();
         whileDocument(reader, term, pred);
         return pred.first;
     }
 
-    static File firstFile(IndexReader reader, File dir, Term term) throws IOException {
+    static File firstFile(IndexReader reader, File dir, Term term)
+            throws IOException {
         final FirstPredicate<File> pred = new FirstPredicate<File>();
         whileFile(reader, dir, term, pred);
         return pred.first;

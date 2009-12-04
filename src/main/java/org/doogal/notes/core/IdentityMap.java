@@ -36,7 +36,8 @@ final class IdentityMap {
         return uuid;
     }
 
-    final String getGlobal(String local) throws NumberFormatException, IOException {
+    final String getGlobal(String local) throws IOException,
+            NumberFormatException {
         return getGlobal(Integer.valueOf(local));
     }
 
@@ -44,7 +45,7 @@ final class IdentityMap {
         return new Term("id", getGlobal(local));
     }
 
-    final Term getTerm(String local) throws NumberFormatException, IOException {
+    final Term getTerm(String local) throws IOException, NumberFormatException {
         return new Term("id", getGlobal(local));
     }
 }

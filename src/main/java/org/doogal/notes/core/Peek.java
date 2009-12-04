@@ -20,7 +20,8 @@ import org.doogal.notes.util.EvalException;
 import org.doogal.notes.view.View;
 
 final class Peek {
-    static void exec(View view, SharedState state, Term term) throws IOException {
+    static void exec(View view, SharedState state, Term term)
+            throws IOException {
 
         String id = view.peek(term);
         if (null != id) {

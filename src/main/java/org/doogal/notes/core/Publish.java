@@ -107,7 +107,8 @@ final class Publish {
         }
     }
 
-    static HtmlPage exec(View view, SharedState state, Term term) throws IOException {
+    static HtmlPage exec(View view, SharedState state, Term term)
+            throws IOException {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);
@@ -141,9 +142,9 @@ final class Publish {
             state.addRecent(id);
             return new HtmlPage(state.getLocal(id), title, outPath);
 
-        } catch (MessagingException e) {
+        } catch (final MessagingException e) {
             throw new IOException(e.getLocalizedMessage(), e);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new IOException(e.getLocalizedMessage(), e);
         } finally {
             is.close();

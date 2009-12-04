@@ -12,7 +12,8 @@ import org.doogal.core.util.UnaryPredicate;
 
 final class Index {
 
-    private static void indexRepo(final Repo repo, final IndexWriter writer) throws IOException {
+    private static void indexRepo(final Repo repo, final IndexWriter writer)
+            throws IOException {
 
         whileFile(repo.getData(), new UnaryPredicate<File>() {
             public final boolean call(File file) throws IOException {

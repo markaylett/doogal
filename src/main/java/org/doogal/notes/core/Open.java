@@ -17,7 +17,8 @@ import org.doogal.notes.view.View;
 
 final class Open {
 
-    static boolean exec(View view, SharedState state, Term term) throws IOException, InterruptedException {
+    static boolean exec(View view, SharedState state, Term term)
+            throws InterruptedException, IOException {
 
         final IndexReader reader = state.getIndexReader();
         final File file = firstFile(reader, state.getData(), term);

@@ -59,7 +59,8 @@ final class Model implements Destroyable {
     private SharedState state;
     private Selection select;
 
-    private final Term getTerm(String value) throws IOException, NumberFormatException {
+    private final Term getTerm(String value) throws IOException,
+            NumberFormatException {
         return Character.isDigit(value.charAt(0)) ? identityMap.getTerm(value)
                 : new Term("name", value);
     }
@@ -659,7 +660,7 @@ final class Model implements Destroyable {
                                 return true;
                             }
                         });
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }

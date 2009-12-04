@@ -2,9 +2,9 @@ package org.doogal.core.actor;
 
 import java.util.Map;
 
-import org.doogal.core.util.Destroyable;
-
 import net.jcip.annotations.NotThreadSafe;
+
+import org.doogal.core.util.Destroyable;
 
 /**
  * <p>

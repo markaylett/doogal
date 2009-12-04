@@ -15,7 +15,7 @@ import org.doogal.notes.view.View;
 final class New {
 
     static boolean exec(View view, SharedState state, String template)
-            throws IOException, InterruptedException {
+            throws InterruptedException, IOException {
 
         final String id = newId();
         final File from = new File(state.getTemplate(), template + ".txt");

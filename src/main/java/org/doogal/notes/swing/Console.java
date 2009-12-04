@@ -177,8 +177,7 @@ public final class Console extends JPanel implements Doogal {
         doogal.batch(reader);
     }
 
-    public final void batch(File file) throws IOException,
-            ParseException {
+    public final void batch(File file) throws IOException, ParseException {
         doogal.batch(file);
     }
 

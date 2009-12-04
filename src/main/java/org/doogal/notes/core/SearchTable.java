@@ -66,7 +66,7 @@ final class SearchTable extends AbstractTable implements DocumentTable {
     public final void destroy() {
         try {
             state.release();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             view.getLog().error("destroy() failed", e);
         }
     }
@@ -75,7 +75,8 @@ final class SearchTable extends AbstractTable implements DocumentTable {
         return totalHits;
     }
 
-    public final Object getValueAt(int rowIndex, int columnIndex) throws IOException {
+    public final Object getValueAt(int rowIndex, int columnIndex)
+            throws IOException {
 
         if (hits.length <= rowIndex) {
             view.getLog().info("fetching documents...");

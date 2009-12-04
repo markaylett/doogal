@@ -107,7 +107,8 @@ final class HtmlPanel extends JPanel implements ViewPanel {
             find(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
     }
 
-    HtmlPanel(final Map<String, Action> actions, HtmlPage page) throws IOException {
+    HtmlPanel(final Map<String, Action> actions, HtmlPage page)
+            throws IOException {
         super(new BorderLayout());
 
         this.actions = actions;

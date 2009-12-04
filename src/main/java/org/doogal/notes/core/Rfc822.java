@@ -42,7 +42,8 @@ final class Rfc822 {
         return toks;
     }
 
-    private static String addStandard(Document doc, File dir, File file) throws IOException {
+    private static String addStandard(Document doc, File dir, File file)
+            throws IOException {
         final String id = getId(file);
         doc.add(new Field("id", id, Field.Store.YES, Field.Index.NOT_ANALYZED));
         doc.add(new Field("modified", DateTools.timeToString(file
@@ -86,7 +87,8 @@ final class Rfc822 {
         }
     }
 
-    private static void addContentLength(Document doc, FileInputStream is) throws IOException {
+    private static void addContentLength(Document doc, FileInputStream is)
+            throws IOException {
         final FileChannel channel = is.getChannel();
         final long l = channel.size() - channel.position();
         doc.removeFields("content-length");
@@ -94,7 +96,8 @@ final class Rfc822 {
                 Field.Index.NOT_ANALYZED));
     }
 
-    static final void addDocument(IndexWriter writer, File dir, File file) throws IOException {
+    static final void addDocument(IndexWriter writer, File dir, File file)
+            throws IOException {
         final Document doc = new Document();
         final FileInputStream is = new FileInputStream(file);
         try {
@@ -110,7 +113,8 @@ final class Rfc822 {
         }
     }
 
-    static final void updateDocument(IndexWriter writer, File dir, File file) throws IOException {
+    static final void updateDocument(IndexWriter writer, File dir, File file)
+            throws IOException {
         final Document doc = new Document();
         final FileInputStream is = new FileInputStream(file);
         try {

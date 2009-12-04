@@ -8,7 +8,8 @@ import java.util.Date;
 
 public final class TableUtil {
 
-    private static String getStringAt(Table table, int rowIndex, int columnIndex) throws IOException {
+    private static String getStringAt(Table table, int rowIndex, int columnIndex)
+            throws IOException {
 
         Object value = table.getValueAt(rowIndex, columnIndex);
 
