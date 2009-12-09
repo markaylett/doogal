@@ -122,7 +122,7 @@ public final class GregorianDate implements Comparable<GregorianDate> {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        return toCalendar();
+        return cal;
     }
 
     public final WeekDay toWeekDay() {
