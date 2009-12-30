@@ -1,4 +1,4 @@
-package org.doogal.core.actor;
+package org.doogal.core.actor.object;
 
 /**
  * Interface for dependency injection. A Spring-based object broker would be one

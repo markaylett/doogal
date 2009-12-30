@@ -1,49 +1,37 @@
 package org.doogal.core.actor;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.doogal.core.actor.util.Utility.toName;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.doogal.core.actor.object.ObjectBroker;
+import org.doogal.core.actor.object.ObjectManager;
 import org.doogal.core.util.Destroyable;
 
-public final class SimpleObjectManager implements ObjectManager {
+final class SimpleObjectManager implements ObjectManager {
 
+    private final ObjectBroker next;
     private final Map<String, Object> objects;
 
-    public SimpleObjectManager() {
-        objects = new HashMap<String, Object>();
-    }
-
-    public static String toName(Class<?> clazz) {
-        final String name = clazz.getSimpleName();
-        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+    SimpleObjectManager(ObjectBroker next) {
+        this.next = next;
+        objects = new ConcurrentHashMap<String, Object>();
     }
 
     public final void destroy() {
-        // Destroy all Destroyables.
-        Throwable first = null;
         for (final Object value : objects.values())
-            if (value instanceof Destroyable) {
-                final Destroyable d = (Destroyable) value;
-                try {
-                    d.destroy();
-                } catch (final Throwable t) {
-                    if (null == first)
-                        first = t;
-                }
-            }
-        if (null != first)
-            if (first instanceof RuntimeException)
-                throw (RuntimeException) first;
-            else if (first instanceof Error)
-                throw (Error) first;
+            if (value instanceof Destroyable)
+                ((Destroyable) value).destroy();
     }
 
     public final Object getObject(String name) {
-        return objects.get(name);
+        final Object obj = objects.get(name);
+        return null == obj ? next.getObject(name) : obj;
     }
 
     public final Object getObject(Class<?> clazz) {
-        return objects.get(toName(clazz));
+        return getObject(toName(clazz));
     }
 
     public final void registerObject(String name, Object object) {

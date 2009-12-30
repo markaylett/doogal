@@ -1,6 +1,11 @@
 package org.doogal.core.actor;
 
-public interface ActorFactory<T extends Actor> {
-    T newActor() throws IllegalAccessException, InstantiationException,
-            InterruptedException;
+import java.lang.reflect.InvocationTargetException;
+
+import org.doogal.core.actor.object.ObjectBroker;
+
+public interface ActorFactory {
+    Actor newActor(String name, ObjectBroker broker)
+            throws IllegalAccessException, InstantiationException,
+            InvocationTargetException;
 }

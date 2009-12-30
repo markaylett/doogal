@@ -1,4 +1,4 @@
-package org.doogal.core.actor;
+package org.doogal.core.actor.object;
 
 import org.doogal.core.util.Destroyable;
 
