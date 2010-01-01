@@ -9,6 +9,13 @@ import java.util.Map;
 
 import org.doogal.core.actor.annotation.MessageHandler;
 
+/**
+ * The AbstractIntrepreter provides a convenient mapping between messages and
+ * late-bound method calls.
+ * 
+ * @author Mark Aylett
+ * 
+ */
 public abstract class AbstractInterpreter implements Interpreter {
     private final Map<Integer, List<Method>> handlers;
 

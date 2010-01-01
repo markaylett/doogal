@@ -1,9 +1,8 @@
-package org.doogal.core.actor;
+package org.doogal.core.actor.message;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.doogal.core.actor.message.Message;
 
 interface Inbox {
     Message recv() throws InterruptedException;

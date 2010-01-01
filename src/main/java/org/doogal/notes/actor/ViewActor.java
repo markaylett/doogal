@@ -3,7 +3,7 @@ package org.doogal.notes.actor;
 import java.util.concurrent.ExecutionException;
 
 import org.doogal.core.actor.Actor;
-import org.doogal.core.actor.Mailbox;
+import org.doogal.core.actor.message.Mailbox;
 import org.doogal.core.actor.object.ObjectBroker;
 
 public final class ViewActor implements Actor {

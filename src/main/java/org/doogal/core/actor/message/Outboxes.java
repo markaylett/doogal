@@ -1,11 +1,9 @@
-package org.doogal.core.actor;
+package org.doogal.core.actor.message;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import org.doogal.core.actor.message.Message;
-import org.doogal.core.actor.message.MessageFunction;
 import org.doogal.core.actor.util.UnaryFunction;
 
 final class Outboxes {

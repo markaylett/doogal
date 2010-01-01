@@ -1,4 +1,4 @@
-package org.doogal.core.actor;
+package org.doogal.core.actor.message;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,12 +8,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.doogal.core.actor.concurrent.FutureValue;
-import org.doogal.core.actor.message.Message;
-import org.doogal.core.actor.message.MessageFunction;
-import org.doogal.core.actor.message.Messages;
-import org.doogal.core.actor.util.Functional;
+import org.doogal.core.actor.queue.Functional;
+import org.doogal.core.actor.queue.Queue;
 import org.doogal.core.actor.util.Monitor;
-import org.doogal.core.actor.util.Queue;
 import org.doogal.core.actor.util.UnaryFunction;
 import org.doogal.core.actor.util.UpdateListener;
 import org.doogal.core.util.Destroyable;
@@ -104,14 +101,14 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
                 .<Message> all());
     }
 
-    final void activate() {
+    public final void activate() {
         synchronized (monitor) {
             if (INACTIVE == state)
                 state = ACTIVE;
         }
     }
 
-    final FutureValue<Object> newFuture() {
+    public final FutureValue<Object> newFuture() {
         return new FutureValue<Object>(listener);
     }
 }

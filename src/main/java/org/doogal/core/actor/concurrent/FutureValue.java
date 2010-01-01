@@ -7,8 +7,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.doogal.core.actor.util.UpdateListener;
 
+@ThreadSafe
 public final class FutureValue<T> implements Future<T> {
 
     private final class Sync extends AbstractQueuedSynchronizer implements

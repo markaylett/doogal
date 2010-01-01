@@ -1,4 +1,4 @@
-package org.doogal.core.actor.util;
+package org.doogal.core.actor.queue;
 
 import java.util.List;
 

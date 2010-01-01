@@ -2,7 +2,7 @@ package org.doogal.core.actor.object;
 
 import org.doogal.core.util.Destroyable;
 
-public interface ObjectManager extends Destroyable, ObjectBroker {
+public interface ObjectRepository extends Destroyable, ObjectBroker {
 
     void registerObject(String name, Object object);
 

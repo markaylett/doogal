@@ -1,6 +1,9 @@
-package org.doogal.core.actor.util;
+package org.doogal.core.actor.queue;
 
 import java.util.List;
+
+import org.doogal.core.actor.util.BinaryFunction;
+import org.doogal.core.actor.util.UnaryFunction;
 
 public final class Queue {
     private Queue() {

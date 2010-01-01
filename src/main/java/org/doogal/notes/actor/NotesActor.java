@@ -1,9 +1,9 @@
 package org.doogal.notes.actor;
 
 import org.doogal.core.actor.Actor;
-import org.doogal.core.actor.Mailbox;
 import org.doogal.core.actor.annotation.MessageHandler;
 import org.doogal.core.actor.message.AbstractInterpreter;
+import org.doogal.core.actor.message.Mailbox;
 import org.doogal.core.actor.message.Message;
 import org.doogal.core.actor.object.ObjectBroker;
 

@@ -3,6 +3,9 @@ package org.doogal.core.actor.util;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.jcip.annotations.ThreadSafe;
+
+@ThreadSafe
 public final class UpdateListenerSet<T> implements UpdateListener<T> {
     private final Set<UpdateListener<T>> listeners;
 

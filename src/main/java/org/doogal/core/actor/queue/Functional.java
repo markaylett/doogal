@@ -1,4 +1,7 @@
-package org.doogal.core.actor.util;
+package org.doogal.core.actor.queue;
+
+import org.doogal.core.actor.util.BinaryFunction;
+import org.doogal.core.actor.util.UnaryFunction;
 
 public final class Functional {
     private Functional() {

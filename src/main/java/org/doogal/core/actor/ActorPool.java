@@ -1,6 +1,6 @@
 package org.doogal.core.actor;
 
-import static org.doogal.core.actor.util.Utility.toName;
+import static org.doogal.core.actor.object.Utility.toName;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,10 +9,26 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 
 import org.doogal.core.actor.concurrent.FutureValue;
+import org.doogal.core.actor.message.Mailbox;
+import org.doogal.core.actor.message.Mailboxes;
 import org.doogal.core.actor.object.ObjectBroker;
 import org.doogal.core.util.Destroyable;
 
-public final class Actors implements Destroyable {
+/**
+ * Manages a pool of Actors and their life-cycle.
+ * 
+ * <p>
+ * Actor's are constructed on the thread to which they are confined. This
+ * approach is compatible with Thread Local Storage (TLS), and minimises the
+ * need for synchronisation.
+ * </p>
+ * 
+ * <p>
+ * All Mailboxes must exist before any Actors are created.
+ * </p>
+ */
+
+public final class ActorPool implements Destroyable {
     private final Mailboxes mailboxes;
     private final Collection<Thread> threads;
 
@@ -32,7 +48,7 @@ public final class Actors implements Destroyable {
         actor.run(mailbox);
     }
 
-    public Actors(Mailboxes mailboxes) {
+    public ActorPool(Mailboxes mailboxes) {
         this.mailboxes = mailboxes;
         threads = new ArrayList<Thread>();
     }
@@ -52,7 +68,7 @@ public final class Actors implements Destroyable {
         final FutureValue<Object> future = mailbox.newFuture();
         final Thread thread = new Thread(new Runnable() {
             public final void run() {
-                Actors.this.run(name, factory, mailbox, future);
+                ActorPool.this.run(name, factory, mailbox, future);
             }
         });
         threads.add(thread);

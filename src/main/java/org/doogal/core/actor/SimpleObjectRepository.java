@@ -1,20 +1,20 @@
 package org.doogal.core.actor;
 
-import static org.doogal.core.actor.util.Utility.toName;
+import static org.doogal.core.actor.object.Utility.toName;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.doogal.core.actor.object.ObjectBroker;
-import org.doogal.core.actor.object.ObjectManager;
+import org.doogal.core.actor.object.ObjectRepository;
 import org.doogal.core.util.Destroyable;
 
-final class SimpleObjectManager implements ObjectManager {
+final class SimpleObjectRepository implements ObjectRepository {
 
     private final ObjectBroker next;
     private final Map<String, Object> objects;
 
-    SimpleObjectManager(ObjectBroker next) {
+    SimpleObjectRepository(ObjectBroker next) {
         this.next = next;
         objects = new ConcurrentHashMap<String, Object>();
     }

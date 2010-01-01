@@ -1,4 +1,4 @@
-package org.doogal.core.actor.util;
+package org.doogal.core.actor.object;
 
 public final class Utility {
     private Utility() {

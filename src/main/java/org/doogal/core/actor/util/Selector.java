@@ -1,4 +1,4 @@
-package org.doogal.core.actor;
+package org.doogal.core.actor.util;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -7,11 +7,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.doogal.core.actor.util.Monitor;
-import org.doogal.core.actor.util.UpdateListener;
-import org.doogal.core.actor.util.UpdateListenerSet;
+import net.jcip.annotations.ThreadSafe;
+
 import org.doogal.core.util.Destroyable;
 
+@ThreadSafe
 public final class Selector<T> implements Destroyable,
         UpdateListener<Future<T>> {
     private final WeakReference<UpdateListenerSet<Future<T>>> reference;
@@ -37,7 +37,7 @@ public final class Selector<T> implements Destroyable,
         this.monitor = new Monitor();
     }
 
-    static <T> Selector<T> newInstance(UpdateListenerSet<Future<T>> listenerSet) {
+    public static <T> Selector<T> newInstance(UpdateListenerSet<Future<T>> listenerSet) {
         final Selector<T> selector = new Selector<T>(listenerSet);
         listenerSet.addListener(selector);
         return selector;

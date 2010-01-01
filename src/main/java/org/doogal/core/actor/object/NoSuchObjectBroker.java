@@ -1,6 +1,6 @@
 package org.doogal.core.actor.object;
 
-import static org.doogal.core.actor.util.Utility.toName;
+import static org.doogal.core.actor.object.Utility.toName;
 
 public final class NoSuchObjectBroker implements ObjectBroker {
     public final Object getObject(String name) {

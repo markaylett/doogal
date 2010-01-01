@@ -1,8 +1,8 @@
 package org.doogal.core.actor.message;
 
 import org.doogal.core.actor.concurrent.FutureValue;
-import org.doogal.core.actor.util.Constants;
-import org.doogal.core.actor.util.ListReference;
+import org.doogal.core.actor.queue.Constants;
+import org.doogal.core.actor.queue.ListReference;
 
 public final class Messages {
     private Messages() {
