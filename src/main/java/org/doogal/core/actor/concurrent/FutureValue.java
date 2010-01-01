@@ -11,140 +11,153 @@ import net.jcip.annotations.ThreadSafe;
 
 import org.doogal.core.actor.util.UpdateListener;
 
+/**
+ * A placeholder for some future value.
+ * 
+ * @author Mark Aylett
+ * 
+ * @param <T>
+ *            the value type.
+ */
+
 @ThreadSafe
 public final class FutureValue<T> implements Future<T> {
 
-    private final class Sync extends AbstractQueuedSynchronizer implements
-            Future<T> {
+	private final class Sync extends AbstractQueuedSynchronizer implements
+			Future<T> {
 
-        private static final long serialVersionUID = 1L;
-        private static final int CANCELLED = 1;
-        private static final int ACQUIRED = 2;
-        private static final int COMPLETE = 3;
+		private static final long serialVersionUID = 1L;
 
-        private final UpdateListener<Future<T>> listener;
+		private static final int CANCELLED = 1;
 
-        // Result and Except piggyback on State visibility.
-        // This technique is known as: Piggybacking on Synchronization.
-        // See JCIP, section 16.1.4.
+		private static final int ACQUIRED = 2;
 
-        private T result;
-        private Throwable except;
+		private static final int COMPLETE = 3;
 
-        // AbstractQueuedSynchronizer
+		private final UpdateListener<Future<T>> listener;
 
-        @Override
-        protected final int tryAcquireShared(int ignore) {
-            return isDone() ? 1 : -1;
-        }
+		// Result and Except piggyback on State visibility.
+		// This technique is known as: Piggybacking on Synchronization.
+		// See JCIP, section 16.1.4.
 
-        @Override
-        protected final boolean tryReleaseShared(int ignore) {
-            listener.update(FutureValue.this);
-            return true;
-        }
+		private T result;
 
-        Sync(UpdateListener<Future<T>> listener) {
-            this.listener = listener;
-        }
+		private Throwable except;
 
-        // Future
+		// AbstractQueuedSynchronizer
 
-        public final boolean cancel(boolean mayInterruptIfRunning) {
-            if (!compareAndSetState(0, CANCELLED))
-                return false;
-            releaseShared(0);
-            return true;
-        }
+		@Override
+		protected final int tryAcquireShared(int ignore) {
+			return isDone() ? 1 : -1;
+		}
 
-        public final boolean isCancelled() {
-            return CANCELLED == getState();
-        }
+		@Override
+		protected final boolean tryReleaseShared(int ignore) {
+			listener.update(FutureValue.this);
+			return true;
+		}
 
-        public final boolean isDone() {
-            final int s = getState();
-            return CANCELLED == s || COMPLETE == s;
-        }
+		Sync(UpdateListener<Future<T>> listener) {
+			this.listener = listener;
+		}
 
-        public final T get() throws InterruptedException, ExecutionException {
-            acquireSharedInterruptibly(0);
-            if (CANCELLED == getState())
-                throw new CancellationException();
-            if (null != except)
-                throw new ExecutionException(except);
-            return result;
-        }
+		// Future
 
-        public final T get(long timeout, TimeUnit unit)
-                throws InterruptedException, ExecutionException,
-                TimeoutException {
-            final long nanos = unit.toNanos(timeout);
-            if (!tryAcquireSharedNanos(0, nanos))
-                throw new TimeoutException();
-            if (CANCELLED == getState())
-                throw new CancellationException();
-            if (null != except)
-                throw new ExecutionException(except);
-            return result;
-        }
+		public final boolean cancel(boolean mayInterruptIfRunning) {
+			if (!compareAndSetState(0, CANCELLED))
+				return false;
+			releaseShared(0);
+			return true;
+		}
 
-        // This
+		public final boolean isCancelled() {
+			return CANCELLED == getState();
+		}
 
-        final boolean set(T value) {
-            if (!compareAndSetState(0, ACQUIRED))
-                return false;
-            this.result = value;
-            setState(COMPLETE);
-            releaseShared(0);
-            return true;
-        }
+		public final boolean isDone() {
+			final int s = getState();
+			return CANCELLED == s || COMPLETE == s;
+		}
 
-        final boolean setException(Throwable except) {
-            if (!compareAndSetState(0, ACQUIRED))
-                return false;
-            this.except = except;
-            setState(COMPLETE);
-            releaseShared(0);
-            return true;
-        }
-    }
+		public final T get() throws InterruptedException, ExecutionException {
+			acquireSharedInterruptibly(0);
+			if (CANCELLED == getState())
+				throw new CancellationException();
+			if (null != except)
+				throw new ExecutionException(except);
+			return result;
+		}
 
-    private final Sync sync;
+		public final T get(long timeout, TimeUnit unit)
+				throws InterruptedException, ExecutionException,
+				TimeoutException {
+			final long nanos = unit.toNanos(timeout);
+			if (!tryAcquireSharedNanos(0, nanos))
+				throw new TimeoutException();
+			if (CANCELLED == getState())
+				throw new CancellationException();
+			if (null != except)
+				throw new ExecutionException(except);
+			return result;
+		}
 
-    public FutureValue(UpdateListener<Future<T>> listener) {
-        sync = new Sync(listener);
-    }
+		// This
 
-    // Future
+		final boolean set(T value) {
+			if (!compareAndSetState(0, ACQUIRED))
+				return false;
+			this.result = value;
+			setState(COMPLETE);
+			releaseShared(0);
+			return true;
+		}
 
-    public final boolean cancel(boolean mayInterruptIfRunning) {
-        return sync.cancel(mayInterruptIfRunning);
-    }
+		final boolean setException(Throwable except) {
+			if (!compareAndSetState(0, ACQUIRED))
+				return false;
+			this.except = except;
+			setState(COMPLETE);
+			releaseShared(0);
+			return true;
+		}
+	}
 
-    public final boolean isCancelled() {
-        return sync.isCancelled();
-    }
+	private final Sync sync;
 
-    public final boolean isDone() {
-        return sync.isDone();
-    }
+	public FutureValue(UpdateListener<Future<T>> listener) {
+		sync = new Sync(listener);
+	}
 
-    public final T get() throws InterruptedException, ExecutionException {
-        return sync.get();
-    }
+	// Future
 
-    public final T get(long timeout, TimeUnit unit)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        return sync.get(timeout, unit);
-    }
+	public final boolean cancel(boolean mayInterruptIfRunning) {
+		return sync.cancel(mayInterruptIfRunning);
+	}
 
-    // This
+	public final boolean isCancelled() {
+		return sync.isCancelled();
+	}
 
-    public final boolean set(T value) {
-        return sync.set(value);
-    }
+	public final boolean isDone() {
+		return sync.isDone();
+	}
 
-    public final boolean setException(Throwable except) {
-        return sync.setException(except);
-    }
+	public final T get() throws InterruptedException, ExecutionException {
+		return sync.get();
+	}
+
+	public final T get(long timeout, TimeUnit unit)
+			throws InterruptedException, ExecutionException, TimeoutException {
+		return sync.get(timeout, unit);
+	}
+
+	// This
+
+	public final boolean set(T value) {
+		return sync.set(value);
+	}
+
+	public final boolean setException(Throwable except) {
+		return sync.setException(except);
+	}
 }
