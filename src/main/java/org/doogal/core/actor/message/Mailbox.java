@@ -11,7 +11,7 @@ import org.doogal.core.actor.concurrent.FutureValue;
 import org.doogal.core.actor.queue.Functional;
 import org.doogal.core.actor.queue.Queue;
 import org.doogal.core.actor.util.Monitor;
-import org.doogal.core.actor.util.UnaryFunction;
+import org.doogal.core.actor.util.UnaryPredicate;
 import org.doogal.core.actor.util.UpdateListener;
 import org.doogal.core.util.Destroyable;
 
@@ -29,7 +29,7 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
     }
 
     private final Future<Object> sendLocked(int type, Object request,
-            MessageFunction op, UnaryFunction<Message, Boolean> pred) {
+            MessageFunction op, UnaryPredicate<Message> pred) {
         if (DESTROYED == state)
             throw new RejectedExecutionException();
         final Message message = new Message(type, request, op.getResponse());
@@ -83,7 +83,7 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
     }
 
     public final Future<Object> send(int type, Object request,
-            MessageFunction op, UnaryFunction<Message, Boolean> pred) {
+            MessageFunction op, UnaryPredicate<Message> pred) {
         synchronized (monitor) {
             final Future<Object> future = sendLocked(type, request, op, pred);
             monitor.notifyAll();

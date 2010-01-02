@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import org.doogal.core.actor.util.UnaryFunction;
+import org.doogal.core.actor.util.UnaryPredicate;
 
 final class Outboxes {
     private final Outbox[] outboxes;
@@ -14,7 +14,7 @@ final class Outboxes {
     }
 
     public final List<Future<Object>> send(int type, Object request,
-            MessageFunction op, UnaryFunction<Message, Boolean> pred,
+            MessageFunction op, UnaryPredicate<Message> pred,
             List<Future<Object>> futures) {
         for (final Outbox outbox : outboxes)
             futures.add(outbox.send(type, request, op, pred));
@@ -22,7 +22,7 @@ final class Outboxes {
     }
 
     public final List<Future<Object>> send(int type, Object request,
-            MessageFunction op, UnaryFunction<Message, Boolean> pred) {
+            MessageFunction op, UnaryPredicate<Message> pred) {
         return send(type, request, op, pred, new ArrayList<Future<Object>>());
     }
 

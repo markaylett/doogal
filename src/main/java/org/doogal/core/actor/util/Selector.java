@@ -37,7 +37,8 @@ public final class Selector<T> implements Destroyable,
         this.monitor = new Monitor();
     }
 
-    public static <T> Selector<T> newInstance(UpdateListenerSet<Future<T>> listenerSet) {
+    public static <T> Selector<T> newInstance(
+            UpdateListenerSet<Future<T>> listenerSet) {
         final Selector<T> selector = new Selector<T>(listenerSet);
         listenerSet.addListener(selector);
         return selector;

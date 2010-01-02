@@ -1,11 +1,22 @@
 package org.doogal.core.actor.queue;
 
 import org.doogal.core.actor.util.BinaryFunction;
-import org.doogal.core.actor.util.UnaryFunction;
+import org.doogal.core.actor.util.UnaryPredicate;
 
 public final class Functional {
     private Functional() {
     }
+
+    /**
+     * Swap two list references.
+     * 
+     * @param <T>
+     *            element type.
+     * @param lhs
+     *            left-hand side.
+     * @param rhs
+     *            right-hand side.
+     */
 
     public static <T> void swap(ListReference<T> lhs, ListReference<T> rhs) {
         final T tmp = lhs.get();
@@ -13,13 +24,29 @@ public final class Functional {
         rhs.set(tmp);
     }
 
-    public static <T> UnaryFunction<T, Boolean> all() {
-        return new UnaryFunction<T, Boolean>() {
+    /**
+     * Unary predicate that always returns true.
+     * 
+     * @param <T>
+     *            element type.
+     * @return the function.
+     */
+
+    public static <T> UnaryPredicate<T> all() {
+        return new UnaryPredicate<T>() {
             public final Boolean call(T arg) {
                 return true;
             }
         };
     }
+
+    /**
+     * Add an element to the back of a queue.
+     * 
+     * @param <T>
+     *            element type.
+     * @return the function.
+     */
 
     public static <T> BinaryFunction<ListReference<T>, ListReference<T>, Integer> pushBack() {
         return new BinaryFunction<ListReference<T>, ListReference<T>, Integer>() {
@@ -29,6 +56,14 @@ public final class Functional {
         };
     }
 
+    /**
+     * Only add an element if the queue is already empty.
+     * 
+     * @param <T>
+     *            element type.
+     * @return the function.
+     */
+
     public static <T> BinaryFunction<ListReference<T>, ListReference<T>, Integer> pushEmpty() {
         return new BinaryFunction<ListReference<T>, ListReference<T>, Integer>() {
             public final Integer call(ListReference<T> lhs, ListReference<T> rhs) {
@@ -36,6 +71,14 @@ public final class Functional {
             }
         };
     }
+
+    /**
+     * Add an element to the front of a queue.
+     * 
+     * @param <T>
+     *            element type.
+     * @return the function.
+     */
 
     public static <T> BinaryFunction<ListReference<T>, ListReference<T>, Integer> pushFront() {
         return new BinaryFunction<ListReference<T>, ListReference<T>, Integer>() {
@@ -46,7 +89,15 @@ public final class Functional {
         };
     }
 
-    public static <T extends Comparable<T>> BinaryFunction<ListReference<T>, ListReference<T>, Integer> insertBack() {
+    /**
+     * Insert an element into an ordered list. Equal elements may coexist.
+     * 
+     * @param <T>
+     *            element type.
+     * @return the function.
+     */
+
+    public static <T extends Comparable<T>> BinaryFunction<ListReference<T>, ListReference<T>, Integer> insertList() {
         return new BinaryFunction<ListReference<T>, ListReference<T>, Integer>() {
             public final Integer call(ListReference<T> lhs, ListReference<T> rhs) {
                 if (lhs.get().compareTo(rhs.get()) <= 0)
@@ -57,7 +108,15 @@ public final class Functional {
         };
     }
 
-    public static <T extends Comparable<T>> BinaryFunction<ListReference<T>, ListReference<T>, Integer> insertEmpty() {
+    /**
+     * Insert an element into an ordered set.
+     * 
+     * @param <T>
+     *            element type.
+     * @return the function.
+     */
+
+    public static <T extends Comparable<T>> BinaryFunction<ListReference<T>, ListReference<T>, Integer> insertSet() {
         return new BinaryFunction<ListReference<T>, ListReference<T>, Integer>() {
             public final Integer call(ListReference<T> lhs, ListReference<T> rhs) {
                 final int cmp = lhs.get().compareTo(rhs.get());
@@ -70,6 +129,16 @@ public final class Functional {
             }
         };
     }
+
+    /**
+     * Fold according to some binary function.
+     * 
+     * @param <T>
+     *            element type.
+     * @param op
+     *            fold operation.
+     * @return the function.
+     */
 
     public static <T extends Comparable<T>> BinaryFunction<ListReference<T>, ListReference<T>, Integer> fold(
             final BinaryFunction<T, T, T> op) {

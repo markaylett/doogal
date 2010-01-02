@@ -2,7 +2,7 @@ package org.doogal.core.actor.message;
 
 import java.util.concurrent.Future;
 
-import org.doogal.core.actor.util.UnaryFunction;
+import org.doogal.core.actor.util.UnaryPredicate;
 
 /**
  * Messages are sent to an Actor via an its Outbox.
@@ -29,7 +29,7 @@ import org.doogal.core.actor.util.UnaryFunction;
 
 interface Outbox {
     Future<Object> send(int type, Object request, MessageFunction op,
-            UnaryFunction<Message, Boolean> pred);
+            UnaryPredicate<Message> pred);
 
     Future<Object> send(int type, Object request, MessageFunction op);
 
