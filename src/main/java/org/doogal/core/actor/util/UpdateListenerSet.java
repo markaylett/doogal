@@ -5,6 +5,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.jcip.annotations.ThreadSafe;
 
+/**
+ * One to many listener multicast.
+ * 
+ * @author Mark Aylett
+ * 
+ * @param <T>
+ *            update argument type.
+ */
+
 @ThreadSafe
 public final class UpdateListenerSet<T> implements UpdateListener<T> {
     private final Set<UpdateListener<T>> listeners;

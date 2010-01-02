@@ -25,6 +25,7 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
     private int state;
 
     private final Message popLocked() {
+        // Pop last element if not empty.
         return queue.isEmpty() ? null : queue.remove(queue.size() - 1);
     }
 
@@ -34,7 +35,10 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
             throw new RejectedExecutionException();
         final Message message = new Message(type, request, op.getResponse());
         Queue.<Message> enqueue(message, queue, op, pred);
-        return message.getResponse();
+        // The response may have change during the call to enqueue(). It may,
+        // for example, have been updated to an existing response future.
+        // Coalescing queues and interrupts can be implemented in this manner.
+        return op.getResponse();
     }
 
     Mailbox(UpdateListener<Future<Object>> listener) {
@@ -49,6 +53,8 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
             final int prev = state;
             state = DESTROYED;
             try {
+                // Cancel all message responses if the Mailbox was destroyed
+                // before it was activated.
                 if (INACTIVE == prev)
                     for (final Message message : queue)
                         message.getResponse().cancel(true);
@@ -60,6 +66,7 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
 
     public final Message recv() throws InterruptedException {
         synchronized (monitor) {
+            // Mailbox must be activated before messages are received.
             assert INACTIVE != state;
             while (DESTROYED != state && queue.isEmpty())
                 monitor.wait();
@@ -71,6 +78,7 @@ public final class Mailbox implements Destroyable, Inbox, Outbox {
             throws InterruptedException, TimeoutException {
         final long abs = System.currentTimeMillis() + unit.toMillis(timeout);
         synchronized (monitor) {
+            // Mailbox must be activated before messages are received.
             assert INACTIVE != state;
             while (DESTROYED != state && queue.isEmpty()) {
                 final long ms = abs - System.currentTimeMillis();

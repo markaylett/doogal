@@ -11,6 +11,15 @@ import net.jcip.annotations.ThreadSafe;
 
 import org.doogal.core.actor.util.UpdateListener;
 
+/**
+ * A placeholder for some future value.
+ * 
+ * @author Mark Aylett
+ * 
+ * @param <T>
+ *            the value type.
+ */
+
 @ThreadSafe
 public final class FutureValue<T> implements Future<T> {
 
@@ -18,8 +27,11 @@ public final class FutureValue<T> implements Future<T> {
             Future<T> {
 
         private static final long serialVersionUID = 1L;
+
         private static final int CANCELLED = 1;
+
         private static final int ACQUIRED = 2;
+
         private static final int COMPLETE = 3;
 
         private final UpdateListener<Future<T>> listener;
@@ -29,6 +41,7 @@ public final class FutureValue<T> implements Future<T> {
         // See JCIP, section 16.1.4.
 
         private T result;
+
         private Throwable except;
 
         // AbstractQueuedSynchronizer
