@@ -28,19 +28,31 @@ public final class FutureValue<T> implements Future<T> {
 
         private static final long serialVersionUID = 1L;
 
+        /**
+         * Future cancelled.
+         */
+
         private static final int CANCELLED = 1;
 
+        /**
+         * Lock acquired for state transition.
+         */
+
         private static final int ACQUIRED = 2;
+
+        /**
+         * Future completed. Resulting in either a value or an exception.
+         */
 
         private static final int COMPLETE = 3;
 
         private final UpdateListener<Future<T>> listener;
 
-        // Result and Except piggyback on State visibility.
+        // Value and Except piggyback on State visibility.
         // This technique is known as: Piggybacking on Synchronization.
         // See JCIP, section 16.1.4.
 
-        private T result;
+        private T value;
 
         private Throwable except;
 
@@ -48,6 +60,7 @@ public final class FutureValue<T> implements Future<T> {
 
         @Override
         protected final int tryAcquireShared(int ignore) {
+            // Positive if acquisition succeeds; negative if acquisition fails.
             return isDone() ? 1 : -1;
         }
 
@@ -85,7 +98,7 @@ public final class FutureValue<T> implements Future<T> {
                 throw new CancellationException();
             if (null != except)
                 throw new ExecutionException(except);
-            return result;
+            return value;
         }
 
         public final T get(long timeout, TimeUnit unit)
@@ -98,7 +111,7 @@ public final class FutureValue<T> implements Future<T> {
                 throw new CancellationException();
             if (null != except)
                 throw new ExecutionException(except);
-            return result;
+            return value;
         }
 
         // This
@@ -106,7 +119,7 @@ public final class FutureValue<T> implements Future<T> {
         final boolean set(T value) {
             if (!compareAndSetState(0, ACQUIRED))
                 return false;
-            this.result = value;
+            this.value = value;
             setState(COMPLETE);
             releaseShared(0);
             return true;

@@ -11,6 +11,15 @@ import net.jcip.annotations.ThreadSafe;
 
 import org.doogal.core.util.Destroyable;
 
+/**
+ * Selector that allows caller to wait for the completion of one or more
+ * futures.  The futures must originate from the same source as the selector.
+ * 
+ * @author Mark Aylett
+ * 
+ * @param <T>
+ *            Future value type.
+ */
 @ThreadSafe
 public final class Selector<T> implements Destroyable,
         UpdateListener<Future<T>> {
